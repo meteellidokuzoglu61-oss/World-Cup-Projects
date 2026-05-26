@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA 2026 | Turnuva Takvimi</title>
+    <div id="navbar-placeholder"></div>
+    <style>
+        :root {
+            --fifa-red: #8A1538;
+            --fifa-gold: #bd9b60;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            color: var(--fifa-red);
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            color: var(--fifa-gold);
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* --- TAKVİM KONTEYNER --- */
+        .timeline-container {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--fifa-red), var(--fifa-gold));
+        }
+
+        /* --- TARİH BLOĞU --- */
+        .date-entry {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+        }
+
+        .date-entry::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            background: var(--dark-bg);
+            border: 3px solid var(--fifa-red);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .date-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .date-card:hover {
+            border-color: var(--fifa-gold);
+            transform: translateX(10px);
+            background: rgba(138, 21, 56, 0.1);
+        }
+
+        .date-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--text-main);
+        }
+
+        .date-info p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            color: var(--fifa-gold);
+            font-weight: 600;
+        }
+
+        .phase-badge {
+            font-size: 0.75rem;
+            background: var(--fifa-red);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        /* Bölüm Başlıkları (Haziran / Temmuz) */
+        .month-divider {
+            margin: 40px 0 20px 20px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        @media (max-width: 480px) {
+            .date-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>FIFA 2026</h1>
+    <p>RESMİ TURNUVA TAKVİMİ</p>
+</div>
+
+<div class="timeline-container">
+    
+    <div class="month-divider">Haziran 2026</div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info">
+                <h3>11 - 17 Haziran</h3>
+                <p>Grup Aşaması (1. Maçlar)</p>
+            </div>
+            <div class="phase-badge">Grup</div>
+        </div>
+    </div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info">
+                <h3>18 - 23 Haziran</h3>
+                <p>Grup Aşaması (2. Maçlar)</p>
+            </div>
+            <div class="phase-badge">Grup</div>
+        </div>
+    </div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info">
+                <h3>24 - 27 Haziran</h3>
+                <p>Grup Aşaması (3. Maçlar)</p>
+            </div>
+            <div class="phase-badge">Grup</div>
+        </div>
+    </div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info">
+                <h3>28 Haziran - 3 Temmuz</h3>
+                <p>Eleme Turu (Son 32)</p>
+            </div>
+            <div class="phase-badge">Eleme</div>
+        </div>
+    </div>
+
+    <div class="month-divider">Temmuz 2026</div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info">
+                <h3>4 - 7 Temmuz</h3>
+                <p>Çeyrek Finale Yükselme (Son 16)</p>
+            </div>
+            <div class="phase-badge">Eleme</div>
+        </div>
+    </div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info">
+                <h3>9 - 11 Temmuz</h3>
+                <p>Çeyrek Finaller</p>
+            </div>
+            <div class="phase-badge">Final Yolu</div>
+        </div>
+    </div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info">
+                <h3>14 - 15 Temmuz</h3>
+                <p>Yarı Finaller</p>
+            </div>
+            <div class="phase-badge">Final Yolu</div>
+        </div>
+    </div>
+
+    <div class="date-entry">
+        <div class="date-card">
+            <div class="date-info" style="color: var(--fifa-gold);">
+                <h3>18 Temmuz Cumartesi</h3>
+                <p>Üçüncülük Maçı</p>
+            </div>
+            <div class="phase-badge" style="background: #cd7f32;">Bronz</div>
+        </div>
+    </div>
+
+    <div class="date-entry">
+        <div class="date-card" style="border: 2px solid var(--fifa-gold); background: linear-gradient(45deg, #1e1e1e, #2a2a2a);">
+            <div class="date-info">
+                <h3 style="color: var(--fifa-gold); font-size: 1.5rem;">19 Temmuz Pazar</h3>
+                <p style="color: white; text-transform: uppercase;">DÜNYA KUPASI FİNALİ</p>
+            </div>
+            <div class="phase-badge" style="background: var(--fifa-gold); color: black;">ŞAMPİYON</div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

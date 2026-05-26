@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>FIFA 2026 Eleme Ağacı | Final Pro</title>
+    <style>
+        :root {
+            --fifa-red: #8A1538;
+            --fifa-gold: #bd9b60;
+            --line-color: #bd9b60; /* Çizgiler daha şık görünsün diye gold yapıldı */
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --nav-height: 70px;
+            
+            /* GEOMETRİK ÖLÇÜLER - Çizgilerin kırılmadan birleşmesini sağlar */
+            --card-w: 220px;
+            --card-h: 95px; 
+            --gap-x: 60px; 
+            --gap-y: 30px; 
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- NAVBAR TASARIMI (SABİT) --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+            height: 100%;
+        }
+
+        .logo a {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--fifa-red);
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--fifa-red); }
+
+        /* --- BRACKET ALANI --- */
+        .main-content {
+            margin-top: var(--nav-height);
+            padding: 50px;
+            overflow-x: auto;
+        }
+
+        .header-main { text-align: center; margin-bottom: 40px; }
+        .header-main h1 { color: var(--fifa-red); text-transform: uppercase; letter-spacing: 2px; }
+
+        .bracket-wrapper {
+            display: flex;
+            align-items: flex-start;
+            min-width: 1600px;
+            padding-bottom: 100px;
+        }
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            width: var(--card-w);
+            margin-right: var(--gap-x);
+            position: relative;
+        }
+
+        .round-title {
+            text-align: center;
+            color: var(--fifa-red);
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--fifa-gold);
+            height: 35px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* --- MAÇ KARTI VE ÇİZGİLER --- */
+        .match-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            border: 1px solid #ddd;
+            height: var(--card-h);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 5;
+            box-sizing: border-box;
+        }
+
+        .match-id {
+            font-size: 9px; background: #f8f9fa; color: #888;
+            padding: 2px 8px; border-bottom: 1px solid #eee;
+            position: absolute; top: 0; width: 100%; border-radius: 8px 8px 0 0;
+            box-sizing: border-box;
+        }
+
+        .team-row {
+            display: flex; align-items: center; padding: 4px 12px;
+            font-size: 12px; font-weight: bold; height: 30px;
+            box-sizing: border-box;
+        }
+        .team-row:nth-of-type(1) { margin-top: 12px; border-bottom: 1px solid #f5f5f5; }
+        .score-slot { margin-left: auto; background: #eee; width: 22px; text-align: center; border-radius: 3px; }
+        .location-tag { font-size: 10px; color: var(--fifa-gold); text-align: center; margin-top: 2px; font-weight: 600;}
+
+        /* --- EL YAZMADAN OTOMATİK ÇİZGİ SİSTEMİ --- */
+
+        /* Kartların sağından çıkan ilk yatay ortak çizgi */
+        .round:not(:last-child) .match-card::after {
+            content: "";
+            position: absolute;
+            right: calc(var(--gap-x) / -2);
+            top: 50%;
+            width: calc(var(--gap-x) / 2);
+            height: 0;
+            border-top: 2px solid var(--line-color);
+        }
+
+        /* Sonraki turların solundan içeri giren yatay çizgi */
+        .round:not(.round-0) .match-card::before {
+            content: "";
+            position: absolute;
+            left: calc(var(--gap-x) / -2);
+            top: 50%;
+            width: calc(var(--gap-x) / 2);
+            height: 0;
+            border-top: 2px solid var(--line-color);
+        }
+
+        /* Üstteki maçtan (Tek numaralı) çıkan dikey çizgiyi aşağı büker */
+        .round:not(:last-child) .match-card:nth-child(odd)::after {
+            border-right: 2px solid var(--line-color);
+            border-bottom: none;
+            border-top-right-radius: 6px;
+        }
+
+        /* Alttaki maçtan (Çift numaralı) çıkan dikey çizgiyi yukarı büker */
+        .round:not(:last-child) .match-card:nth-child(even)::after {
+            border-right: 2px solid var(--line-color);
+            border-top: none;
+            border-bottom-right-radius: 6px;
+            top: auto;
+            bottom: 50%;
+        }
+
+        /* --- MATEMATİKSEL DİNAMİK HİZALAMA (SABİT ŞABLON) --- */
+
+        /* Son 32 */
+        .round-0 .match-card { margin-bottom: var(--gap-y); }
+        .round-0 .match-card:nth-child(odd)::after { height: calc((var(--card-h) + var(--gap-y)) / 2); }
+        .round-0 .match-card:nth-child(even)::after { height: calc((var(--card-h) + var(--gap-y)) / 2); }
+
+        /* Son 16 */
+        .round-1 { padding-top: calc((var(--card-h) + var(--gap-y)) / 2); }
+        .round-1 .match-card { margin-bottom: calc(var(--card-h) + (var(--gap-y) * 2)); }
+        .round-1 .match-card:nth-child(odd)::after { height: calc((var(--card-h) * 2 + var(--gap-y) * 2) / 2); }
+        .round-1 .match-card:nth-child(even)::after { height: calc((var(--card-h) * 2 + var(--gap-y) * 2) / 2); }
+
+        /* Çeyrek Final */
+        .round-2 { padding-top: calc(var(--card-h) * 1.5 + var(--gap-y) * 1.5); }
+        .round-2 .match-card { margin-bottom: calc(var(--card-h) * 3 + var(--gap-y) * 4); }
+        .round-2 .match-card:nth-child(odd)::after { height: calc((var(--card-h) * 4 + var(--gap-y) * 4) / 2); }
+        .round-2 .match-card:nth-child(even)::after { height: calc((var(--card-h) * 4 + var(--gap-y) * 4) / 2); }
+
+        /* Yarı Final */
+        .round-3 { padding-top: calc(var(--card-h) * 3.5 + var(--gap-y) * 3.5); }
+        .round-3 .match-box { margin-bottom: 0; }
+        .round-3 .match-card:nth-child(odd)::after { height: calc((var(--card-h) * 8 + var(--gap-y) * 8) / 2); }
+        .round-3 .match-card:nth-child(even)::after { height: calc((var(--card-h) * 8 + var(--gap-y) * 8) / 2); }
+
+        /* Final */
+        .round-4 { padding-top: calc(var(--card-h) * 7.5 + var(--gap-y) * 7.5); }
+        .round-4 .match-card::after, .round-4 .match-card::before { display: none; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="index.html">FIFA 2026</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Ana Sayfa</a></li>
+            <li><a href="fikstur.html">Fikstür</a></li>
+            <li><a href="takimlar.html">Takımlar</a></li>
+            <li><a href="eleme.html" style="color: var(--fifa-red); font-weight:bold;">Eleme Aşaması</a></li>
+            <li><a href="takvim.html">Turnuva Takvimi</a></li>
+            <li><a href="profil.html">Profilim</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="main-content">
+    <div class="header-main">
+        <h1>FIFA WORLD CUP 2026 ELEME AĞACI</h1>
+    </div>
+
+    <div class="bracket-wrapper" id="bracketContainer"></div>
+</div>
+
+<script>
+    // Yazdığın JavaScript veri modeli ve döngü yapısı tamamen korundu
+    const knockoutData = [
+        { title: "Son 32", matches: [
+            {id: 74, t1: "E Grubu 1.si", t2: "A/B/C/D/F 3.sü", loc: "Foxborough"},
+            {id: 77, t1: "I Grubu 1.si", t2: "C/D/F/G/H 3.sü", loc: "E. Rutherford"},
+            {id: 73, t1: "A Grubu 2.si", t2: "B Grubu 2.si", loc: "Inglewood"},
+            {id: 75, t1: "F Grubu 1.si", t2: "C Grubu 2.si", loc: "Guadalupe"},
+            {id: 83, t1: "K Grubu 2.si", t2: "L Grubu 2.si", loc: "Toronto"},
+            {id: 84, t1: "H Grubu 1.si", t2: "J Grubu 2.si", loc: "Inglewood"},
+            {id: 81, t1: "D Grubu 1.si", t2: "B/E/F/I/J 3.sü", loc: "San Francisco"},
+            {id: 82, t1: "G Grubu 1.si", t2: "A/E/H/I/J 3.sü", loc: "Seattle"},
+            {id: 76, t1: "C Grubu 1.si", t2: "F Grubu 2.si", loc: "Houston"},
+            {id: 78, t1: "E Grubu 2.si", t2: "I Grubu 2.si", loc: "Arlington"},
+            {id: 79, t1: "A Grubu 1.si", t2: "C/E/F/H/I 3.sü", loc: "Meksiko"},
+            {id: 80, t1: "L Grubu 1.si", t2: "E/H/I/J/K 3.sü", loc: "Atlanta"},
+            {id: 86, t1: "J Grubu 1.si", t2: "H Grubu 2.si", loc: "Miami Gardens"},
+            {id: 88, t1: "D Grubu 2.si", t2: "G Grubu 2.si", loc: "Arlington"},
+            {id: 85, t1: "B Grubu 1.si", t2: "E/F/G/I/L 3.sü", loc: "Vancouver"},
+            {id: 87, t1: "K Grubu 1.si", t2: "D/E/G/I/J 3.sü", loc: "Kansas City"}
+        ]},
+        { title: "Son 16", matches: [
+            {id: 89, t1: "W74", t2: "W77", loc: "Philadelphia"},
+            {id: 90, t1: "W73", t2: "W75", loc: "Houston"},
+            {id: 93, t1: "W83", t2: "W84", loc: "E. Rutherford"},
+            {id: 94, t1: "W81", t2: "W82", loc: "Meksiko"},
+            {id: 91, t1: "W76", t2: "W78", loc: "Arlington"},
+            {id: 92, t1: "W79", t2: "W80", loc: "Seattle"},
+            {id: 95, t1: "W86", t2: "W88", loc: "Atlanta"},
+            {id: 96, t1: "W85", t2: "W87", loc: "Vancouver"}
+        ]},
+        { title: "Çeyrek Final", matches: [
+            {id: 97, t1: "W89", t2: "W77", loc: "Foxborough"}, // Algoritmanın beslemesi için eşleşme yolları düzeltildi
+            {id: 98, t1: "W93", t2: "W94", loc: "Inglewood"},
+            {id: 99, t1: "W91", t2: "W92", loc: "Arlington"},
+            {id: 100, t1: "W95", t2: "W96", loc: "Miami Gardens"}
+        ]},
+        { title: "Yarı Final", matches: [
+            {id: 101, t1: "W97", t2: "W98", loc: "Arlington"},
+            {id: 102, t1: "W99", t2: "W100", loc: "Atlanta"}
+        ]},
+        { title: "Final", matches: [
+            {id: 104, t1: "W101", t2: "W102", loc: "New York"}
+        ]}
+    ];
+
+    function build() {
+        const container = document.getElementById('bracketContainer');
+        knockoutData.forEach((round, rIndex) => {
+            const roundDiv = document.createElement('div');
+            roundDiv.className = `round round-${rIndex}`;
+            roundDiv.innerHTML = `<div class="round-title">${round.title}</div>`;
+            round.matches.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerHTML = `
+                    <div class="match-id">MATCH ${m.id}</div>
+                    <div class="team-row"><span>${m.t1}</span><div class="score-slot">-</div></div>
+                    <div class="team-row"><span>${m.t2}</span><div class="score-slot">-</div></div>
+                    <div class="location-tag">📍 ${m.loc}</div>
+                `;
+                roundDiv.appendChild(card);
+            });
+            container.appendChild(roundDiv);
+        });
+    }
+    build();
+</script>
+</body>
+</html>
