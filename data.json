@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "us": {
     "stadyumlar": [
@@ -31,38 +30,4 @@
     ],
     "kadro": ["Alphonso Davies", "Jonathan David", "Cyle Larin", "Stephen Eustáquio"]
   }
-=======
-{
-  "us": {
-    "stadyumlar": [
-      { "ad": "MetLife Stadyumu", "sehir": "New York/New Jersey" },
-      { "ad": "SoFi Stadyumu", "sehir": "Los Angeles" },
-      { "ad": "AT&T Stadyumu", "sehir": "Dallas" },
-      { "ad": "Arrowhead Stadyumu", "sehir": "Kansas City" },
-      { "ad": "NRG Stadyumu", "sehir": "Houston" },
-      { "ad": "Mercedes-Benz Stadyumu", "sehir": "Atlanta" },
-      { "ad": "Lincoln Financial Field", "sehir": "Philadelphia" },
-      { "ad": "Lumen Field", "sehir": "Seattle" },
-      { "ad": "Levi's Stadyumu", "sehir": "San Francisco" },
-      { "ad": "Gillette Stadyumu", "sehir": "Boston" },
-      { "ad": "Hard Rock Stadyumu", "sehir": "Miami" }
-    ],
-    "kadro": ["Christian Pulisic", "Weston McKennie", "Timothy Weah", "Tyler Adams"]
-  },
-  "mx": {
-    "stadyumlar": [
-      { "ad": "Azteca Stadyumu", "sehir": "Meksika" },
-      { "ad": "BBVA Stadyumu", "sehir": "Monterrey" },
-      { "ad": "Akron Stadyumu", "sehir": "Guadalajara" }
-    ],
-    "kadro": ["Guillermo Ochoa", "Hirving Lozano", "Edson Álvarez", "Santiago Giménez"]
-  },
-  "ca": {
-    "stadyumlar": [
-      { "ad": "BMO Field", "sehir": "Toronto" },
-      { "ad": "BC Place", "sehir": "Vancouver" }
-    ],
-    "kadro": ["Alphonso Davies", "Jonathan David", "Cyle Larin", "Stephen Eustáquio"]
-  }
->>>>>>> c2b76482eca378b7e8722c722698ad6b344dec60
 }
