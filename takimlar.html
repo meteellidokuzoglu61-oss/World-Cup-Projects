@@ -146,9 +146,15 @@
         });
     }
 
-    async function vikipedidenKadroCek(takimAdi) {
-        const sayfaAdi = `${takimAdi} millî futbol takımı`;
-        const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&section=0&prop=text&format=json&origin=*`;
+  async function vikipedidenKadroCek(takimAdi) {
+        // Çekya gibi istisnalar için veya genel uyum için sayfa adını tam ayarlıyoruz
+        let sayfaAdi = `${takimAdi} millî futbol takımı`;
+        if (takimAdi.toLowerCase() === "çek cumhuriyeti" || takimAdi.toLowerCase() === "çekya") {
+            sayfaAdi = "Çek Cumhuriyeti millî futbol takımı";
+        }
+
+        // KRİTİK DEĞİŞİKLİK: Bütün sayfa içeriğini almak için &section=0 parametresini KALDIRDIK.
+        const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&prop=text&format=json&origin=*`;
 
         try {
             const response = await fetch(url);
@@ -160,13 +166,43 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlIcerik, 'text/html');
 
-            const kadroTablosu = doc.querySelector('.nat-team, table.wikitable');
+            // Türkçe Vikipedi'deki kadro tablolarını yakalamak için daha geniş seçiciler ekledik
+            // Genellikle güncel kadro tablolarının başlığında veya üstünde "Güncel kadro" ifadesi geçer.
+            let kadroTablosu = null;
+            
+            // Alternatif 1: Doğrudan bilinen futbolcu tablosu sınıflarını ara
+            const tablolar = doc.querySelectorAll('table.wikitable');
+            
+            for (let tablo of tablolar) {
+                // Tablonun başlıklarında "Futbolcu", "Mevki" veya "Doğum tarihi" geçiyorsa bu kadro tablosudur
+                const text = tablo.textContent || "";
+                if (text.includes("Futbolcu") && (text.includes("Mevki") || text.includes("Pozisyon"))) {
+                    kadroTablosu = tablo;
+                    break;
+                }
+            }
+
+            // Eğer akıllı tarama bulamadıysa varsayılan ilk wikitable'ı veya nat-team'i dene
+            if (!kadroTablosu) {
+                kadroTablosu = doc.querySelector('.nat-team, table.wikitable');
+            }
             
             if (!kadroTablosu) {
                 return "<div style='padding:20px; text-align:center;'>Bu takımın güncel kadro tablosu ayrıştırılamadı.</div>";
             }
 
-            return `<div class="viki-kadro" style="overflow-x:auto;">${kadroTablosu.outerHTML}</div>`;
+            // Vikipedi'den gelen tablonun sitende düzgün görünmesi için temel stil eklemeleri
+            return `
+                <div class="viki-kadro" style="overflow-x:auto; padding: 10px;">
+                    <style>
+                        .viki-kadro table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+                        .viki-kadro th { background-color: var(--primary); color: white; padding: 10px; text-align: left; }
+                        .viki-kadro td { padding: 8px; border-bottom: 1px solid #ddd; }
+                        .viki-kadro tr:hover { background-color: #f5f5f5; }
+                        .viki-kadro a { color: var(--primary); text-decoration: none; font-weight: 600; }
+                    </style>
+                    ${kadroTablosu.outerHTML}
+                </div>`;
         } catch (error) {
             console.error("Vikipedi'den veri çekilirken hata oluştu:", error);
             return "<div style='padding:20px; text-align:center; color:red;'>Kadro yüklenirken bir hata oluştu.</div>";
