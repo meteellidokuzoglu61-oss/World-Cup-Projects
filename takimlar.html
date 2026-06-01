@@ -147,53 +147,68 @@
     }
 
  async function vikipedidenKadroCek(takimAdi) {
-        let sayfaAdi = `${takimAdi} millî futbol takımı`;
-        if (takimAdi.toLowerCase() === "çek cumhuriyeti" || takimAdi.toLowerCase() === "çekya") {
-            sayfaAdi = "Çek Cumhuriyeti millî futbol takımı";
-        }
-
+        // Artık her ülkeyi ayrı aramıyoruz, direkt tüm kadroların olduğu ana turnuva sayfasını çekiyoruz
+        const sayfaAdi = "2026_FIFA_Dünya_Kupası_kadroları";
         const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&prop=text&format=json&origin=*`;
 
         try {
             const response = await fetch(url);
             const data = await response.json();
             
-            if (data.error) return "<div style='padding:20px; text-align:center;'>Kadro bilgisi Vikipedi'de bulunamadı.</div>";
+            if (data.error) return "<div style='padding:20px; text-align:center;'>Kadro sayfası Vikipedi'de bulunamadı.</div>";
 
             const htmlIcerik = data.parse.text["*"];
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlIcerik, 'text/html');
 
-            let kadroTablosu = null;
-            const tablolar = doc.querySelectorAll('table.wikitable');
-            
-            for (let tablo of tablolar) {
-                const text = tablo.textContent || "";
-                
-                // ESKİ HATAYI ÖNLEME: İstatistik/Puan tablolarında "Derece" veya "YG" (Yenilen Gol) çok sık geçer.
-                // Gerçek kadro tablosunda ise kesinlikle "Futbolcu" (veya Oyuncu) ve "Kulüp" (veya Takım) sütunları olur.
-                if (
-                    (text.includes("Futbolcu") || text.includes("Oyuncu")) && 
-                    (text.includes("Kulüp") || text.includes("Takım")) &&
-                    !text.includes("Derece") && // Puan tablosunu eliyoruz
-                    !text.includes("Turnuva")   // Turnuva geçmişi tablosunu eliyoruz
-                ) {
-                    kadroTablosu = tablo;
+            // 1. Tıklanan ülkenin başlığını (h3 veya h4) bulmamız gerekiyor.
+            // Vikipedi'de ülke başlıkları genellikle "Çek Cumhuriyeti [değiştir]" veya direkt "Türkiye" şeklinde h3/h4 içindedir.
+            const basliklar = doc.querySelectorAll('h3, h4, .mw-heading3, .mw-heading4');
+            let hedefBaslik = null;
+
+            for (let baslik of basliklar) {
+                const baslikText = baslik.textContent.trim().toLowerCase();
+                const arananTakim = takimAdi.trim().toLowerCase();
+
+                // Ülke ismi başlığın içinde geçiyor mu kontrol et (Örn: "çek cumhuriyeti" veya "abd")
+                if (baslikText.includes(arananTakim) || arananTakim.includes(baslikText)) {
+                    hedefBaslik = baslik;
                     break;
                 }
             }
 
-            // Eğer üstteki katı filtreye takılmayan garip bir yapı varsa alternatif olarak nat-team sınıfını dene
-            if (!kadroTablosu) {
-                kadroTablosu = doc.querySelector('.nat-team');
-            }
-            
-            if (!kadroTablosu) {
-                return "<div style='padding:20px; text-align:center;'>Bu takımın güncel kadro tablosu ayrıştırılamadı.</div>";
+            if (!hedefBaslik) {
+                return `<div style='padding:20px; text-align:center;'>${takimAdi} takımı için bu sayfada henüz bir kadro başlığı açılmamış.</div>`;
             }
 
-            // Tablo içindeki gereksiz Vikipedi düzenleme (değiştir) linklerini temizleyelim clean bir görüntü için
-            kadroTablosu.querySelectorAll('.mw-editsection').forEach(el => el.remove());
+            // 2. Başlığı bulduk! Şimdi bu başlıktan hemen sonra gelen ilk "wikitable" sınıfına sahip tabloyu (yani kadroyu) buluyoruz.
+            let sonrakiEleman = hedefBaslik.nextElementSibling;
+            let kadroTablosu = null;
+
+            // Arada boşluk veya div'ler varsa tabloyu bulana kadar ileri git (maksimum 5 eleman zıpla)
+            for (let i = 0; i < 5; i++) {
+                if (!sonrakiEleman) break;
+                
+                if (sonrakiEleman.tagName === 'TABLE' && sonrakiEleman.classList.contains('wikitable')) {
+                    kadroTablosu = sonrakiEleman;
+                    break;
+                }
+                // Bazen tablo bir div'in içindedir
+                const icindekiTablo = sonrakiEleman.querySelector('table.wikitable');
+                if (icindekiTablo) {
+                    kadroTablosu = icindekiTablo;
+                    break;
+                }
+                sonrakiEleman = sonrakiEleman.nextElementSibling;
+            }
+
+            if (!kadroTablosu) {
+                return `<div style='padding:20px; text-align:center;'>${takimAdi} başlığı bulundu fakat altındaki kadro tablosu okunamadı.</div>`;
+            }
+
+            // Temizlik: Vikipedi linklerini ve düzenle butonlarını kaldırıyoruz
+            const temizTablo = kadroTablosu.cloneNode(true);
+            temizTablo.querySelectorAll('.mw-editsection').forEach(el => el.remove());
 
             return `
                 <div class="viki-kadro" style="overflow-x:auto; padding: 10px;">
@@ -204,10 +219,11 @@
                         .viki-kadro tr:hover { background-color: #f5f5f5; }
                         .viki-kadro a { color: #004d98; text-decoration: none; font-weight: 600; }
                     </style>
-                    ${kadroTablosu.outerHTML}
+                    ${temizTablo.outerHTML}
                 </div>`;
+
         } catch (error) {
-            console.error("Vikipedi'den veri çekilirken hata oluştu:", error);
+            console.error("Ortak kadro sayfasından veri çekilirken hata oluştu:", error);
             return "<div style='padding:20px; text-align:center; color:red;'>Kadro yüklenirken bir hata oluştu.</div>";
         }
     }
