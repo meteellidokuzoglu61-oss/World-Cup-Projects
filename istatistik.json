@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "Meksika": { "sira": 15, "form": "G-G-B-M-G", "yildiz": "Santiago Giménez", "analiz": "Ev sahibi avantajıyla turnuvanın en büyük sürpriz adaylarından biri." },
   "Güney Afrika": { "sira": 60, "form": "B-M-G-G-M", "yildiz": "Percy Tau", "analiz": "Hızlı hücumlarla etkili olmaya çalışacaklar, savunma disiplini zayıf." },
@@ -62,4 +63,70 @@
     "yildiz": "Mohammed Kudus", 
     "analiz": "Hücumda çok patlayıcı ve yetenekli bir kadroya sahipler; ancak savunma geçişlerinde bazen konsantrasyon kaybı yaşıyorlar." 
   }
+=======
+{
+  "Meksika": { "sira": 15, "form": "G-G-B-M-G", "yildiz": "Santiago Giménez", "analiz": "Ev sahibi avantajıyla turnuvanın en büyük sürpriz adaylarından biri." },
+  "Güney Afrika": { "sira": 60, "form": "B-M-G-G-M", "yildiz": "Percy Tau", "analiz": "Hızlı hücumlarla etkili olmaya çalışacaklar, savunma disiplini zayıf." },
+  "Güney Kore": { "sira": 25, "form": "G-G-B-B-G", "yildiz": "Son Heung-min", "analiz": "Yüksek disiplin ve hızlı kanat akınlarıyla tanınan bir ekip." },
+  "Çekya": { "sira": 41, "form": "B-G-M-M-G", "yildiz": "Patrik Schick", "analiz": "Fiziksel güçleri ve duran toplardaki etkinlikleri ile tehlikeliler." },
+  "Kanada": { "sira": 30, "form": "G-B-M-G-B", "yildiz": "Alphonso Davies", "analiz": "Hızlı geçiş oyununda çok tehlikeliler." },
+  "Bosna-Hersek": { "sira": 65, "form": "M-M-B-G-M", "yildiz": "Edin Džeko", "analiz": "Tecrübeli forvet hattına rağmen savunmada yaşlılık belirtileri gösteriyorlar." },
+  "ABD": { "sira": 16, "form": "G-B-G-G-G", "yildiz": "Christian Pulisic", "analiz": "Kendi seyircisi önünde çok dinamik bir futbol sergiliyorlar." },
+  "Paraguay": { "sira": 40, "form": "M-B-M-G-B", "yildiz": "Miguel Almirón", "analiz": "Sert savunma ve fiziksel oyun tercih ediyorlar." },
+  "Katar": { "sira": 55, "form": "G-G-M-B-G", "yildiz": "Akram Afif", "analiz": "Asya şampiyonu kimliğiyle teknik kapasitesi yüksek bir takım." },
+  "İsviçre": { "sira": 19, "form": "B-G-B-G-M", "yildiz": "Granit Xhaka", "analiz": "Savunma organizasyonu en sağlam takımlardan biri." },
+  "Brezilya": { "sira": 6, "form": "G-G-G-G-B", "yildiz": "Vinícius Júnior", "analiz": "Turnuvanın doğal favorisi. Hücum hattı durdurulamaz." },
+  "Fas": { "sira": 8, "form": "G-B-G-M-G", "yildiz": "Achraf Hakimi", "analiz": "Kuzey Afrika'nın en güçlü temsilcisi, savunmaları çok dirençli." },
+  "Haiti": { "sira": 83, "form": "M-B-G-M-M", "yildiz": "Duckens Nazon", "analiz": "Turnuvanın zayıf halkalarından biri görülse de fiziksel dirençleri yüksek." },
+  "İskoçya": { "sira": 43, "form": "M-B-B-G-M", "yildiz": "Scott McTominay", "analiz": "Orta saha mücadelesini seven, sert bir takım." },
+  "Avustralya": { "sira": 27, "form": "G-G-B-M-G", "yildiz": "Harry Souttar", "analiz": "Hava toplarında çok etkililer, fiziksel oyun kuruyorlar." },
+  "Türkiye": { "sira": 22, "form": "G-G-G-B-M", "yildiz": "Arda Güler", "analiz": "Genç ve yetenekli kadro. Orta saha yaratıcılığı üst düzey." },
+  "Almanya": { "sira": 10, "form": "G-B-M-G-G", "yildiz": "Jamal Musiala", "analiz": "Turnuva takımı kimliğiyle disiplinli ve sonuç odaklılar." },
+  "Curaçao": { "sira": 82, "form": "M-G-B-M-B", "yildiz": "Juninho Bacuna", "analiz": "Tarihlerinde ilk kez bu seviyedeler, kaybedecek bir şeyleri yok." },
+  "Hollanda": { "sira": 7, "form": "G-G-B-G-M", "yildiz": "Xavi Simons", "analiz": "Taktiksel esnekliği yüksek, savunmadan oyun kurmada iyiler." },
+  "Japonya": { "sira": 18, "form": "G-G-G-G-M", "yildiz": "Takefusa Kubo", "analiz": "Çok hızlı pas yapan ve disiplinden kopmayan bir ekip." },
+  "Fildişi Sahili": { "sira": 34, "form": "G-G-B-M-G", "yildiz": "Sébastien Haller", "analiz": "Afrika şampiyonu, fiziksel güç ve teknik dengeye sahipler." },
+  "Ekvador": { "sira": 23, "form": "G-B-G-M-B", "yildiz": "Enner Valencia", "analiz": "Güney Amerika'nın en dirençli takımlarından, kontra atakları tehlikeli." },
+  "İsveç": { "sira": 38, "form": "G-B-G-G-M", "yildiz": "Alexander Isak", "analiz": "Modern futbolun tüm gerekliliklerini uygulayan dengeli bir takım." },
+  "Tunus": { "sira": 44, "form": "B-M-G-B-M", "yildiz": "Elyas Skhiri", "analiz": "Savunma ağırlıklı ve rakibi bozan bir oyun tarzları var." },
+  "İspanya": { "sira": 2, "form": "G-G-G-G-G", "yildiz": "Lamine Yamal", "analiz": "Topa sahip olma ve pas oyununda dünyanın en iyisi." },
+  "Yeşil Burun Adaları": { "sira": 69, "form": "G-M-B-G-M", "yildiz": "Ryan Mendes", "analiz": "Bireysel yetenekleri yüksek, sürpriz yapabilecek bir takım." },
+  "Belçika": { "sira": 9, "form": "G-B-G-M-G", "yildiz": "Kevin De Bruyne", "analiz": "Altın jenerasyonun son şansı, hücumda çok yaratıcılar." },
+  "Mısır": { "sira": 29, "form": "B-G-G-M-G", "yildiz": "Mohamed Salah", "analiz": "Salah liderliğinde çok hızlı hücum edebilen bir ekip." },
+  "Suudi Arabistan": { "sira": 61, "form": "M-G-B-G-M", "yildiz": "Salem Al-Dawsari", "analiz": "Taktiksel olarak disiplinli, sürprize açık bir takım." },
+  "Uruguay": { "sira": 17, "form": "G-G-M-G-B", "yildiz": "Darwin Núñez", "analiz": "Geleneksel 'Garra Charrua' ruhuyla çok savaşçı bir ekip." },
+  "İran": { "sira": 21, "form": "G-G-B-G-M", "yildiz": "Mehdi Taremi", "analiz": "Asya'nın en güçlü savunma hatlarından birine sahipler." },
+  "Yeni Zelanda": { "sira": 85, "form": "B-M-G-M-B", "yildiz": "Chris Wood", "analiz": "Hava topları ve duran toplar en büyük kozları." },
+  "Fransa": { "sira": 1, "form": "G-G-G-B-G", "yildiz": "Kylian Mbappé", "analiz": "Kadro derinliği en yüksek takım." },
+  "Senegal": { "sira": 14, "form": "G-B-G-G-B", "yildiz": "Sadio Mané", "analiz": "Atletizm ve fizik gücü en yüksek Afrika takımı." },
+  "Irak": { "sira": 57, "form": "G-M-G-B-G", "yildiz": "Aymen Hussein", "analiz": "Son dönemde büyük çıkış yakalayan, hırslı bir ekip." },
+  "Norveç": { "sira": 31, "form": "M-G-G-B-M", "yildiz": "Erling Haaland", "analiz": "Haaland gibi bir bitiriciye sahip olmaları her maçı değiştirebilir." },
+  "Arjantin": { "sira": 1, "form": "G-G-G-M-G", "yildiz": "Lionel Messi", "analiz": "Son şampiyon, Messi'nin liderliğinde hala dünyanın en iyisi." },
+  "Cezayir": { "sira": 28, "form": "G-M-B-G-G", "yildiz": "Riyad Mahrez", "analiz": "Teknik kapasitesi yüksek oyuncularla hücum futbolu oynuyorlar." },
+  "Avusturya": { "sira": 25, "form": "G-G-B-M-G", "yildiz": "Marcel Sabitzer", "analiz": "Yüksek pres ve enerjik oyun tarzıyla rakipleri zorluyorlar." },
+  "Ürdün": { "sira": 63, "form": "G-G-B-M-G", "yildiz": "Mousa Al-Tamari", "analiz": "Asya Kupası'ndaki çıkışlarını sürdürmek istiyorlar." },
+  "Portekiz": { "sira": 5, "form": "G-G-G-G-M", "yildiz": "Cristiano Ronaldo", "analiz": "Hücum hattında çok fazla kaliteli alternatife sahipler." },
+  "Kongo DC": { "sira": 46, "form": "B-M-G-G-B", "yildiz": "Yoane Wissa", "analiz": "Fiziksel olarak çok güçlü ve inatçı bir takım." },
+  "İngiltere": { "sira": 4, "form": "G-B-G-G-B", "yildiz": "Jude Bellingham", "analiz": "Kadro değeri en yüksek takım, kupanın en net adaylarından." },
+  "Hırvatistan": { "sira": 11, "form": "G-B-G-G-M", "yildiz": "Luka Modrić", "analiz": "Turnuva tecrübesi çok yüksek, pes etmeyen bir yapıları var." },
+  "Özbekistan": { "sira": 50, "form": "G-G-B-M-G", "yildiz": "Eldor Shomurodov", "analiz": "Asya'nın yükselen yıldızı, disiplinli bir takımlar." },
+  "Kolombiya": { 
+    "sira": 13, 
+    "form": "G-G-G-B-G", 
+    "yildiz": "Luis Díaz", 
+    "analiz": "Güney Amerika'nın en formda takımlarından biri. Çok atletik ve hücumda bitiriciler." 
+  },
+  "Panama": { 
+    "sira": 33, 
+    "form": "G-B-M-G-B", 
+    "yildiz": "Adalberto Carrasquilla", 
+    "analiz": "Orta saha dinamizmi ve fiziksel dayanıklılığı ile öne çıkan, rakiplerine boş alan bırakmayan disiplinli bir takım." 
+  },
+  "Gana": { 
+    "sira": 74, 
+    "form": "G-B-G-M-G", 
+    "yildiz": "Mohammed Kudus", 
+    "analiz": "Hücumda çok patlayıcı ve yetenekli bir kadroya sahipler; ancak savunma geçişlerinde bazen konsantrasyon kaybı yaşıyorlar." 
+  }
+>>>>>>> c2b76482eca378b7e8722c722698ad6b344dec60
 }
