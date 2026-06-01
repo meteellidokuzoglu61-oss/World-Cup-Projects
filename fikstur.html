@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA Dünya Kupası 2026 | Profesyonel Fikstür & Analiz</title>
+<div id="navbar-placeholder"></div>
+    <style>
+        :root {
+            --primary-color: #8A1538;
+            --primary-dark: #600f27;
+            --secondary-color: #f8f9fa;
+            --turkiye-color: #e74c3c;
+            --accent-blue: #2980b9;
+            --success-green: #27ae60;
+            --text-dark: #2d3436;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 0;
+            background: white;
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            border-bottom: 8px solid var(--primary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            color: #636e72;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .navigation-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            flex-wrap: wrap;
+        }
+
+
+       /* 1. TABLO TAŞMASINI KÖKTEN ÇÖZEN AYAR */
+.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important; /* Dış çerçevenin taşmasını engeller */
+}
+
+/* Puan durumu kartını bul ve içindeki tabloyu sar */
+.container > div { 
+    max-width: 100% !important;
+    overflow-x: auto !important; /* Sadece tablonun olduğu beyaz kart sağa kaysın */
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+}
+
+table {
+    width: 100% !important;
+    min-width: 450px; /* Sütunların (O G B M) birbirine girmemesi için minimum sınır */
+}
+
+
+/* 2. NAVBAR DARLIĞINI VE SIKIŞMASINI ÇÖZEN AYAR */
+#navbar-placeholder {
+    width: 100% ;
+    display: block;
+}
+
+/* --- MODAL DIŞ ÇERÇEVE --- */
+#macModal.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5); /* Arka planı karartma */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* --- MODALIN İÇİNDEKİ BEYAZ KART (ASIL DAR KALAN YER) --- */
+#macModal .modal-content, 
+#macModal > div:not(.modal-backdrop) { 
+    width: 92% !important; /* Mobilde ekranın %92'sini kaplasın, sağdan soldan tatlı bir boşluk kalsın */
+    max-width: 550px !important; /* Masaüstüne geçildiğinde devasa olmasın diye sınır */
+    box-sizing: border-box !important;
+    padding: 20px 15px !important; /* İç boşlukları mobilde biraz daralttık */
+    margin: 0 auto !important;
+    border-radius: 12px !important;
+    overflow-y: auto !important; /* İçerik dikeyde çok uzun olursa modal içinde kaydırılabilsin */
+    max-height: 90vh !important;
+}
+
+/* --- KATAGORİ VE TAKIM ALANLARININ YAN YANA SIĞMASI İÇİN --- */
+/* Katar - Kategori - İsviçre yazan o 3'lü sütun yapısı */
+#macModal .row, 
+#macModal .grid-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 5px !important;
+}
+
+#macModal .col, 
+#macModal .team-block {
+    flex: 1 !important;
+    text-align: center !important;
+    font-size: 11px !important; /* Mobilde yazılar kırılmasın diye biraz küçülttük */
+}
+
+/* Mobil ekranlar için navbarı esnetiyoruz */
+@media (max-width: 768px) {
+    header, .navbar {
+        height: auto !important;
+        min-height: 80px !important;
+        padding: 10px !important;
+    }
+    
+    .navbar {
+        flex-direction: column !important; /* Logo ve Linkleri alt alta al */
+        justify-content: center !important;
+        gap: 10px !important;
+    }
+
+    .nav-links {
+        display: flex !important;
+        flex-wrap: wrap !important; /* Sığmayan linkleri alt satıra at */
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 0 !important;
+    }
+    
+    /* İçeriğin üstten sıkışmaması için */
+    body {
+        padding-top: 40px !important;
+    }
+}
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        select {
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: 2px solid #dfe6e9;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        select:focus { border-color: var(--primary-color); }
+
+        /* Tabloyu tutan kapsayıcı kart */
+.container, .table-responsive {
+    width: 100%;
+    overflow-x: auto; /* Tablo geniş gelirse kartın içinde sağa kaysın */
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    min-width: 340px; /* Tablonun mobilde aşırı sıkışmasını önleyen taban genişlik */
+    border-collapse: collapse;
+}
+
+        .btn-all {
+            padding: 12px 25px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-all:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        #puan-durumu-bolumu {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .puan-tablosu {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .puan-tablosu th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #b2bec3;
+            text-transform: uppercase;
+        }
+
+        .puan-tablosu td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #f1f2f6;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .takim-hucre {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left !important;
+            font-weight: 700;
+        }
+
+        .puan-bayrak {
+            width: 35px;
+            height: 23px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .sira-no {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            background: #dfe6e9;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        tr:nth-child(-n+2) .sira-no {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .fikstur-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .mac-karti {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border-top: 6px solid var(--primary-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .mac-karti:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .turkiye-vurgu {
+            border-top-color: var(--turkiye-color);
+            background: linear-gradient(to bottom, #fffafa, white);
+        }
+
+        .grup-etiket {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #636e72;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f2f6;
+        }
+
+        .takimlar-konteynir {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .takim-kutusu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bayrak-ana {
+            width: 80px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+
+        .takim-adi {
+            font-weight: 800;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .skor-merkez {
+            flex: 0.5;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: 900;
+            color: var(--primary-color);
+        }
+
+        .mac-detay-footer {
+            margin-top: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .saat-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+
+        .saat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .label-saat { font-size: 0.7em; color: #b2bec3; text-transform: uppercase; font-weight: 700; }
+        .val-saat { font-weight: 800; color: var(--primary-dark); }
+
+        .stat-text {
+            text-align: center;
+            font-size: 0.85em;
+            color: #636e72;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-icerik {
+            background: white;
+            width: 95%;
+            max-width: 750px;
+            margin: 2% auto;
+            border-radius: 30px;
+            padding: 40px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .kapat-btn {
+            position: absolute;
+            right: 25px; top: 20px;
+            font-size: 35px;
+            cursor: pointer;
+            color: #dfe6e9;
+            transition: 0.3s;
+        }
+
+        .kapat-btn:hover { color: var(--primary-color); }
+
+        .analiz-izgara {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .analiz-kart {
+            padding: 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            border: 1px solid #f1f2f6;
+        }
+
+        .yorum-section {
+            margin-top: 40px;
+            border-top: 2px solid #f1f2f6;
+            padding-top: 30px;
+        }
+
+        #yorumlar-listesi {
+            margin-top: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .yorum-kart {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .yorum-input-box {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            background: #eee;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .yorum-input-box input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .btn-gonder {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 30px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-gonder:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .istatistik-tablo td {
+            padding: 10px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>FIFA World Cup 2026</h1>
+        <div class="subtitle">Amerika • Kanada • Meksika | Resmi Maç Merkezi</div>
+    </header>
+
+    <div class="navigation-bar">
+        <div class="filter-group">
+            <label style="font-weight: 800;">GRUP FİLTRESİ:</label>
+            <select id="grupSecici" onchange="ekraniGuncelle()">
+                <option value="Tümü">Tüm Grupları Göster</option>
+                <option value="A Grubu">A Grubu</option>
+                <option value="B Grubu">B Grubu</option>
+                <option value="C Grubu">C Grubu</option>
+                <option value="D Grubu">D Grubu</option>
+                <option value="E Grubu">E Grubu</option>
+                <option value="F Grubu">F Grubu</option>
+                <option value="G Grubu">G Grubu</option>
+                <option value="H Grubu">H Grubu</option>
+                <option value="I Grubu">I Grubu</option>
+                <option value="J Grubu">J Grubu</option>
+                <option value="K Grubu">K Grubu</option>
+                <option value="L Grubu">L Grubu</option>
+            </select>
+        </div>
+        <button class="btn-all" onclick="fiksturuYukle()">Tazele / Tüm Maçlar</button>
+    </div>
+
+    <div class="navigation-bar">
+        <div class="filter-group">
+         <label style="font-weight: 800;">Eleme Aşaması:</label>
+            <select id="elemeSecici" onchange="ekraniGuncelle()">
+                <option value="Son 32">Son 32</option>
+                <option value="Son 16">Son 16</option>
+                <option value="Çeyrek Final">Çeyrek Final</option>
+                <option value="Yarı Final">Yarı Final</option>
+                <option value="Üçüncülük Maçı">Üçüncülük Maçı</option>
+                <option value="Final">Final</option>
+            </select>
+        </div>
+        <button class="btn-all" onclick="fiksturuYukle()">Tüm Maçlar</button>
+    </div>
+
+    <div id="puan-durumu-bolumu">
+        <h2 id="grupBaslik" style="text-align: center; color: var(--primary-color); margin-bottom: 30px;">Grup Puan Durumu</h2>
+        <div id="puan-tablosu-alani"></div>
+    </div>
+
+    <div id="fikstur-listesi" class="fikstur-grid"></div>
+</div>
+
+<div id="macModal" class="modal">
+    <div class="modal-icerik">
+        <span class="kapat-btn" onclick="modalKapat()">&times;</span>
+        <div id="modal-govde"></div>
+    </div>
+    
+
+    <div class="analiz-izgara"></div>
+</div>
+<script>
+// --- GLOBAL VERİLER ---
+const teamData = {
+    "Kanada": { rank: 30, form: "G-B-M-G-B" },
+    "Bosna-Hersek": { rank: 65, form: "M-M-B-G-M" },
+    "Türkiye": { rank: 40, form: "G-B-G-M-G" },
+    "ABD": { rank: 20, form: "G-G-B-G-M" },
+    "Meksika": { rank: 15, form: "G-G-B-M-G" },
+    "Güney Afrika": { rank: 55, form: "M-B-M-G-M" }
+};
+
+const API_URL = "http://localhost:3000/api/yorumlar"; 
+
+// --- YARDIMCI FONKSİYONLAR ---
+function calculateScore(rank, form) {
+    let formScore = 0;
+    form.split("-").forEach(r => {
+        if (r === "G") formScore += 3;
+        if (r === "B") formScore += 1;
+    });
+    let rankScore = 100 - rank;
+    return rankScore * 0.6 + formScore * 0.4;
+}
+
+function calculateProbabilities(a, b) {
+    let total = a + b;
+    let winA = (a / total) * 0.7;
+    let winB = (b / total) * 0.7;
+    let draw = 1 - (winA + winB);
+    return {
+        A: (winA * 100).toFixed(1),
+        B: (winB * 100).toFixed(1),
+        draw: (draw * 100).toFixed(1)
+    };
+}
+
+function safeText(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// --- ANA YÜKLEME FONKSİYONU ---
+async function fiksturuYukle() {
+    const container = document.getElementById('fikstur-listesi');
+    const grupSecici = document.getElementById('grupSecici');
+    const elemeSecici = document.getElementById('elemeSecici');
+    
+    // Filtreleri sıfırla
+    grupSecici.value = "Tümü";
+    elemeSecici.selectedIndex = -1; // Eleme seçimi yok
+
+    container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Veriler yükleniyor...</div>";
+    
+    try {
+        const response = await fetch('fikstur.json');
+        if (!response.ok) throw new Error("Dosya bulunamadı");
+        const veriler = await response.json();
+        kartlariEkranaBas(veriler);
+        document.getElementById('puan-durumu-bolumu').style.display = "none";
+    } catch (err) {
+        container.innerHTML = `<div style='grid-column: 1/-1; color:red; text-align:center;'>Hata: ${err.message}</div>`;
+    }
+}
+
+// --- FİLTRELEME VE EKRAN GÜNCELLEME ---
+async function ekraniGuncelle() {
+    const grupSecici = document.getElementById('grupSecici');
+    const elemeSecici = document.getElementById('elemeSecici');
+    const puanPaneli = document.getElementById('puan-durumu-bolumu');
+    const container = document.getElementById('fikstur-listesi');
+    
+    // 1. Hangi seçicinin aktif olduğunu belirle
+    // Eğer eleme seçici doluysa önceliği ona ver, değilse grup seçiciye bak
+    let secilenDeger = grupSecici.value;
+    
+    // Eğer bir eleme aşaması seçildiyse (ve elemeSecici HTML'de varsa)
+    if (elemeSecici && elemeSecici.value !== "") {
+        secilenDeger = elemeSecici.value;
+        grupSecici.value = "Tümü"; // Eleme seçildiğinde grubu sıfırla
+    }
+
+    // 2. Puan Durumu Görünürlüğü
+    const isGrupAsamasi = secilenDeger.includes("Grubu") && secilenDeger !== "Tümü";
+
+    if (isGrupAsamasi) {
+        puanPaneli.style.display = "block";
+        const baslik = document.getElementById('grupBaslik');
+        if(baslik) baslik.innerText = `${secilenDeger} Puan Durumu`;
+    } else {
+        puanPaneli.style.display = "none";
+    }
+
+    try {
+        const res = await fetch('fikstur.json');
+        const tumu = await res.json();
+        
+        // 3. Filtreleme
+        const filtreli = (secilenDeger === "Tümü" || secilenDeger === "") 
+            ? tumu 
+            : tumu.filter(m => m.grup === secilenDeger);
+        
+        kartlariEkranaBas(filtreli);
+
+        if (isGrupAsamasi) {
+            puanDurumuHesapla(secilenDeger, tumu);
+        }
+    } catch(e) {
+        console.error("Filtreleme hatası:", e);
+    }
+}
+
+// --- KARTLARI BASMA ---
+function kartlariEkranaBas(maclar) {
+    const container = document.getElementById('fikstur-listesi');
+    container.innerHTML = "";
+    
+    if (maclar.length === 0) {
+        container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Bu aşamada henüz maç bulunmuyor.</div>";
+        return;
+    }
+
+    maclar.forEach(mac => {
+        const isTurkiye = (mac.ev === "Türkiye" || mac.dep === "Türkiye");
+        const skorStr = (mac.skorEv !== undefined && mac.skorEv !== null) ? `${mac.skorEv} - ${mac.skorDep}` : "VS";
+        
+        container.innerHTML += `
+            <div class="mac-karti ${isTurkiye ? 'turkiye-vurgu' : ''}" onclick="detayGoster('${mac.ev}', '${mac.dep}')">
+                <div class="grup-etiket">
+                    <span>🏆 ${mac.grup}</span>
+                    <span>📅 ${mac.tarih}</span>
+                </div>
+                <div class="takimlar-konteynir">
+                    <div class="takim-kutusu">
+                        <img src="https://flagcdn.com/w160/${mac.kodEv}.png" class="bayrak-ana" alt="${mac.ev}">
+                        <span class="takim-adi">${mac.ev}</span>
+                    </div>
+                    <div class="skor-merkez">${skorStr}</div>
+                    <div class="takim-kutusu">
+                        <img src="https://flagcdn.com/w160/${mac.kodDep}.png" class="bayrak-ana" alt="${mac.dep}">
+                        <span class="takim-adi">${mac.dep}</span>
+                    </div>
+                </div>
+                <div class="mac-detay-footer">
+                    <div class="saat-row">
+                        <div class="saat-item"><span class="label-saat">TSİ</span><span class="val-saat">${mac.tsi}</span></div>
+                        <div class="saat-item"><span class="label-saat">YEREL</span><span class="val-saat" style="color:#0984e3">${mac.yerel}</span></div>
+                    </div>
+                    <div class="stat-text">📍 ${mac.stat}</div>
+                </div>
+            </div>`;
+    });
+}
+
+// --- PUAN DURUMU HESAPLAMA ---
+function puanDurumuHesapla(grup, tumMaclar) {
+    const tabloAlani = document.getElementById('puan-tablosu-alani');
+    let tablo = {};
+    const grupMaclari = tumMaclar.filter(m => m.grup === grup);
+
+    grupMaclari.forEach(m => {
+        [m.ev, m.dep].forEach(t => {
+            if (!tablo[t]) tablo[t] = { O:0, G:0, B:0, M:0, AG:0, YG:0, P:0, kod: (t === m.ev ? m.kodEv : m.kodDep) };
+        });
+
+        if (m.skorEv !== undefined && m.skorEv !== null) {
+            const sE = parseInt(m.skorEv); const sD = parseInt(m.skorDep);
+            tablo[m.ev].O++; tablo[m.dep].O++;
+            tablo[m.ev].AG += sE; tablo[m.ev].YG += sD;
+            tablo[m.dep].AG += sD; tablo[m.dep].YG += sE;
+            if (sE > sD) { tablo[m.ev].G++; tablo[m.ev].P += 3; tablo[m.dep].M++; }
+            else if (sD > sE) { tablo[m.dep].G++; tablo[m.dep].P += 3; tablo[m.ev].M++; }
+            else { tablo[m.ev].B++; tablo[m.ev].P += 1; tablo[m.dep].B++; tablo[m.dep].P += 1; }
+        }
+    });
+
+    const sirali = Object.keys(tablo).sort((a, b) => (tablo[b].P - tablo[a].P) || ((tablo[b].AG - tablo[b].YG) - (tablo[a].AG - tablo[a].YG)));
+
+    let html = `<table class="puan-tablosu"><thead><tr><th>Sıra</th><th style="text-align:left">Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AV</th><th>Puan</th></tr></thead><tbody>`;
+    sirali.forEach((tAd, index) => {
+        const v = tablo[tAd]; const av = v.AG - v.YG;
+        html += `<tr><td><span class="sira-no">${index+1}</span></td><td class="takim-hucre"><img src="https://flagcdn.com/w40/${v.kod}.png" class="puan-bayrak">${tAd}</td><td>${v.O}</td><td>${v.G}</td><td>${v.B}</td><td>${v.M}</td><td style="color:${av>=0?'green':'red'}">${av>0?'+'+av:av}</td><td style="font-weight:900; color:#800020">${v.P}</td></tr>`;
+    });
+    tabloAlani.innerHTML = html + "</tbody></table>";
+}
+
+// --- MODAL VE DETAYLAR ---
+async function detayGoster(ev, dep) {
+    const modal = document.getElementById('macModal');
+    const govde = document.getElementById('modal-govde');
+    const macId = `${ev}-${dep}`.replace(/\s+/g, '-');
+    
+    modal.style.display = "block";
+    govde.innerHTML = "Veriler analiz ediliyor...";
+
+    try {
+        const response = await fetch('istatistik.json');
+        const istatistikler = await response.json();
+        const evD = istatistikler[ev] || { sira: "??", form: "N/A" };
+        const depD = istatistikler[dep] || { sira: "??", form: "N/A" };
+        
+        let teamA = teamData[ev] || { rank: 50, form: "B-B-B-B-B" };
+        let teamB = teamData[dep] || { rank: 50, form: "B-B-B-B-B" };
+        let scoreA = calculateScore(teamA.rank, teamA.form);
+        let scoreB = calculateScore(teamB.rank, teamB.form);
+        let probs = calculateProbabilities(scoreA, scoreB);
+
+        govde.innerHTML = `
+            <div style="text-align:center; border-bottom: 2px solid #f1f2f6; padding-bottom: 20px;">
+                <h2 style="color:#800020; font-size: 2em; margin:0;">${ev} <span style="color:#ccc">v</span> ${dep}</h2>
+            </div>
+            <table class="istatistik-tablo" style="width:100%; margin-top:20px;">
+                <tr style="font-weight:800; color:#800020"><td>${ev}</td><td style="color:#ccc">KATEGORİ</td><td>${dep}</td></tr>
+                <tr><td>#${evD.sira}</td><td>FIFA SIRALAMASI</td><td>#${depD.sira}</td></tr>
+                <tr><td style="color:green">${evD.form}</td><td>FORM DURUMU</td><td style="color:green">${depD.form}</td></tr>
+            </table>
+            <div style="margin-top:20px; padding:20px; background:#f8f9fa; border-radius:15px;">
+                <h3 style="text-align:center;">📊 Maç Olasılıkları</h3>
+                <p>${ev}: %${probs.A}</p><div style="background:#eee; height:8px; border-radius:5px;"><div style="width:${probs.A}%; background:green; height:100%; border-radius:5px;"></div></div>
+                <p>Beraberlik: %${probs.draw}</p><div style="background:#eee; height:8px; border-radius:5px;"><div style="width:${probs.draw}%; background:orange; height:100%; border-radius:5px;"></div></div>
+                <p>${dep}: %${probs.B}</p><div style="background:#eee; height:8px; border-radius:5px;"><div style="width:${probs.B}%; background:red; height:100%; border-radius:5px;"></div></div>
+            </div>
+            <div class="yorum-section">
+                <h3>💬 Taraftar Yorumları</h3>
+                <div id="yorumlar-listesi">Yükleniyor...</div>
+                <div class="yorum-input-box">
+                    <input type="text" id="yorumInput" maxlength="200" placeholder="Yorumun...">
+                    <button id="submitBtn" onclick="yorumGonder('${macId}')">GÖNDER</button>
+                </div>
+            </div>`;
+        yorumlarıCek(macId);
+    } catch (err) { govde.innerHTML = "İstatistik verileri yüklenemedi."; }
+}
+
+// --- YORUM SİSTEMİ ---
+async function yorumlarıCek(macId) {
+    const liste = document.getElementById('yorumlar-listesi');
+    try {
+        const res = await fetch(`${API_URL}/${macId}`);
+        const veriler = await res.json();
+        if(veriler.length === 0) { liste.innerHTML = "<p>İlk yorumu sen yap!</p>"; return; }
+        liste.innerHTML = veriler.map(y => `<div class="yorum-kart"><strong>@${safeText(y.kullanici_adi)}</strong>: ${safeText(y.yorum_metni)}</div>`).join('');
+    } catch (e) { liste.innerHTML = "<p>Yorumlar şu an yüklenemiyor (Backend kapalı).</p>"; }
+}
+
+async function yorumGonder(macId) {
+    const input = document.getElementById('yorumInput');
+    const btn = document.getElementById('submitBtn');
+    const metin = input.value.trim();
+    if(!metin) return;
+    btn.disabled = true;
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ mac_id: macId, kullanici_adi: "", yorum_metni: metin })
+        });
+        if(res.ok) { input.value = ""; yorumlarıCek(macId); }
+    } finally { btn.disabled = false; }
+}
+
+// --- MODAL KAPATMA VE BAŞLATMA ---
+function modalKapat() { document.getElementById('macModal').style.display = "none"; }
+window.onclick = (e) => { if(e.target == document.getElementById('macModal')) modalKapat(); }
+window.onload = fiksturuYukle;
+</script>
+</body>
+</html>

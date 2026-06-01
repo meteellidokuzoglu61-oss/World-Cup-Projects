@@ -1,0 +1,120 @@
+<!-- navbar.html -->
+<nav class="navbar">
+    <div class="logo">FIFA 2026</div>
+    <ul class="nav-links">
+        <li><a href="index.html">Ana Sayfa</a></li>
+                <li><a href="fikstur.html">Fikstür</a></li>
+                <li><a href="takimlar.html">Takımlar</a></li>
+                <li><a href="eleme.html" style="font-weight:bold;">Eleme Aşaması</a></li>
+                <li><a href="takvim.html">Turnuva Takvimi</a></li>
+                <li><a href="#groups">Gruplar</a></li>
+                <li><a href="profil.html">Profilim</a></li>
+    </ul>
+</nav>
+
+<style>
+:root {
+    --fifa-primary: #8A1538;
+    --fifa-gold: #bd9b60;
+    --fifa-dark: #1a1a1a;
+    --fifa-white: #ffffff;
+    --nav-height: 70px;
+}
+
+.navbar {
+    height: var(--nav-height);
+    background: rgba(138, 21, 56, 0.95); /* Hafif şeffaf bordo */
+    backdrop-filter: blur(10px); /* Modern cam efekti */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--fifa-white);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.logo span {
+    color: var(--fifa-gold);
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 15px;
+    align-items: center;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: var(--fifa-white);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    position: relative;
+    opacity: 0.9;
+}
+
+/* Hover Efekti: Alt çizgi animasyonu */
+.nav-links li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: var(--fifa-gold);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-links li a:hover {
+    color: var(--fifa-gold);
+    opacity: 1;
+}
+
+.nav-links li a:hover::after {
+    width: 80%;
+}
+
+/* Aktif Sayfa Belirteci */
+.nav-links li a.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--fifa-gold);
+    border: 1px solid rgba(189, 155, 96, 0.3);
+}
+
+/* Profil Butonu Özel Tasarım */
+.nav-links li:last-child a {
+    background: var(--fifa-gold);
+    color: var(--fifa-dark) !important;
+    font-weight: bold;
+    border-radius: 20px;
+    padding: 8px 20px;
+}
+
+.nav-links li:last-child a:hover {
+    background: var(--fifa-white);
+    transform: translateY(-2px);
+}
+
+
+
+
+
+
+
+</style>
