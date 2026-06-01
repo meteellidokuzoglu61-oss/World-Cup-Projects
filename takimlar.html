@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dünya Kupası 2026 - Canlı Bilgi</title>
-    <div id="navbar-placeholder"></div>
-
     
     <style>
         :root {
@@ -76,24 +74,26 @@
 </head>
 <body>
 
+    <div id="navbar-placeholder"></div>
+
     <div class="logo">
-    <a href="index.html" style="text-decoration: none; color: inherit;">FIFA 2026</a>
-</div>
-
-<div class="container">
-    <header>
-        <h1>🏆 DÜNYA KUPASI 2026</h1>
-        <p>Kuzey Amerika Yolculuğu Başlıyor</p>
-    </header>
-    <div id="federasyonlar-konteynir"></div>
-</div>
-
-<div id="takimModal" class="modal">
-    <span class="close-btn" onclick="modalKapat()">&times;</span>
-    <div class="modal-content">
-        <div id="modal-icerik"></div>
+        <a href="index.html" style="text-decoration: none; color: inherit; font-weight: bold; font-size: 1.5em; padding: 10px; display: inline-block;">FIFA 2026</a>
     </div>
-</div>
+
+    <div class="container">
+        <header>
+            <h1>🏆 DÜNYA KUPASI 2026</h1>
+            <p>Kuzey Amerika Yolculuğu Başlıyor</p>
+        </header>
+        <div id="federasyonlar-konteynir"></div>
+    </div>
+
+    <div id="takimModal" class="modal">
+        <span class="close-btn" onclick="modalKapat()">&times;</span>
+        <div class="modal-content">
+            <div id="modal-icerik"></div>
+        </div>
+    </div>
 
 <script>
     const stadyumGorselleri = {
@@ -124,7 +124,7 @@
                 ...(detaylar[t.id] || {}) 
             }));
             sayfayiOlustur(birlesmis);
-        } catch (e) { console.error("Hata:", e); }
+        } catch (e) { console.error("Veri yükleme hatası:", e); }
     }
 
     function sayfayiOlustur(takimlar) {
@@ -140,99 +140,98 @@
                 const kart = document.createElement('div');
                 kart.className = 'takim-karti';
                 kart.onclick = () => detayAc(t);
-                kart.innerHTML = `<img src="https://flagcdn.com/w160/${t.id}.png" class="bayrak"><div><strong>${t.ad}</strong></div>`;
+                kart.innerHTML = `<img src="https://flagcdn.com/w160/${t.id}.png" class="bayrak" alt="${t.ad}"><div><strong>${t.ad}</strong></div>`;
                 grid.appendChild(kart);
             });
         });
     }
 
     async function vikipedidenKadroCek(takimAdi) {
-    // Türkçe Vikipedi API URL'si
-    // Örnek arama: "Türkiye millî futbol takımı" veya "Amerika Birleşik Devletleri millî futbol takımı"
-    const sayfaAdi = `${takimAdi} millî futbol takımı`;
-    const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&section=0&prop=text&format=json&origin=*`;
+        const sayfaAdi = `${takimAdi} millî futbol takımı`;
+        const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&section=0&prop=text&format=json&origin=*`;
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.error) return "Kadro bilgisi Vikipedi'de bulunamadı.";
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.error) return "<div style='padding:20px; text-align:center;'>Kadro bilgisi Vikipedi'de bulunamadı.</div>";
 
-        // Gelen HTML içeriğini tarayıcının anlayacağı bir DOM yapısına çeviriyoruz
-        const htmlIcerik = data.parse.text["*"];
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlIcerik, 'text/html');
+            const htmlIcerik = data.parse.text["*"];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlIcerik, 'text/html');
 
-        // Vikipedi'deki "Güncel Kadro" tablosunu buluyoruz (genellikle .nat-team class'ına sahip olur)
-        const kadroTablosu = doc.querySelector('.nat-team, table.wikitable');
-        
-        if (!kadroTablosu) {
-            return "Bu takımın güncel kadro tablosu açıklanamadı.";
+            const kadroTablosu = doc.querySelector('.nat-team, table.wikitable');
+            
+            if (!kadroTablosu) {
+                return "<div style='padding:20px; text-align:center;'>Bu takımın güncel kadro tablosu ayrıştırılamadı.</div>";
+            }
+
+            return `<div class="viki-kadro" style="overflow-x:auto;">${kadroTablosu.outerHTML}</div>`;
+        } catch (error) {
+            console.error("Vikipedi'den veri çekilirken hata oluştu:", error);
+            return "<div style='padding:20px; text-align:center; color:red;'>Kadro yüklenirken bir hata oluştu.</div>";
         }
-
-        // Tabloyu bizim sitemizin tasarımına uyması için biraz temizleyip/düzenleyip döndürüyoruz
-        return `<div class="viki-kadro">${kadroTablosu.outerHTML}</div>`;
-
-    } catch (error) {
-        console.error("Vikipedi'den veri çekilirken hata oluştu:", error);
-        return "Kadro yüklenirken bir hata oluştu.";
     }
-}
+
     async function detayAc(t) {
-    const icerik = document.getElementById('modal-icerik');
-    const hasStad = t.stadyumlar && t.stadyumlar.length > 0;
+        const icerik = document.getElementById('modal-icerik');
+        const hasStad = t.stadyumlar && t.stadyumlar.length > 0;
 
-    // Önce modal iskeletini oluşturuyoruz (Kadro kısmı başta "Yükleniyor..." olacak)
-    icerik.innerHTML = `
-        <div class="modal-header">
-            <img src="https://flagcdn.com/w160/${t.id}.png" width="100" style="border:4px solid white; border-radius:10px; margin-bottom:15px;">
-            <h2 style="margin:0; letter-spacing:1px;">${t.ad.toUpperCase()}</h2>
-        </div>
-        <div class="tab-menu">
-            <button class="tab-btn active" onclick="tabDegistir(event, 'genel')">KÜNYE</button>
-            ${hasStad ? `<button class="tab-btn" onclick="tabDegistir(event, 'stadlar')">STADYUMLAR</button>` : ''}
-            <button class="tab-btn" onclick="tabDegistir(event, 'kadro')">KADRO</button>
-        </div>
-        
-        <div id="genel" class="tab-content active">
-            <div class="info-row"><strong>Teknik Direktör</strong><span>${t["Teknik Direktör"] || 'Belli Değil'}</span></div>
-            <div class="info-row"><strong>FIFA Dünya Sırası</strong> <span>#${t.sira}</span></div>
-            <div class="info-row"><strong>Takım Lakabı</strong> <span>${t.lakap || 'Yok'}</span></div>
-        </div>
-        
-        <div id="stadlar" class="tab-content">
-            ${(t.stadyumlar || []).map(s => {
-                const stadKey = Object.keys(stadyumGorselleri).find(k => s.ad.includes(k)) || "SoFi Stadium";
-                const imgUrl = stadyumGorselleri[stadKey];
-                return `
-                <div class="stad-card">
-                    <img src="${imgUrl}" class="stad-img" alt="${s.ad}">
-                    <div class="stad-info">${s.ad} <br> <small style="color:#666; font-weight:normal;">${s.sehir}</small></div>
-                </div>`;
-            }).join('')}
-        </div>
-
-        <div id="kadro" class="tab-content">
-            <div id="kadro-yukleniyor" style="text-align:center; padding:20px; color:#666;">
-               ⏳ Kadro Vikipedi'den canlı çekiliyor...
+        icerik.innerHTML = `
+            <div class="modal-header">
+                <img src="https://flagcdn.com/w160/${t.id}.png" width="100" style="border:4px solid white; border-radius:10px; margin-bottom:15px;" alt="Bayrak">
+                <h2 style="margin:0; letter-spacing:1px;">${t.ad.toUpperCase()}</h2>
             </div>
-        </div>
-    `;
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="tabDegistir(event, 'genel')">KÜNYE</button>
+                ${hasStad ? `<button class="tab-btn" onclick="tabDegistir(event, 'stadlar')">STADYUMLAR</button>` : ''}
+                <button class="tab-btn" onclick="tabDegistir(event, 'kadro')">KADRO</button>
+            </div>
+            
+            <div id="genel" class="tab-content active">
+                <div class="info-row"><strong>Teknik Direktör</strong><span>${t["Teknik Direktör"] || 'Belli Değil'}</span></div>
+                <div class="info-row"><strong>FIFA Dünya Sırası</strong> <span>#${t.sira || '-'}</span></div>
+                <div class="info-row"><strong>Takım Lakabı</strong> <span>${t.lakap || 'Yok'}</span></div>
+            </div>
+            
+            <div id="stadlar" class="tab-content">
+                ${(t.stadyumlar || []).map(s => {
+                    // Safe access object keys check: s.ad?.includes(k)
+                    const stadKey = Object.keys(stadyumGorselleri).find(k => s.ad?.includes(k)) || "SoFi Stadium";
+                    const imgUrl = stadyumGorselleri[stadKey];
+                    return `
+                    <div class="stad-card">
+                        <img src="${imgUrl}" class="stad-img" alt="${s.ad || 'Stadyum'}">
+                        <div class="stad-info">${s.ad || 'Bilinmeyen Stadyum'} <br> <small style="color:#666; font-weight:normal;">${s.sehir || ''}</small></div>
+                    </div>`;
+                }).join('')}
+            </div>
 
-    document.getElementById('takimModal').style.display = "block";
-    document.body.classList.add('modal-open');
+            <div id="kadro" class="tab-content">
+                <div id="kadro-yukleniyor" style="text-align:center; padding:20px; color:#666;">
+                    ⏳ Kadro Vikipedi'den canlı çekiliyor...
+                </div>
+            </div>
+        `;
 
-    // MODAL AÇILDIKTAN SONRA ARKA PLANDA VİKİPEDİ'DEN VERİYİ ÇEKİYORUZ
-    const kadroHtml = await vikipedidenKadroCek(t.ad);
-    document.getElementById('kadro').innerHTML = kadroHtml;
-}
+        document.getElementById('takimModal').style.display = "block";
+        document.body.classList.add('modal-open');
+
+        const kadroHtml = await vikipedidenKadroCek(t.ad);
+        const kadroKonteynir = document.getElementById('kadro');
+        if(kadroKonteynir) {
+            kadroKonteynir.innerHTML = kadroHtml;
+        }
+    }
 
     function tabDegistir(evt, tabName) {
         const tabs = document.getElementsByClassName("tab-content");
         for (let t of tabs) t.classList.remove("active");
         const btns = document.getElementsByClassName("tab-btn");
         for (let b of btns) b.classList.remove("active");
-        document.getElementById(tabName).classList.add("active");
+        
+        const targetTab = document.getElementById(tabName);
+        if(targetTab) targetTab.classList.add("active");
         evt.currentTarget.classList.add("active");
     }
 
@@ -245,10 +244,14 @@
     window.onload = veriyiGetir;
 
     fetch('navbar.html')
-        .then(response => response.text())
+        .then(response => {
+            if(!response.ok) throw new Error("Navbar yüklenemedi");
+            return response.text();
+        })
         .then(data => {
             document.getElementById('navbar-placeholder').innerHTML = data;
-        });
+        })
+        .catch(err => console.warn(err.message));
 </script>
 </body>
 </html>
