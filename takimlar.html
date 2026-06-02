@@ -96,19 +96,24 @@
     </div>
 
 <script>
-    const stadyumGorselleri = {
-        "MetLife Stadium": "https://images.unsplash.com/photo-1564415051543-cb73a7469033?auto=format&fit=crop&w=800&q=80",
-        "SoFi Stadium": "https://st5.depositphotos.com/60241456/77824/i/450/depositphotos_778241476-stock-photo-inglewood-usa-november-2024-sofi.jpg",
-        "AT&T Stadium": "https://images.unsplash.com/photo-1594473728867-03cc8995574c?auto=format&fit=crop&w=800&q=80",
-        "Estadio Azteca": "https://media.istockphoto.com/id/1023819902/tr/foto%C4%9Fraf/mexico-citydeki-aztek-stadyumunun-havadan-g%C3%B6r%C3%BCn%C3%BCm%C3%BC.jpg?s=612x612&w=0&k=20&c=WIdzJOo5XZcf2FyzKUJT2VMGHW2QNly9qEsx8MrFFFQ=",
+   const stadyumGorselleri = {
+        "MetLife": "https://w0.peakpx.com/wallpaper/161/435/HD-wallpaper-metlife-stadium-aerial-view-nfl-new-york-giants-stadium-new-york-jets-stadium-soccer-american-football-stadium-usa-new-jersey-american-stadiums.jpg",
+        "SoFi": "https://st5.depositphotos.com/60241456/77824/i/450/depositphotos_778241476-stock-photo-inglewood-usa-november-2024-sofi.jpg",
+        "AT&T": "https://t4.ftcdn.net/jpg/05/49/05/97/360_F_549059713_s0ntRZTHF1yB2vkJHYbzOKR8ZbsOLJNf.jpg",
+        "Azteca": "https://media.istockphoto.com/id/1023819902/tr/foto%C4%9Fraf/mexico-citydeki-aztek-stadyumunun-havadan-g%C3%B6r%C3%BCn%C3%BCm%C3%BC.jpg?s=612x612&w=0&k=20&c=WIdzJOo5XZcf2FyzKUJT2VMGHW2QNly9qEsx8MrFFFQ=",
         "BC Place": "https://w0.peakpx.com/wallpaper/930/909/HD-wallpaper-bc-place-vancouver-whitecaps-fc-stadium-canadian-football-stadium-vancouver-british-columbia-canada-mls-stadiums-major-league-soccer.jpg",
-        "Lumen Field": "https://images.unsplash.com/photo-1605646969317-1f41539f3792?auto=format&fit=crop&w=800&q=80",
-        "Mercedes-Benz Stadium": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80",
-        "Hard Rock Stadium": "https://images.unsplash.com/photo-1564282629525-d72861c6e949?auto=format&fit=crop&w=800&q=80",
-        "Arrowhead Stadium": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80",
-        "Levi's Stadium": "https://images.unsplash.com/photo-1580211931835-2d4e68e42668?auto=format&fit=crop&w=800&q=80",
-        "Lincoln Financial Field": "https://images.unsplash.com/photo-1510563800743-aed236490d08?auto=format&fit=crop&w=800&q=80",
-        "BMO Field": "https://w0.peakpx.com/wallpaper/105/530/HD-wallpaper-bmo-field-r-canadian-football-stadium-toronto-argonauts-stadium-aerial-view-canada-bmo-field-stadium-toronto.jpg"
+        "Lumen": "https://static.clubs.nfl.com/image/private/t_new_photo_album/seahawks/rb5xedis3xxtppyxbsds.jpg",
+        "Mercedes-Benz": "https://cdn.mos.cms.futurecdn.net/QT7b7RtMfc7doghPBpNutJ.jpg",
+        "Hard Rock": "https://t3.ftcdn.net/jpg/03/05/52/14/360_F_305521418_yzUq5q5pXDsIl3C4TpzIuVzW9klVg4pV.jpg",
+        "Arrowhead": "https://static.clubs.nfl.com/image/private/t_new_photo_album/chiefs/tr74gj3cjwaoe83qmy9k.jpg",
+        "Levi's": "https://ww4.hdnux.com/photos/31/55/16/6738831/5/rawImage.jpg",
+        "Lincoln": "https://wallpapercave.com/wp/wp11930816.jpg",
+        "NRG Stadyumu": "https://media.istockphoto.com/id/2262548047/photo/aerial-view-of-nrg-stadium-and-downtown-houston-skyline-at-night.jpg?s=612x612&w=0&k=20&c=BZhqwyXYcFS2wVXqlCqJsVaAv_rempC0aLhLUO-XjcM=",
+        "BMO": "https://w0.peakpx.com/wallpaper/105/530/HD-wallpaper-bmo-field-r-canadian-football-stadium-toronto-argonauts-stadium-aerial-view-canada-bmo-field-stadium-toronto.jpg",
+        // Listende yeni eklenen veya resmi eksik olan diğer stadyumlar için de buraya varsayılan görseller ekledim:
+        "BBVA": "https://w0.peakpx.com/wallpaper/837/626/HD-wallpaper-estadio-bbva-bancomer-the-steel-giant-guadalupe-nuevo-leon-mexico-cf-monterrey-stadium-mexican-football-stadiums-modern-sports-arenas-stadiums.jpg",
+        "Akron": "https://w0.peakpx.com/wallpaper/154/234/HD-wallpaper-estadio-akron-zapopan-mexico-estadio-omnilife-estadio-chivas-club-deportivo-guadalajara-stadium-mexican-football-stadium.jpg",
+        "Gillette Stadyumu": "https://images8.alphacoders.com/566/thumb-1920-566506.jpg"
     };
 
     const nisan2026Sira = { "ar": 2, "fr": 1, "es": 3, "gb-eng": 4, "br": 5, "pt": 6, "ma": 8, "tr": 22, "us": 14, "mx": 17, "ca": 28 };
@@ -211,16 +216,36 @@
             temizTablo.querySelectorAll('.mw-editsection').forEach(el => el.remove());
 
             return `
-                <div class="viki-kadro" style="overflow-x:auto; padding: 10px;">
-                    <style>
-                        .viki-kadro table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; background: white; }
-                        .viki-kadro th { background-color: var(--primary) !important; color: white !important; padding: 10px; text-align: left; }
-                        .viki-kadro td { padding: 8px; border-bottom: 1px solid #ddd; color: #333; }
-                        .viki-kadro tr:hover { background-color: #f5f5f5; }
-                        .viki-kadro a { color: #004d98; text-decoration: none; font-weight: 600; }
-                    </style>
-                    ${temizTablo.outerHTML}
-                </div>`;
+    <div class="viki-kadro" style="overflow-x:auto; padding: 10px;">
+        <style>
+            .viki-kadro table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; background: white; }
+            .viki-kadro th { background-color: var(--primary) !important; color: white !important; padding: 10px; text-align: left; }
+            .viki-kadro td { padding: 8px; border-bottom: 1px solid #ddd; color: #333; }
+            .viki-kadro tr:hover { background-color: #f5f5f5; }
+            
+            /* Genel link renkleri (Varsayılan mavi) */
+            .viki-kadro a { color: #004d98; text-decoration: none; font-weight: 600; }
+            
+            /* BORDO HÜCRELERİN İÇİNDEKİ YAZILARI VE OYUNCU LİNKLERİNİ BEYAZ YAPAR */
+            .viki-kadro td[style*="background"], 
+            .viki-kadro td[style*="#8A1538"], 
+            .viki-kadro td[style*="rgb(138"],
+            .viki-kadro th[style*="background"],
+            .viki-kadro th[style*="#8A1538"] { 
+                color: #ffffff !important; 
+            }
+            
+            .viki-kadro td[style*="background"] a, 
+            .viki-kadro td[style*="#8A1538"] a, 
+            .viki-kadro td[style*="rgb(138"] a,
+            .viki-kadro th[style*="background"] a,
+            .viki-kadro th[style*="#8A1538"] a { 
+                color: #ffffff !important; 
+                text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Okunurluğu artırmak için hafif gölge */
+            }
+        </style>
+        ${temizTablo.outerHTML}
+    </div>`;
 
         } catch (error) {
             console.error("Ortak kadro sayfasından veri çekilirken hata oluştu:", error);
@@ -249,18 +274,34 @@
                 <div class="info-row"><strong>Takım Lakabı</strong> <span>${t.lakap || 'Yok'}</span></div>
             </div>
             
-            <div id="stadlar" class="tab-content">
-                ${(t.stadyumlar || []).map(s => {
-                    // Safe access object keys check: s.ad?.includes(k)
-                    const stadKey = Object.keys(stadyumGorselleri).find(k => s.ad?.includes(k)) || "SoFi Stadium";
-                    const imgUrl = stadyumGorselleri[stadKey];
-                    return `
-                    <div class="stad-card">
-                        <img src="${imgUrl}" class="stad-img" alt="${s.ad || 'Stadyum'}">
-                        <div class="stad-info">${s.ad || 'Bilinmeyen Stadyum'} <br> <small style="color:#666; font-weight:normal;">${s.sehir || ''}</small></div>
-                    </div>`;
-                }).join('')}
+           <div id="stadlar" class="tab-content">
+    ${(t.stadyumlar || []).map(s => {
+        if (!s.ad) return ''; 
+        
+        const gelenStadAdi = s.ad.toLocaleLowerCase('tr-TR');
+        const stadKey = Object.keys(stadyumGorselleri).find(k => {
+            return gelenStadAdi.includes(k.toLocaleLowerCase('tr-TR'));
+        }) || "";
+        
+        const imgUrl = stadyumGorselleri[stadKey] || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80";
+        
+        // Doğru ve temiz Google Maps Arama URL'i
+        const haritaLinki = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.ad + ' ' + (s.sehir || ''))}`;
+        
+        return `
+        <div class="stad-card" style="position: relative;">
+            <img src="${imgUrl}" class="stad-img" alt="${s.ad}">
+            <div class="stad-info">
+                ${s.ad} <br> 
+                <small style="color:#666; font-weight:normal; display:block; margin-bottom:8px;">${s.sehir || ''}</small>
+                
+                <a href="${haritaLinki}" target="_blank" style="display: inline-block; padding: 6px 14px; background-color: #24a0ed; color: white !important; text-decoration: none; font-size: 13px; font-weight: 600; border-radius: 8px; margin-top: 5px; transition: 0.2s;">
+                    📍 Haritada Göster
+                </a>
             </div>
+        </div>`;
+    }).join('')}
+</div>
 
             <div id="kadro" class="tab-content">
                 <div id="kadro-yukleniyor" style="text-align:center; padding:20px; color:#666;">
