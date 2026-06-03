@@ -151,6 +151,36 @@
         });
     }
 
+    // ... fonksiyonun üst kısmı ...
+const temizle = (metin) => metin.toLocaleLowerCase('tr-TR').trim();
+const arananTakim = temizle(takimAdi);
+
+for (let baslik of basliklar) {
+    if (baslik.id && (baslik.id.includes('Grup') || baslik.id.includes('Kadro'))) continue;
+
+    const baslikText = temizle(baslik.textContent.replace('[değiştir]', ''));
+
+    // ÖZEL İSİM İSTİSNALARI (BURAYA EKLEME YAPABİLİRSİN)
+    let ozelEslenme = false;
+    
+    // 1. Çekya / Çek Cumhuriyeti kontrolü
+    if (arananTakim === "çekya" && (baslikText.includes("çekya") || baslikText.includes("çek cumhuriyeti"))) {
+        ozelEslenme = true;
+    }
+    
+    // 2. ABD / Amerika Birleşik Devletleri kontrolü
+    if (arananTakim === "abd" && (baslikText.includes("amerika") || baslikText.includes("abd"))) {
+        ozelEslenme = true;
+    }
+
+    // Eşleşme kontrolü
+    if (baslikText.includes(arananTakim) || arananTakim.includes(baslikText) || ozelEslenme) {
+        hedefBaslik = baslik;
+        break;
+    }
+}
+// ... fonksiyonun alt kısmı ...
+
 async function vikipedidenKadroCek(takimAdi) {
     const sayfaAdi = "2026_FIFA_Dünya_Kupası_kadroları";
     const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&prop=text&format=json&origin=*`;
