@@ -68,7 +68,6 @@
             flex-wrap: wrap;
         }
 
-
        /* 1. TABLO TAŞMASINI KÖKTEN ÇÖZEN AYAR */
 .container {
     width: 100% !important;
@@ -503,6 +502,8 @@ table {
     </style>
 </head>
 <body>
+
+    <div id="navbar-placeholder"></div>
 <div class="container">
     <header>
         <h1>FIFA World Cup 2026</h1>
@@ -796,6 +797,16 @@ async function detayGoster(ev, dep) {
         yorumlarıCek(macId);
     } catch (err) { govde.innerHTML = "İstatistik verileri yüklenemedi."; }
 }
+fetch('navbar.html')
+        .then(response => {
+            if(!response.ok) throw new Error("Navbar yüklenemedi");
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+        })
+        .catch(err => console.warn(err.message));
+
 
 // --- YORUM SİSTEMİ ---
 async function yorumlarıCek(macId) {
