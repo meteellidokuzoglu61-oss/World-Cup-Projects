@@ -32,23 +32,11 @@
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
 
-        /* LOGO & NAVBAR YERLEŞİMİ */
-        .logo { margin: 20px 0; text-align: center; }
-        .logo a { 
-            text-decoration: none; 
-            color: var(--secondary); 
-            font-weight: 900; 
-            font-size: 2em; 
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-shadow: 0 2px 10px rgba(189, 155, 96, 0.3);
-        }
-
         /* MODERN HEADER */
         header {
             text-align: center; 
-            padding: 60px 20px;
-            background: linear-gradient(135deg, rgba(13A, 21, 56, 0.8) 0%, rgba(0, 77, 152, 0.8) 100%);
+            padding: 60px 40px;
+            background: linear-gradient(135deg, rgba(138, 21, 56, 0.8) 0%, rgba(0, 77, 152, 0.8) 100%);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--card-border);
@@ -179,10 +167,6 @@
 
     <div id="navbar-placeholder"></div>
 
-    <div class="logo">
-        <a href="index.html">FIFA 2026</a>
-    </div>
-
     <div class="container">
         <header>
             <h1>🏆 DÜNYA KUPASI 2026</h1>
@@ -228,26 +212,21 @@
             const birlesmis = takimlar.map(t => ({ 
                 ...t, 
                 sira: nisan2026Sira[t.id] || t.sira, 
-                grup: t.grup || "Belirsiz", // JSON'da grup yoksa patlamasın diye varsayılan değer
+                grup: t.grup || "Belirsiz", 
                 ...(detaylar[t.id] || {}) 
             }));
             sayfayiOlustur(birlesmis);
         } catch (e) { console.error("Veri yükleme hatası:", e); }
     }
 
-    // ARTIK GRUPLARA GÖRE SIRALIYOR VE EKSTRADAN FEDERASYON BİLGİSİNİ KÜNYEYE EKLEDİK
     function sayfayiOlustur(takimlar) {
         const konteynir = document.getElementById('gruplar-konteynir');
-        
-        // Takımları gruplarına göre alalım (A, B, C... Grupları)
         const gruplar = [...new Set(takimlar.map(t => t.grup))].sort();
         konteynir.innerHTML = "";
 
         gruplar.forEach(grup => {
             const section = document.createElement('div');
             section.className = 'grup-bolumu';
-            
-            // Eğer grup verisi "A" gibi tek harfse başına "GRUP" yazalım
             const baslikMetni = grup.length === 1 ? `GRUP ${grup}` : grup;
 
             section.innerHTML = `
@@ -371,7 +350,7 @@ async function vikipedidenKadroCek(takimAdi) {
                     const gelenStadAdi = s.ad.toLocaleLowerCase('tr-TR');
                     const stadKey = Object.keys(stadyumGorselleri).find(k => gelenStadAdi.includes(k.toLocaleLowerCase('tr-TR'))) || "";
                     const imgUrl = stadyumGorselleri[stadKey] || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80";
-                    const haritaLinki = `https://maps.google.com/?q=${encodeURIComponent(s.ad + ' ' + (s.sehir || ''))}`;
+                    const haritaLinki = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.ad + ' ' + (s.sehir || ''))}`;
                     
                     return `
                     <div class="stad-card">
