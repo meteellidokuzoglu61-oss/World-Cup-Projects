@@ -45,7 +45,7 @@
   { "id": "au", "ad": "Avustralya", "fed": "AFC", "Teknik Direktör": "Tony Popovic", "sira": 27, "lakap": "Socceroos", "star": "Harry Souttar" },
   { "id": "qa", "ad": "Katar", "fed": "AFC", "Teknik Direktör": "Joan Lopetegui", "sira": 55, "lakap": "Annabi", "star": "Akram Afif" },
   { "id": "uz", "ad": "Özbekistan", "fed": "AFC", "Teknik Direktör": "Fabio Cannavaro", "sira": 50, "lakap": "Beyaz Kurtlar", "star": "Eldor Shomurodov" },
-  { "id": "iq", "ad": "Irak", "fed": "AFC", "Teknik Direktör": "Jesús Casas", "sira": 57, "lakap": "Mezopotamya Aslanları", "star": "Aymen Hussein" },
+  { "id": "iq", "ad": "Irak", "fed": "AFC", "Teknik Direktör": "Graham Arnold", "sira": 57, "lakap": "Mezopotamya Aslanları", "star": "Aymen Hussein" },
   { "id": "jo", "ad": "Ürdün", "fed": "AFC", "Teknik Direktör": "Jamal Sellami", "sira": 63, "lakap": "Yiğitler", "star": "Musa Al-Taamari" },
 
   { "id": "pa", "ad": "Panama", "fed": "CONCACAF", "Teknik Direktör": "Thomas Christiansen", "sira": 33, "lakap": "Los Canaleros", "star": "Adalberto Carrasquilla" },
