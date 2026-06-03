@@ -48,6 +48,44 @@
         header h1 { font-size: 2.5em; margin: 0 0 10px 0; font-weight: 800; letter-spacing: 1px; }
         header p { font-size: 1.2em; color: #cbd5e1; margin: 0; font-weight: 300; }
 
+        /* UYARLANMIŞ MODERN FİLTRE ALANI TASARIMI */
+        .filtre-alani {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: -10px 0 35px 0;
+            flex-wrap: wrap;
+        }
+
+        .filtre-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .filtre-btn:hover {
+            border-color: var(--secondary);
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(189, 155, 96, 0.15);
+        }
+
+        .filtre-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(138, 21, 56, 0.4);
+        }
+
         /* GRUP BAŞLIKLARI VE GRIDLERİ */
         .grup-bolumu {
             background: rgba(255, 255, 255, 0.03);
@@ -172,6 +210,17 @@
             <h1>🏆 DÜNYA KUPASI 2026</h1>
             <p>Kuzey Amerika Yolculuğu Başlıyor</p>
         </header>
+
+        <div class="filtre-alani">
+            <button class="filtre-btn active" onclick="filtrele(event, 'HEPSİ')">Hepsi</button>
+            <button class="filtre-btn" onclick="filtrele(event, 'UEFA')">UEFA</button>
+            <button class="filtre-btn" onclick="filtrele(event, 'CONMEBOL')">CONMEBOL</button>
+            <button class="filtre-btn" onclick="filtrele(event, 'CONCACAF')">CONCACAF</button>
+            <button class="filtre-btn" onclick="filtrele(event, 'CAF')">CAF</button>
+            <button class="filtre-btn" onclick="filtrele(event, 'AFC')">AFC</button>
+            <button class="filtre-btn" onclick="filtrele(event, 'OFC')">OFC</button>
+        </div>
+
         <div id="gruplar-konteynir"></div>
     </div>
 
@@ -191,7 +240,7 @@
         "BC Place": "https://w0.peakpx.com/wallpaper/930/909/HD-wallpaper-bc-place-vancouver-whitecaps-fc-stadium-canadian-football-stadium-vancouver-british-columbia-canada-mls-stadiums-major-league-soccer.jpg",
         "Lumen": "https://static.clubs.nfl.com/image/private/t_new_photo_album/seahawks/rb5xedis3xxtppyxbsds.jpg",
         "Mercedes-Benz": "https://cdn.mos.cms.futurecdn.net/QT7b7RtMfc7doghPBpNutJ.jpg",
-        "Hard Rock": "https://t3.ftcdn.net/jpg/03/05/52/14/360_F_305521418_yzUq5q5pXDsIl3C4TpzIuVzW9klVg4pV.jpg",
+        "Hard Rock": "https://t3.ftcdn.net/jpg/03/05/52/14/360_F_305521418_yzUq5q5pXDsIl3C4TpzIuVzW9klVg4pV.pV.jpg",
         "Arrowhead": "https://static.clubs.nfl.com/image/private/t_new_photo_album/chiefs/tr74gj3cjwaoe83qmy9k.jpg",
         "Levi's": "https://ww4.hdnux.com/photos/31/55/16/6738831/5/rawImage.jpg",
         "Lincoln": "https://wallpapercave.com/wp/wp11930816.jpg",
@@ -204,27 +253,44 @@
 
     const nisan2026Sira = { "ar": 2, "fr": 1, "es": 3, "gb-eng": 4, "br": 5, "pt": 6, "ma": 8, "tr": 22, "us": 14, "mx": 17, "ca": 28 };
 
+    // Hafızada tüm veriyi tutacağımız global dizi
+    let tumTakimlar = [];
+
     async function veriyiGetir() {
         try {
             const [tRes, dRes] = await Promise.all([fetch('takimlar.json'), fetch('data.json')]);
             const takimlar = await tRes.json();
             const detaylar = await dRes.json();
-            const birlesmis = takimlar.map(t => ({ 
+            
+            // Birleştirilen veriyi global dizimize aktarıyoruz
+            tumTakimlar = takimlar.map(t => ({ 
                 ...t, 
                 sira: nisan2026Sira[t.id] || t.sira, 
                 grup: t.grup || "Belirsiz", 
                 ...(detaylar[t.id] || {}) 
             }));
-            sayfayiOlustur(birlesmis);
+            
+            sayfayiOlustur(tumTakimlar);
         } catch (e) { console.error("Veri yükleme hatası:", e); }
     }
 
     function sayfayiOlustur(takimlar) {
         const konteynir = document.getElementById('gruplar-konteynir');
-        const gruplar = [...new Set(takimlar.map(t => t.grup))].sort();
         konteynir.innerHTML = "";
 
+        if (takimlar.length === 0) {
+            konteynir.innerHTML = `<div style="text-align:center; padding:50px; color:#9ca3af; font-size:1.1em;">Seçilen konfederasyonda takımların grupları henüz belli değil.</div>`;
+            return;
+        }
+
+        const gruplar = [...new Set(takimlar.map(t => t.grup))].sort();
+
         gruplar.forEach(grup => {
+            const grupTakimlari = takimlar.filter(t => t.grup === grup);
+            
+            // Filtreleme yapıldığında o grupta takım kalmadıysa boş grup başlığı basılmasını engeller
+            if (grupTakimlari.length === 0) return;
+
             const section = document.createElement('div');
             section.className = 'grup-bolumu';
             const baslikMetni = grup.length === 1 ? `GRUP ${grup}` : grup;
@@ -237,7 +303,7 @@
             
             const grid = document.getElementById(`grup-${grup.replace(/\s/g, '')}`);
             
-            takimlar.filter(t => t.grup === grup).forEach(t => {
+            grupTakimlari.forEach(t => {
                 const kart = document.createElement('div');
                 kart.className = 'takim-karti';
                 kart.onclick = () => detayAc(t);
@@ -248,6 +314,23 @@
                 grid.appendChild(kart);
             });
         });
+    }
+
+    // DİNAMİK FİLTRELEME FONKSİYONU
+    function filtrele(evt, konfederasyon) {
+        // 1. Aktif buton stilini değiştirme
+        const butonlar = document.querySelectorAll('.filtre-btn');
+        butonlar.forEach(btn => btn.classList.remove('active'));
+        evt.currentTarget.classList.add('active');
+
+        // 2. Hafızadaki 'tumTakimlar' dizisini süzme
+        if (konfederasyon === 'HEPSİ') {
+            sayfayiOlustur(tumTakimlar);
+        } else {
+            // JSON verinizdeki 'fed' alanı ile buton ismini eşleştiriyoruz
+            const filtrelenmis = tumTakimlar.filter(t => t.fed && t.fed.toUpperCase() === konfederasyon.toUpperCase());
+            sayfayiOlustur(filtrelenmis);
+        }
     }
 
 async function vikipedidenKadroCek(takimAdi) {
@@ -287,7 +370,7 @@ async function vikipedidenKadroCek(takimAdi) {
 
         for (let i = 0; i < 5; i++) {
             if (!sonrakiEleman) break;
-            if (sonrakiEleman.tagName === 'TABLE' && sonrakiEleman.classList.contains('wikitable')) {
+            if (sonkiEleman.tagName === 'TABLE' && sonrakiEleman.classList.contains('wikitable')) {
                 kadroTablosu = sonrakiEleman;
                 break;
             }
