@@ -253,7 +253,6 @@
 
     const nisan2026Sira = { "ar": 2, "fr": 1, "es": 3, "gb-eng": 4, "br": 5, "pt": 6, "ma": 8, "tr": 22, "us": 14, "mx": 17, "ca": 28 };
 
-    // Hafızada tüm veriyi tutacağımız global dizi
     let tumTakimlar = [];
 
     async function veriyiGetir() {
@@ -262,7 +261,6 @@
             const takimlar = await tRes.json();
             const detaylar = await dRes.json();
             
-            // Birleştirilen veriyi global dizimize aktarıyoruz
             tumTakimlar = takimlar.map(t => ({ 
                 ...t, 
                 sira: nisan2026Sira[t.id] || t.sira, 
@@ -288,7 +286,6 @@
         gruplar.forEach(grup => {
             const grupTakimlari = takimlar.filter(t => t.grup === grup);
             
-            // Filtreleme yapıldığında o grupta takım kalmadıysa boş grup başlığı basılmasını engeller
             if (grupTakimlari.length === 0) return;
 
             const section = document.createElement('div');
@@ -316,93 +313,89 @@
         });
     }
 
-    // DİNAMİK FİLTRELEME FONKSİYONU
     function filtrele(evt, konfederasyon) {
-        // 1. Aktif buton stilini değiştirme
         const butonlar = document.querySelectorAll('.filtre-btn');
         butonlar.forEach(btn => btn.classList.remove('active'));
         evt.currentTarget.classList.add('active');
 
-        // 2. Hafızadaki 'tumTakimlar' dizisini süzme
         if (konfederasyon === 'HEPSİ') {
             sayfayiOlustur(tumTakimlar);
         } else {
-            // JSON verinizdeki 'fed' alanı ile buton ismini eşleştiriyoruz
             const filtrelenmis = tumTakimlar.filter(t => t.fed && t.fed.toUpperCase() === konfederasyon.toUpperCase());
             sayfayiOlustur(filtrelenmis);
         }
     }
 
-async function vikipedidenKadroCek(takimAdi) {
-    const sayfaAdi = "2026_FIFA_Dünya_Kupası_kadroları";
-    const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&prop=text&format=json&origin=*`;
+    async function vikipedidenKadroCek(takimAdi) {
+        const sayfaAdi = "2026_FIFA_Dünya_Kupası_kadroları";
+        const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&prop=text&format=json&origin=*`;
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.error) return "<div style='padding:20px; text-align:center;'>Kadro sayfası Vikipedi'de bulunamadı.</div>";
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.error) return "<div style='padding:20px; text-align:center;'>Kadro sayfası Vikipedi'de bulunamadı.</div>";
 
-        const htmlIcerik = data.parse.text["*"];
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlIcerik, 'text/html');
-        const basliklar = doc.querySelectorAll('h3, h4, .mw-heading3, .mw-heading4');
-        let hedefBaslik = null;
-        const temizle = (metin) => metin.toLocaleLowerCase('tr-TR').trim();
-        const arananTakim = temizle(takimAdi);
+            const htmlIcerik = data.parse.text["*"];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlIcerik, 'text/html');
+            const basliklar = doc.querySelectorAll('h3, h4, .mw-heading3, .mw-heading4');
+            let hedefBaslik = null;
+            const temizle = (metin) => metin.toLocaleLowerCase('tr-TR').trim();
+            const arananTakim = temizle(takimAdi);
 
-        for (let baslik of basliklar) {
-            if (baslik.id && (baslik.id.includes('Grup') || baslik.id.includes('Kadro'))) continue;
-            const baslikText = temizle(baslik.textContent.replace('[değiştir]', ''));
-            let ozelEslenme = false;
-            if (arananTakim === "abd" && (baslikText.includes("amerika") || baslikText.includes("abd"))) ozelEslenme = true;
-            if (arananTakim === "ingiltere" && baslikText.includes("ingiltere")) ozelEslenme = true;
+            for (let baslik of basliklar) {
+                if (baslik.id && (baslik.id.includes('Grup') || baslik.id.includes('Kadro'))) continue;
+                const baslikText = temizle(baslik.textContent.replace('[değiştir]', ''));
+                let ozelEslenme = false;
+                if (arananTakim === "abd" && (baslikText.includes("amerika") || baslikText.includes("abd"))) ozelEslenme = true;
+                if (arananTakim === "ingiltere" && baslikText.includes("ingiltere")) ozelEslenme = true;
 
-            if (baslikText.includes(arananTakim) || arananTakim.includes(baslikText) || ozelEslenme) {
-                hedefBaslik = baslik;
-                break;
+                if (baslikText.includes(arananTakim) || arananTakim.includes(baslikText) || ozelEslenme) {
+                    hedefBaslik = baslik;
+                    break;
+                }
             }
+
+            if (!hedefBaslik) return `<div style='padding:20px; text-align:center;'>${takimAdi} takımı için bu sayfada henüz bir kadro başlığı açılmamış veya isim eşleşmedi.</div>`;
+
+            let sonrakiEleman = hedefBaslik.nextElementSibling;
+            let kadroTablosu = null;
+
+            for (let i = 0; i < 5; i++) {
+                if (!sonrakiEleman) break;
+                if (sonrakiEleman.tagName === 'TABLE' && sonrakiEleman.classList.contains('wikitable')) {
+                    kadroTablosu = sonrakiEleman;
+                    break;
+                }
+                const icindekiTablo = sonrakiEleman.querySelector('table.wikitable');
+                if (icindekiTablo) {
+                    kadroTablosu = icindekiTablo;
+                    break;
+                }
+                sonrakiEleman = sonrakiEleman.nextElementSibling;
+            }
+
+            if (!kadroTablosu) return `<div style='padding:20px; text-align:center;'>${takimAdi} başlığı bulundu fakat altındaki kadro tablosu okunamadı.</div>`;
+
+            const temizTablo = kadroTablosu.cloneNode(true);
+            temizTablo.querySelectorAll('.mw-editsection').forEach(el => el.remove());
+
+            return `
+            <div class="viki-kadro" style="overflow-x:auto; padding: 10px;">
+                <style>
+                    .viki-kadro table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; background: #1f293d; border-radius: 12px; overflow: hidden; }
+                    .viki-kadro th { background-color: var(--primary) !important; color: white !important; padding: 12px 10px; text-align: left; }
+                    .viki-kadro td { padding: 10px; border-bottom: 1px solid var(--card-border); color: #e5e7eb; }
+                    .viki-kadro tr:hover { background-color: rgba(255,255,255,0.05); }
+                    .viki-kadro a { color: var(--secondary); text-decoration: none; font-weight: 600; }
+                    .viki-kadro td[style*="background"], th[style*="background"] { color: #ffffff !important; }
+                </style>
+                ${temizTablo.outerHTML}
+            </div>`;
+        } catch (error) {
+            return "<div style='padding:20px; text-align:center; color:red;'>Kadro yüklenirken bir hata oluştu.</div>";
         }
-
-        if (!hedefBaslik) return `<div style='padding:20px; text-align:center;'>${takimAdi} takımı için bu sayfada henüz bir kadro başlığı açılmamış veya isim eşleşmedi.</div>`;
-
-        let sonrakiEleman = hedefBaslik.nextElementSibling;
-        let kadroTablosu = null;
-
-        for (let i = 0; i < 5; i++) {
-            if (!sonrakiEleman) break;
-            if (sonkiEleman.tagName === 'TABLE' && sonrakiEleman.classList.contains('wikitable')) {
-                kadroTablosu = sonrakiEleman;
-                break;
-            }
-            const icindekiTablo = sonrakiEleman.querySelector('table.wikitable');
-            if (icindekiTablo) {
-                kadroTablosu = icindekiTablo;
-                break;
-            }
-            sonrakiEleman = sonrakiEleman.nextElementSibling;
-        }
-
-        if (!kadroTablosu) return `<div style='padding:20px; text-align:center;'>${takimAdi} başlığı bulundu fakat altındaki kadro tablosu okunamadı.</div>`;
-
-        const temizTablo = kadroTablosu.cloneNode(true);
-        temizTablo.querySelectorAll('.mw-editsection').forEach(el => el.remove());
-
-        return `
-        <div class="viki-kadro" style="overflow-x:auto; padding: 10px;">
-            <style>
-                .viki-kadro table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; background: #1f293d; border-radius: 12px; overflow: hidden; }
-                .viki-kadro th { background-color: var(--primary) !important; color: white !important; padding: 12px 10px; text-align: left; }
-                .viki-kadro td { padding: 10px; border-bottom: 1px solid var(--card-border); color: #e5e7eb; }
-                .viki-kadro tr:hover { background-color: rgba(255,255,255,0.05); }
-                .viki-kadro a { color: var(--secondary); text-decoration: none; font-weight: 600; }
-                .viki-kadro td[style*="background"], th[style*="background"] { color: #ffffff !important; }
-            </style>
-            ${temizTablo.outerHTML}
-        </div>`;
-    } catch (error) {
-        return "<div style='padding:20px; text-align:center; color:red;'>Kadro yüklenirken bir hata oluştu.</div>";
     }
-}
 
     async function detayAc(t) {
         const icerik = document.getElementById('modal-icerik');
