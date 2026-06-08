@@ -7,15 +7,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const dbConfig = {
-    user: 'postgres',
-    host: 'localhost',
-    password: 'myPassword', // Kendi şifrenle değiştir
-    port: 5432,
-    database: 'fifa2026'
-};
+// --- 1. NEON CANLI BAĞLANTI AYARI ---
+// Neon Dashboard'dan kopyaladığın o uzun adresi buraya yapıştır.
+// Sonundaki ?sslmode=verify-full uyarısını susturmak için eklenmiştir.
+const CANLI_BAĞLANTI_LINKI = "BURAYA_NEON_DASHBOARDDAN_ALDIĞIN_LINKI_YAZ?sslmode=verify-full";
 
-let activePool;
+const pool = new Pool({
+    connectionString: CANLI_BAĞLANTI_LINKI,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
 // --- SENİN PAYLAŞTIĞIN ORİJİNAL VERİ SETİ ---
 const hamFiksturVerisi = [
@@ -104,7 +106,7 @@ const hamFiksturVerisi = [
     { "id": 84, "tur": "Son 32", "grup": "Son 32", "ev": "H1", "dep": "J2", "kodEv": "un", "kodDep": "un", "tsi": "22:00","stat":"SoFi Stadyumu, Inglewood" ,"tarih":"2 Temmuz 2026","yerel":"12:00 PDT"},
     { "id": 83, "tur": "Son 32", "grup": "Son 32", "ev": "K1", "dep": "L2", "kodEv": "un", "kodDep": "un", "tsi": "02:00","stat":"BMO Field, Toronto" ,"tarih":"2 Temmuz 2026","yerel":"19:00 CST"},
     { "id": 85, "tur": "Son 32", "grup": "Son 32", "ev": "B1", "dep": "E/F/G/I/J Grubu 3.sü", "kodEv": "un", "kodDep": "un", "tsi": "06:00","stat":"BC Place, Vancouver" ,"tarih":"2 Temmuz 2026","yerel":"20:00 PDT"},
-    { "id": 88, "tur": "Son 32", "grup": "Son 32", "ev": "D2", "dep": "G2", "kodEv": "un", "kodDep": "un", "tsi": "21:00","stat":"AT&T Stadyumu, Arlington" ,"tarih":"3 Temmuz 2026","yerel":"13:00 CDT"},
+    { "id": 88, "tur": "Son 32", "grup": "Son 32", "ev": "D2", "dep": "G2", "kodEv": "un", "kodDep": "un", "tsi": "21:00","stat":"AT&T Stadyumu, Arlington" ,"tarih":"3 Campuz 2026","yerel":"13:00 CDT"},
     { "id": 86, "tur": "Son 32", "grup": "Son 32", "ev": "J1", "dep": "H2", "kodEv": "un", "kodDep": "un", "tsi": "01:00","stat":"Hard Rock Stadyumu, Miami" ,"tarih":"3 Temmuz 2026","yerel":"18:00 CST"},
     { "id": 87, "tur": "Son 32", "grup": "Son 32", "ev": "K1", "dep": "D/E/I/J/L Grubu 3.sü", "kodEv": "un", "kodDep": "un", "tsi": "04:30","stat":"Arrowhead Stadyumu, Kansas City" ,"tarih":"3 Temmuz 2026","yerel":"20:30 CDT"},
     { "id": 90, "tur": "Son 16", "grup": "Son 16", "ev": "73.Maç Kazananı", "dep": "75.Maç Kazananı", "kodEv": "un", "kodDep": "un", "tsi": "20:00","stat":"NRG Stadyumu, Houston" ,"tarih":"4 Temmuz 2026","yerel":"12:00 CST"},
@@ -126,19 +128,9 @@ const hamFiksturVerisi = [
 ];
 
 async function sistemiBaslat() {
-    const setupPool = new Pool({ ...dbConfig, database: 'postgres' });
     try {
-        const dbKontrol = await setupPool.query("SELECT 1 FROM pg_database WHERE datname = 'fifa2026'");
-        if (dbKontrol.rowCount === 0) {
-            await setupPool.query('CREATE DATABASE fifa2026');
-            console.log("⚽ 'fifa2026' veritabanı olusturuldu.");
-        }
-        await setupPool.end();
-
-        activePool = new Pool(dbConfig);
-        
-        // --- YENİ DİNAMİK TABLO YAPISI ---
-        await activePool.query(`
+        // --- DINAMIK TABLO YAPILARI (Bulutta yoksa otomatik kurulur) ---
+        await pool.query(`
             CREATE TABLE IF NOT EXISTS yoneticiler (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(50) UNIQUE NOT NULL,
@@ -177,40 +169,40 @@ async function sistemiBaslat() {
                 tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
+        console.log("ℹ️ Neon Canlı Veritabanı tabloları kontrol edildi/oluşturuldu.");
 
         // --- ADMİN SEED ---
-        const userKontrol = await activePool.query("SELECT * FROM yoneticiler WHERE email = 'admin@fifa.com'");
+        const userKontrol = await pool.query("SELECT * FROM yoneticiler WHERE email = 'admin@fifa.com'");
         if (userKontrol.rowCount === 0) {
             const hashed = await bcrypt.hash('123456', 10);
-            await activePool.query(
+            await pool.query(
                 "INSERT INTO yoneticiler (username, email, password, role) VALUES ($1, $2, $3, $4)",
                 ['Mete Elldokuz', 'admin@fifa.com', hashed, 'super_admin']
             );
-            console.log("✔ Varsayılan admin (Mete) olusturuldu.");
+            console.log("✔ Varsayılan admin (Mete) canlı veritabanında oluşturuldu.");
         }
 
-        // --- TÜM FİKSTÜRÜ DB'YE TEK SEFERDE YÜKLEME (AUTOMATED SEEDING) ---
-        const fiksturKontrol = await activePool.query("SELECT COUNT(*) FROM fikstur");
+        // --- AUTOMATED SEEDING (Fikstür Boşsa Canlıya Yazma) ---
+        const fiksturKontrol = await pool.query("SELECT COUNT(*) FROM fikstur");
         if (parseInt(fiksturKontrol.rows[0].count) === 0) {
-            console.log("⏳ Büyük fikstür veritabanına işleniyor, lütfen bekleyin...");
+            console.log("⏳ Büyük fikstür CANLI veritabanına işleniyor, lütfen bekleyin...");
             
             for (let i = 0; i < hamFiksturVerisi.length; i++) {
                 const m = hamFiksturVerisi[i];
-                // Eğer maçın kendi ID'si yoksa sıralı atıyoruz (Grup Maçları için 1-72 arası)
                 const macId = m.id || (i + 1); 
                 const macTuru = m.tur || 'Grup Aşaması';
 
-                await activePool.query(`
+                await pool.query(`
                     INSERT INTO fikstur (id, grup, tur, tarih, ev, dep, kod_ev, kod_dep, tsi, yerel, stat, skor_ev, skor_dep)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NULL, NULL)
                 `, [macId, m.grup, macTuru, m.tarih, m.ev, m.dep, m.kodEv, m.kodDep, m.tsi, m.yerel, m.stat]);
             }
-            console.log(`✔ Toplam ${hamFiksturVerisi.length} maç veritabanına başarıyla aktarıldı.`);
+            console.log(`✔ Toplam ${hamFiksturVerisi.length} maç canlı veritabanına başarıyla aktarıldı.`);
         }
 
-        console.log("✅ Veritabanı ve tüm sistem dinamik olarak hazır.");
+        console.log("✅ Canlı Veritabanı ve tüm sistem dinamik olarak hazır.");
     } catch (err) {
-        console.error("❌ DB Hatası:", err.message);
+        console.error("❌ Bulut DB Başlatma Hatası:", err.message);
     }
 }
 
@@ -219,7 +211,7 @@ async function sistemiBaslat() {
 // 1. Fikstürü Getir
 app.get('/api/fikstur', async (req, res) => {
     try {
-        const result = await activePool.query(`
+        const result = await pool.query(`
             SELECT 
                 id, grup, tur, tarih, ev, dep, 
                 kod_ev AS "kodEv", kod_dep AS "kodDep", 
@@ -234,13 +226,11 @@ app.get('/api/fikstur', async (req, res) => {
     }
 });
 
-// 2. Güvenli Maç Güncelleme (ID Tabanlı)
-// POST URL: http://localhost:3000/api/mac-guncelle
-// BODY ÖRNEĞİ: { "id": 1, "skorEv": 3, "skorDep": 2 }
+// 2. Güvenli Maç Güncelleme
 app.post('/api/mac-guncelle', async (req, res) => {
     const { id, skorEv, skorDep } = req.body;
     try {
-        const result = await activePool.query(
+        const result = await pool.query(
             `UPDATE fikstur 
              SET skor_ev = $1, skor_dep = $2 
              WHERE id = $3 RETURNING *`,
@@ -256,14 +246,13 @@ app.post('/api/mac-guncelle', async (req, res) => {
     }
 });
 
-// Diğer Giriş, Kayıt ve Yorum API'leri
 app.post('/api/register', async (req, res) => {
     let { username, email, password } = req.body;
     try {
         email = email.trim().toLowerCase();
         username = username.trim();
         const hashed = await bcrypt.hash(password, 10);
-        await activePool.query("INSERT INTO yoneticiler (username, email, password) VALUES ($1, $2, $3)", [username, email, hashed]);
+        await pool.query("INSERT INTO yoneticiler (username, email, password) VALUES ($1, $2, $3)", [username, email, hashed]);
         res.json({ success: true, message: "Kayıt başarılı." });
     } catch (err) {
         res.status(400).json({ success: false, message: "Hata oluştu." });
@@ -274,7 +263,7 @@ app.post('/api/login', async (req, res) => {
     let { email, password } = req.body;
     try {
         email = email.trim().toLowerCase();
-        const result = await activePool.query("SELECT * FROM yoneticiler WHERE email = $1", [email]);
+        const result = await pool.query("SELECT * FROM yoneticiler WHERE email = $1", [email]);
         if (result.rowCount === 0) return res.status(401).json({ success: false, message: "Kullanıcı bulunamadı!" });
         
         const user = result.rows[0];
@@ -288,7 +277,7 @@ app.post('/api/login', async (req, res) => {
 
 app.get('/api/yorumlar/:macId', async (req, res) => {
     try {
-        const result = await activePool.query("SELECT * FROM yorumlar WHERE mac_id = $1 ORDER BY tarih DESC", [req.params.macId]);
+        const result = await pool.query("SELECT * FROM yorumlar WHERE mac_id = $1 ORDER BY tarih DESC", [req.params.macId]);
         res.json(result.rows);
     } catch (err) { res.status(500).json({ error: "Yorumlar yüklenemedi." }); }
 });
@@ -296,13 +285,14 @@ app.get('/api/yorumlar/:macId', async (req, res) => {
 app.post('/api/yorumlar', async (req, res) => {
     try {
         const { mac_id, kullanici_adi, yorum_metni } = req.body;
-        const result = await activePool.query("INSERT INTO yorumlar (mac_id, kullanici_adi, yorum_metni) VALUES ($1, $2, $3) RETURNING *", [mac_id, kullanici_adi || 'Anonim', yorum_metni]);
+        const result = await pool.query("INSERT INTO yorumlar (mac_id, kullanici_adi, yorum_metni) VALUES ($1, $2, $3) RETURNING *", [mac_id, kullanici_adi || 'Anonim', yorum_metni]);
         res.json(result.rows[0]);
     } catch (err) { res.status(500).json({ error: "Yorum kaydedilemedi." }); }
 });
 
-const PORT = 3000;
+// Vercel veya Render'a uygun port tanımı
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
-    console.log(`🚀 Sunucu http://localhost:${PORT} adresinde aktif.`);
+    console.log(`🚀 Sunucu ${PORT} portunda aktif.`);
     await sistemiBaslat();
 });
