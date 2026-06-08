@@ -41,7 +41,7 @@
         <h2>Hesap Oluştur</h2>
         <input type="text" id="r-username" placeholder="Kullanıcı Adı">
         <input type="email" id="r-email" placeholder="E-posta">
-        <input type="password" id="r-password" placeholder="Şifre">
+        <input type="password" id="r-password" placeholder="Şifre (En az 6 karakter, harf ve rakam)">
         <button class="btn" onclick="handleAuth('register')">KAYIT OL</button>
     </div>
 </div>
@@ -57,50 +57,81 @@
         }
     }
 
-   async function handleAuth(type) {
-    const emailField = type === 'login' ? 'l-email' : 'r-email';
-    const passwordField = type === 'login' ? 'l-password' : 'r-password';
-    
-    const email = document.getElementById(emailField).value.trim();
-    const password = document.getElementById(passwordField).value;
-
-    if (!email || !password) {
-        alert("Lütfen tüm alanları doldurun.");
-        return;
-    }
-
-    let payload = { email, password };
-    if (type === 'register') {
-        payload.username = document.getElementById('r-username').value.trim();
-    }
-
-    let url = 'http://localhost:3000/api/' + type;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+    async function handleAuth(type) {
+        const emailField = type === 'login' ? 'l-email' : 'r-email';
+        const passwordField = type === 'login' ? 'l-password' : 'r-password';
         
-        const data = await response.json();
+        const email = document.getElementById(emailField).value.trim();
+        const password = document.getElementById(passwordField).value;
 
-        if (response.ok && data.success) {
-            if(type === 'login') {
-                localStorage.setItem('fifa_auth', 'basarili');
-                localStorage.setItem('fifa_user_data', JSON.stringify(data.user));
-                window.location.replace('index.html');
-            } else {
-                alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
-                switchTab('login');
-            }
-        } else {
-            alert(data.message || "Bir hata oluştu.");
+        // 1. Boş Alan Kontrolü
+        if (!email || !password) {
+            alert("Lütfen tüm alanları doldurun.");
+            return;
         }
-    } catch (err) {
-        alert('Sunucuya bağlanılamadı! Lütfen backendin çalıştığından emin olun.');
+
+        // 2. E-posta Geçerlilik Kontrolü
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert("Lütfen geçerli bir e-posta adresi girin.");
+            return;
+        }
+
+        // 3. Şifre Sınırlaması Kontrolü (En az 6 karakter, 1 harf, 1 rakam)
+        if (type === 'register') {
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+            if (!passwordRegex.test(password)) {
+                alert("Şifre en az 6 karakter uzunluğunda olmalı, en az bir harf ve bir rakam içermelidir.");
+                return;
+            }
+        }
+
+        let payload = { email, password };
+        if (type === 'register') {
+            payload.username = document.getElementById('r-username').value.trim();
+            if (!payload.username) {
+                alert("Lütfen bir kullanıcı adı belirleyin.");
+                return;
+            }
+        }
+
+        // ❗ BURAYI DEĞİŞTİRİN: Canlıya aldığınız backend API adresinizi buraya yazın
+        // Örn: 'https://api.dunyakupasiproje.com/api/' veya 'https://projeniz.onrender.com/api/'
+        let baseUrl = 'http://localhost:3000/api/'; 
+        
+        if (window.location.hostname !== 'localhost') {
+            // Eğer site canlıda çalışıyorsa localhost yerine canlı backend linkini ata
+            baseUrl = 'https://backend-linkiniz.com/api/'; // <--- Canlı api adresiniz
+        }
+
+        let url = baseUrl + type;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                if(type === 'login') {
+                    localStorage.setItem('fifa_auth', 'basarili');
+                    localStorage.setItem('fifa_user_data', JSON.stringify(data.user));
+                    window.location.replace('index.html');
+                } else {
+                    alert('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+                    switchTab('login');
+                }
+            } else {
+                alert(data.message || "Bir hata oluştu.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Sunucuya bağlanılamadı! Lütfen API adresinizin (URL) doğruluğundan ve backend tarafında CORS izinlerinin açık olduğundan emin olun.');
+        }
     }
-}
 </script>
 </body>
 </html>
