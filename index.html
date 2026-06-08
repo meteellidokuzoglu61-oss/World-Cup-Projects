@@ -160,6 +160,25 @@ body {
         .qual-badge { background: var(--success); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
 
         footer { background: var(--dark); color: white; text-align: center; padding: 40px 0; margin-top: 50px; }
+
+
+        .duyuru-item {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    border-left: 4px solid #ccc;
+    background: #f8f9fa;
+}
+.duyuru-item.success { background: #e8f5e9; border-left-color: #2e7d32; color: #1b5e20; }
+.duyuru-item.warning { background: #fff8e1; border-left-color: #f57f17; color: #e65100; }
+.duyuru-item.danger  { background: #ffebee; border-left-color: #c62828; color: #b71c1c; }
+.duyuru-item.info    { background: #e3f2fd; border-left-color: #1565c0; color: #0d47a1; }
+
+.duyuru-baslik {
+    font-weight: 700;
+    margin-right: 8px;
+}
     </style>
 </head>
 <body>
@@ -204,6 +223,17 @@ body {
         <div class="ad-placeholder">REKLAM</div>
     </aside>
 </main>
+
+<div id="duyuru-konteynir" style="max-width: 1300px; margin: 20px auto; padding: 0 15px; display: none;">
+    <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-left: 6px solid #8A1538;">
+        <h3 style="margin-top: 0; color: #8A1538; display: flex; align-items: center; gap: 10px; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px;">
+            📢 Son Duyurular
+        </h3>
+        <div id="duyuru-listesi">
+            <!-- Dinamik duyurular buraya akacak -->
+        </div>
+    </div>
+</div>
 
         <section class="stats-bar">
             <div class="stat-item"><strong>48</strong><span>Takım</span></div>
@@ -407,6 +437,51 @@ body {
                 </div>
             `;
         });
+
+        async function duyurulariYukle() {
+    // Eğer Supabase client henüz başlamadıysa init et
+    if (typeof initSupabase === "function") initSupabase(); 
+    
+    const konteynir = document.getElementById('duyuru-konteynir');
+    const liste = document.getElementById('duyuru-listesi');
+    
+    if (!supabaseClient || !liste) return;
+
+    try {
+        // Aktif olan duyuruları yeniden eskiye doğru çekiyoruz
+        const { data: duyurular, error } = await supabaseClient
+            .from('duyurular')
+            .select('*')
+            .eq('aktif', true)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (duyurular && duyurular.length > 0) {
+            konteynir.style.display = "block"; // Duyuru varsa alanı görünür yap
+            
+            liste.innerHTML = duyurular.map(d => `
+                <div class="duyuru-item ${safeText(d.tip)}">
+                    <span class="duyuru-baslik">📌 ${safeText(d.baslik)}:</span>
+                    <span class="duyuru-icerik">${safeText(d.icerik)}</span>
+                </div>
+            `).join('');
+        } else {
+            konteynir.style.display = "none"; // Duyuru yoksa alanı gizle
+        }
+    } catch (err) {
+        console.error("Duyurular yüklenirken hata oluştu:", err.message);
+    }
+}
+
+// window.onload fonksiyonunun içine bu fonksiyonu da eklemeyi unutma:
+// Örn: 
+window.onload = () => {
+    setTimeout(() => {
+        fiksturuYukle();
+        duyurulariYukle(); // <-- Duyuruları tetikliyoruz
+    }, 300);
+};
 
         // En İyi 3.ler Tablosunu Güncelle
         if (thirdsBody) {
