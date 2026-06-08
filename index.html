@@ -277,85 +277,125 @@ body {
 
    <script>
     // --- KÜRESEL DEĞİŞKENLER ---
-    let aktifKullaniciAdi = "Misafir";
+    // --- KÜRESEL DEĞİŞKENLER ---
+let aktifKullaniciAdi = "Misafir";
 
-    // --- GÜVENLİ GİRİŞ KONTROLÜ ---
-    function checkAuth() {
-        const authStatus = localStorage.getItem('fifa_auth');
-        const userData = localStorage.getItem('fifa_user_data');
-        const adminPanel = document.getElementById('admin-panel');
+// --- GÜVENLİ GİRİŞ KONTROLÜ ---
+function checkAuth() {
+    const authStatus = localStorage.getItem('fifa_auth');
+    const userData = localStorage.getItem('fifa_user_data');
+    const adminPanel = document.getElementById('admin-panel');
 
-        // 1. Durum: Hiç veri yoksa -> Login'e gönder
-        if (!authStatus) {
-            window.location.replace('login.html');
-            return false;
-        }
-
-        // 2. Durum: Misafir girişi
-        if (authStatus === 'misafir') {
-            aktifKullaniciAdi = "Misafir";
-            if (adminPanel) adminPanel.style.display = 'none';
-            console.log("Mod: Misafir");
-            return true;
-        }
-
-        // 3. Durum: Başarılı Giriş (Yönetici/Kullanıcı)
-        if (authStatus === 'basarili') {
-            if (userData) {
-                const user = JSON.parse(userData);
-                aktifKullaniciAdi = user.name || user.username || "Kullanıcı";
-                
-                if (adminPanel) {
-                    adminPanel.style.display = 'flex';
-                    document.getElementById('admin-name').innerText = aktifKullaniciAdi;
-                }
-            }
-            console.log("Mod: Kayıtlı Kullanıcı - " + aktifKullaniciAdi);
-            return true;
-        }
-
+    if (!authStatus) {
         window.location.replace('login.html');
         return false;
     }
 
-    // --- ÇIKIŞ YAPMA FONKSİYONU ---
-    function cikisYap() {
-        localStorage.clear();
-        window.location.replace('login.html');
+    if (authStatus === 'misafir') {
+        aktifKullaniciAdi = "Misafir";
+        if (adminPanel) adminPanel.style.display = 'none';
+        console.log("Mod: Misafir");
+        return true;
     }
 
-    // --- YORUM GÖNDERME (DİNAMİK) ---
-    async function yorumGonder(macId) {
-        const input = document.getElementById('yorumInput');
-        if (!input) return;
-        
-        const yorumMetni = input.value.trim();
-        if (!yorumMetni) return;
-
-        try {
-            const response = await fetch('http://localhost:3000/api/yorumlar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    mac_id: macId,
-                    kullanici_adi: aktifKullaniciAdi, // Login olan kişinin ismi buraya gider
-                    yorum_metni: yorumMetni
-                })
-            });
-
-            if (response.ok) {
-                input.value = "";
-                // Eğer sayfada yorumlarıYukle fonksiyonun varsa onu çağırır:
-                if (typeof yorumlariYukle === 'function') yorumlariYukle(macId);
+    if (authStatus === 'basarili') {
+        if (userData) {
+            const user = JSON.parse(userData);
+            aktifKullaniciAdi = user.name || user.username || "Kullanıcı";
+            
+            if (adminPanel) {
+                adminPanel.style.display = 'flex';
+                document.getElementById('admin-name').innerText = aktifKullaniciAdi;
             }
-        } catch (err) {
-            console.error("Yorum hatası:", err);
-            alert("Sunucuya ulaşılamadı, yorum kaydedilemedi.");
         }
+        console.log("Mod: Kayıtlı Kullanıcı - " + aktifKullaniciAdi);
+        return true;
     }
 
-    // --- VERİLERİ ÇEKME VE GRUPLARI OLUŞTURMA ---
-   async function verileriYukle() {
+    window.location.replace('login.html');
+    return false;
+}
+
+// --- ÇIKIŞ YAPMA FONKSİYONU ---
+function cikisYap() {
+    localStorage.clear();
+    window.location.replace('login.html');
+}
+
+// --- YORUM GÖNDERME (DİNAMİK) ---
+async function yorumGonder(macId) {
+    const input = document.getElementById('yorumInput');
+    if (!input) return;
+    
+    const yorumMetni = input.value.trim();
+    if (!yorumMetni) return;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/yorumlar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mac_id: macId,
+                kullanici_adi: aktifKullaniciAdi,
+                yorum_metni: yorumMetni
+            })
+        });
+
+        if (response.ok) {
+            input.value = "";
+            if (typeof yorumlariYukle === 'function') yorumlariYukle(macId);
+        }
+    } catch (err) {
+        console.error("Yorum hatası:", err);
+        alert("Sunucuya ulaşılamadı, yorum kaydedilemedi.");
+    }
+}
+
+// --- DUYURULARI SÜREKLİ VE BAĞIMSIZ YÜKLEME FONKSİYONU ---
+async function duyurulariYukle() {
+    // Eğer Supabase client henüz başlamadıysa init et
+    if (typeof initSupabase === "function") initSupabase(); 
+    
+    const konteynir = document.getElementById('duyuru-konteynir');
+    const liste = document.getElementById('duyuru-listesi');
+    
+    // safeText fonksiyonun yoksa hata vermemesi için basit bir kontrol/fallback
+    const safe = typeof safeText === 'function' ? safeText : (text) => text || '';
+
+    // supabaseClient objesinin varlığından emin olalım
+    if (typeof supabaseClient === 'undefined' || !supabaseClient || !liste) {
+        console.warn("Supabase bağlantısı veya duyuru listesi elementi bulunamadı.");
+        return;
+    }
+
+    try {
+        const { data: duyurular, error } = await supabaseClient
+            .from('duyurular')
+            .select('*')
+            .eq('aktif', true)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (duyurular && duyurular.length > 0) {
+            if (konteynir) konteynir.style.display = "block"; 
+            
+            liste.innerHTML = duyurular.map(d => `
+                <div class="duyuru-item ${safe(d.tip)}">
+                    <span class="duyuru-baslik">📌 ${safe(d.baslik)}:</span>
+                    <span class="duyuru-icerik">${safe(d.icerik)}</span>
+                </div>
+            `).join('');
+        } else {
+            if (konteynir) konteynir.style.display = "none"; 
+        }
+    } catch (err) {
+        console.error("Duyurular yüklenirken hata oluştu:", err.message);
+    }
+}
+
+// --- VERİLERİ ÇEKME VE GRUPLARI OLUŞTURMA ---
+async function verileriYukle() {
     const groupContainer = document.getElementById('dynamic-groups-container');
     const thirdsBody = document.getElementById('best-thirds-body');
     
@@ -364,13 +404,10 @@ body {
         if (!response.ok) throw new Error("fikstur.json bulunamadı!");
         const maclar = await response.json();
         
-        // --- KRİTİK LİSTE: Tablo oluşturulmayacak başlıklar ---
         const elemeAsamalari = ["Son 32", "Son 16", "Çeyrek Final", "Yarı Final", "Üçüncülük Maçı", "Final"];
-
         let grupVerileri = {};
 
         maclar.forEach(mac => {
-            // SADECE grup aşamasındaki maçları işle (Eleme aşamalarını atla)
             if (!elemeAsamalari.includes(mac.grup) && mac.grup !== "Eleme") {
                 if (!grupVerileri[mac.grup]) grupVerileri[mac.grup] = {};
                 
@@ -400,16 +437,14 @@ body {
             }
         });
 
-        groupContainer.innerHTML = "";
+        if (groupContainer) groupContainer.innerHTML = "";
         let tumUcunculer = [];
 
-        // Tabloları ekrana basarken sadece gerçek gruplar (A, B, C...) kalacak
         Object.keys(grupVerileri).sort().forEach(grupAd => {
             let takimlar = Object.values(grupVerileri[grupAd]).sort((a,b) => 
                 b.puan - a.puan || b.averaj - a.averaj || b.golAtti - a.golAtti
             );
             
-            // Üçüncülük hesaplaması için sadece 4 takımlı standart grupları dikkate al
             if(takimlar.length >= 3) tumUcunculer.push({ ...takimlar[2], grup: grupAd });
 
             let takimlarHtml = takimlar.map((t, index) => `
@@ -427,61 +462,18 @@ body {
                 </tr>
             `).join('');
 
-            groupContainer.innerHTML += `
-                <div class="group-card">
-                    <h3>${grupAd}</h3>
-                    <table class="mini-table">
-                        <thead><tr><th>#</th><th>Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AG</th><th>YG</th><th>AV</th><th>P</th></tr></thead>
-                        <tbody>${takimlarHtml}</tbody>
-                    </table>
-                </div>
-            `;
+            if (groupContainer) {
+                groupContainer.innerHTML += `
+                    <div class="group-card">
+                        <h3>${grupAd}</h3>
+                        <table class="mini-table">
+                            <thead><tr><th>#</th><th>Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AG</th><th>YG</th><th>AV</th><th>P</th></tr></thead>
+                            <tbody>${takimlarHtml}</tbody>
+                        </table>
+                    </div>
+                `;
+            }
         });
-
-        async function duyurulariYukle() {
-    // Eğer Supabase client henüz başlamadıysa init et
-    if (typeof initSupabase === "function") initSupabase(); 
-    
-    const konteynir = document.getElementById('duyuru-konteynir');
-    const liste = document.getElementById('duyuru-listesi');
-    
-    if (!supabaseClient || !liste) return;
-
-    try {
-        // Aktif olan duyuruları yeniden eskiye doğru çekiyoruz
-        const { data: duyurular, error } = await supabaseClient
-            .from('duyurular')
-            .select('*')
-            .eq('aktif', true)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        if (duyurular && duyurular.length > 0) {
-            konteynir.style.display = "block"; // Duyuru varsa alanı görünür yap
-            
-            liste.innerHTML = duyurular.map(d => `
-                <div class="duyuru-item ${safeText(d.tip)}">
-                    <span class="duyuru-baslik">📌 ${safeText(d.baslik)}:</span>
-                    <span class="duyuru-icerik">${safeText(d.icerik)}</span>
-                </div>
-            `).join('');
-        } else {
-            konteynir.style.display = "none"; // Duyuru yoksa alanı gizle
-        }
-    } catch (err) {
-        console.error("Duyurular yüklenirken hata oluştu:", err.message);
-    }
-}
-
-// window.onload fonksiyonunun içine bu fonksiyonu da eklemeyi unutma:
-// Örn: 
-window.onload = () => {
-    setTimeout(() => {
-        fiksturuYukle();
-        duyurulariYukle(); // <-- Duyuruları tetikliyoruz
-    }, 300);
-};
 
         // En İyi 3.ler Tablosunu Güncelle
         if (thirdsBody) {
@@ -503,12 +495,17 @@ window.onload = () => {
     }
 }
 
-    // SAYFA YÜKLENDİĞİNDE
-    window.onload = () => {
-        if (checkAuth()) {
-            verileriYukle();
-        }
-    };
+// --- TEK VE MERKEZİ SAYFA YÜKLENME OLAYI ---
+window.onload = () => {
+    if (checkAuth()) {
+        verileriYukle(); // Grupları ve fikstür özetini çek
+        
+        // Supabase asenkron yüklenebilsin diye hafif bir gecikmeyle duyuruları tetikliyoruz
+        setTimeout(() => {
+            duyurulariYukle(); 
+        }, 300);
+    }
+};
 </script>
 </body>
 </html>
