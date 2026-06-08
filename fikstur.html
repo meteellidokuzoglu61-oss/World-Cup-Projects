@@ -565,7 +565,26 @@ table {
     <div class="analiz-izgara"></div>
 </div>
 <script>
-// --- GLOBAL VERİLER ---
+// --- GLOBAL CONFIG & SUPABASE INITIALIZATION ---
+// Supabase CDN kütüphanesini sayfa başında veya burada dinamik çağırabiliriz.
+// Eğer HTML içine henüz eklemediysen, en mantıklısı buraya bağlamaktır.
+if (typeof supabase === 'undefined') {
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    document.head.appendChild(script);
+}
+
+// ⚠️ BURAYI KENDİ SUPABASE PANELİNDEKİ DEĞERLERLE GÜNCELLE
+const SUPABASE_URL = "https://yvajaofucbgqxugfynx.supabase.co";
+const SUPABASE_ANON_KEY = "BURAYA_PANELDEN_ALDIĞIN_ANON_KEYI_YAPIŞTIR";
+
+let supabaseClient;
+function initSupabase() {
+    if (typeof supabase !== 'undefined' && !supabaseClient) {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+}
+
 const teamData = {
     "Kanada": { rank: 30, form: "G-B-M-G-B" },
     "Bosna-Hersek": { rank: 65, form: "M-M-B-G-M" },
@@ -574,8 +593,6 @@ const teamData = {
     "Meksika": { rank: 15, form: "G-G-B-M-G" },
     "Güney Afrika": { rank: 55, form: "M-B-M-G-M" }
 };
-
-const API_URL = "http://localhost:3000/api/yorumlar"; 
 
 // --- YARDIMCI FONKSİYONLAR ---
 function calculateScore(rank, form) {
@@ -608,13 +625,13 @@ function safeText(str) {
 
 // --- ANA YÜKLEME FONKSİYONU ---
 async function fiksturuYukle() {
+    initSupabase();
     const container = document.getElementById('fikstur-listesi');
     const grupSecici = document.getElementById('grupSecici');
     const elemeSecici = document.getElementById('elemeSecici');
     
-    // Filtreleri sıfırla
     grupSecici.value = "Tümü";
-    elemeSecici.selectedIndex = -1; // Eleme seçimi yok
+    if(elemeSecici) elemeSecici.selectedIndex = -1;
 
     container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Veriler yükleniyor...</div>";
     
@@ -634,19 +651,13 @@ async function ekraniGuncelle() {
     const grupSecici = document.getElementById('grupSecici');
     const elemeSecici = document.getElementById('elemeSecici');
     const puanPaneli = document.getElementById('puan-durumu-bolumu');
-    const container = document.getElementById('fikstur-listesi');
     
-    // 1. Hangi seçicinin aktif olduğunu belirle
-    // Eğer eleme seçici doluysa önceliği ona ver, değilse grup seçiciye bak
     let secilenDeger = grupSecici.value;
-    
-    // Eğer bir eleme aşaması seçildiyse (ve elemeSecici HTML'de varsa)
     if (elemeSecici && elemeSecici.value !== "") {
         secilenDeger = elemeSecici.value;
-        grupSecici.value = "Tümü"; // Eleme seçildiğinde grubu sıfırla
+        grupSecici.value = "Tümü";
     }
 
-    // 2. Puan Durumu Görünürlüğü
     const isGrupAsamasi = secilenDeger.includes("Grubu") && secilenDeger !== "Tümü";
 
     if (isGrupAsamasi) {
@@ -660,8 +671,6 @@ async function ekraniGuncelle() {
     try {
         const res = await fetch('fikstur.json');
         const tumu = await res.json();
-        
-        // 3. Filtreleme
         const filtreli = (secilenDeger === "Tümü" || secilenDeger === "") 
             ? tumu 
             : tumu.filter(m => m.grup === secilenDeger);
@@ -752,6 +761,7 @@ function puanDurumuHesapla(grup, tumMaclar) {
 
 // --- MODAL VE DETAYLAR ---
 async function detayGoster(ev, dep) {
+    initSupabase();
     const modal = document.getElementById('macModal');
     const govde = document.getElementById('modal-govde');
     const macId = `${ev}-${dep}`.replace(/\s+/g, '-');
@@ -794,51 +804,92 @@ async function detayGoster(ev, dep) {
                     <button id="submitBtn" onclick="yorumGonder('${macId}')">GÖNDER</button>
                 </div>
             </div>`;
+        
         yorumlarıCek(macId);
     } catch (err) { govde.innerHTML = "İstatistik verileri yüklenemedi."; }
 }
-fetch('navbar.html')
-        .then(response => {
-            if(!response.ok) throw new Error("Navbar yüklenemedi");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
-        })
-        .catch(err => console.warn(err.message));
 
-
-// --- YORUM SİSTEMİ ---
+// --- SUPABASE YORUM SİSTEMİ FONKSİYONLARI ---
 async function yorumlarıCek(macId) {
     const liste = document.getElementById('yorumlar-listesi');
+    if (!supabaseClient) return;
+
     try {
-        const res = await fetch(`${API_URL}/${macId}`);
-        const veriler = await res.json();
-        if(veriler.length === 0) { liste.innerHTML = "<p>İlk yorumu sen yap!</p>"; return; }
-        liste.innerHTML = veriler.map(y => `<div class="yorum-kart"><strong>@${safeText(y.kullanici_adi)}</strong>: ${safeText(y.yorum_metni)}</div>`).join('');
-    } catch (e) { liste.innerHTML = "<p>Yorumlar şu an yüklenemiyor (Backend kapalı).</p>"; }
+        // Supabase 'yorumlar' tablosundan ilgili mac_id değerine ait kayıtları çekiyoruz
+        const { data: yorumlar, error } = await supabaseClient
+            .from('yorumlar')
+            .select('*')
+            .eq('mac_id', macId)
+            .order('created_at', { ascending: false }); // Yeniden eskiye sıralama
+
+        if (error) throw error;
+
+        if(!yorumlar || yorumlar.length === 0) { 
+            liste.innerHTML = "<p>İlk yorumu sen yap!</p>"; 
+            return; 
+        }
+        
+        liste.innerHTML = yorumlar.map(y => {
+            // Eğer giriş yapan kullanıcı adı kayıtlı değilse Anonim gösterelim
+            const kAdi = y.kullanici_adi ? y.kullanici_adi : "Anonim";
+            return `<div class="yorum-kart"><strong>@${safeText(kAdi)}</strong>: ${safeText(y.yorum_metni)}</div>`;
+        }).join('');
+
+    } catch (e) { 
+        console.error("Yorum çekme hatası:", e);
+        liste.innerHTML = "<p>Yorumlar şu an yüklenemiyor.</p>"; 
+    }
 }
 
 async function yorumGonder(macId) {
     const input = document.getElementById('yorumInput');
     const btn = document.getElementById('submitBtn');
     const metin = input.value.trim();
-    if(!metin) return;
+    
+    if(!metin || !supabaseClient) return;
     btn.disabled = true;
+
     try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ mac_id: macId, kullanici_adi: "", yorum_metni: metin })
-        });
-        if(res.ok) { input.value = ""; yorumlarıCek(macId); }
-    } finally { btn.disabled = false; }
+        // Eğer auth sistemini kurduysan aktif kullanıcı adını çekebilirsin
+        // Şimdilik boş ya da opsiyonel bıraktık, veritabanı yapına göre şekillenebilir
+        const { error } = await supabaseClient
+            .from('yorumlar')
+            .insert([
+                { mac_id: macId, kullanici_adi: "Taraftar", yorum_metni: metin }
+            ]);
+
+        if (error) throw error;
+
+        input.value = ""; 
+        yorumlarıCek(macId); 
+    } catch(e) {
+        alert("Yorum gönderilirken hata oluştu: " + e.message);
+    } finally { 
+        btn.disabled = false; 
+    }
 }
+
+// --- NAVBAR YÜKLEME ---
+fetch('navbar.html')
+    .then(response => {
+        if(!response.ok) throw new Error("Navbar yüklenemedi");
+        return response.text();
+    })
+    .then(data => {
+        document.getElementById('navbar-placeholder').innerHTML = data;
+    })
+    .catch(err => console.warn(err.message));
 
 // --- MODAL KAPATMA VE BAŞLATMA ---
 function modalKapat() { document.getElementById('macModal').style.display = "none"; }
 window.onclick = (e) => { if(e.target == document.getElementById('macModal')) modalKapat(); }
-window.onload = fiksturuYukle;
+
+// CDN kütüphanesinin yüklenmesini garantilemek amacıyla ufak bir gecikmeyle başlatıyoruz
+window.onload = () => {
+    setTimeout(() => {
+        fiksturuYukle();
+    }, 300);
+};
 </script>
 </body>
 </html>

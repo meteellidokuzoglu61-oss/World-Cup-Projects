@@ -55,7 +55,59 @@
     </div>
 </div>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+    // 1. Supabase Bağlantısını Kur
+    const SUPABASE_URL = "https://yvajaofucbgqxugfynx.supabase.co";
+    const SUPABASE_ANON_KEY = "BURAYA_PANELDEN_ALDIĞIN_ANON_KEYI_YAPIŞTIR";
+    
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 2. Giriş ve Kayıt Fonksiyonları
+    async function handleAuth(type) {
+        const email = document.getElementById('l-email').value.trim();
+        const password = document.getElementById('l-password').value;
+
+        if (!email || !password) {
+            alert("Lütfen tüm alanları doldurun.");
+            return;
+        }
+
+        if (type === 'login') {
+            // Supabase Auth ile Giriş Yapma
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Giriş başarısız: " + error.message);
+            } else {
+                alert("Giriş başarılı! Hoş geldin.");
+                // Kullanıcıyı ana sayfaya ya da fikstür paneline yönlendir
+                window.location.href = "index.html"; 
+            }
+        }
+    }
+
+    // Eğer Kayıt Ol kısmını da aktif etmek istersen:
+    async function handleRegister() {
+        const email = document.getElementById('r-email').value.trim(); // Kayıt input id'lerine göre uyarla
+        const password = document.getElementById('r-password').value;
+
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            alert("Kayıt hatası: " + error.message);
+        } else {
+            alert("Kayıt başarılı! E-posta adresinize gelen onay linkine tıklayın (Eğer Supabase ayarlarında e-posta onayı aktifse).");
+        }
+    }
     let registeredEmail = ""; // Onaylama işlemi için e-postayı hafızada tutuyoruz
 
     // Canlı veya yerel API URL ayarı
