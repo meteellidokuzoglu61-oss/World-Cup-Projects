@@ -33,7 +33,7 @@
 
     <div id="login-form" class="form-section active">
         <h2>Hoş Geldiniz</h2>
-        <input type="email" id="l-email" placeholder="E-posta">
+        <input type="text" id="l-username" placeholder="Kullanıcı Adı">
         <input type="password" id="l-password" placeholder="Şifre">
         <button class="btn" onclick="handleAuth('login')">GİRİŞ YAP</button>
     </div>
@@ -42,126 +42,39 @@
         <h2>Hesap Oluştur</h2>
         <div id="register-inputs">
             <input type="text" id="r-username" placeholder="Kullanıcı Adı">
-            <input type="email" id="r-email" placeholder="E-posta">
             <input type="password" id="r-password" placeholder="Şifre (En az 6 karakter, harf ve rakam)">
-            <button class="btn" onclick="handleAuth('register')">KOD GÖNDER & KAYIT OL</button>
-        </div>
-
-        <div id="verification-section" class="verification-box">
-            <p style="font-size: 0.9rem; color: #555; margin-top: 0; text-align: center;">E-posta adresinize bir doğrulama kodu gönderildi.</p>
-            <input type="text" id="v-code" placeholder="6 Haneli Onay Kodu" maxlength="6" style="text-align: center; letter-spacing: 5px; font-size: 1.2rem;">
-            <button class="btn" onclick="verifyCode()">KODU ONAYLA</button>
+            <button class="btn" onclick="handleAuth('register')">KAYIT OL</button>
         </div>
     </div>
 </div>
 
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-    // 1. Supabase Bağlantısını Kur
-    const SUPABASE_URL = "https://yvajaofucbgqxugfynx.supabase.co";
-    const SUPABASE_ANON_KEY = "BURAYA_PANELDEN_ALDIĞIN_ANON_KEYI_YAPIŞTIR";
-    
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // 2. Giriş ve Kayıt Fonksiyonları
-    async function handleAuth(type) {
-        const email = document.getElementById('l-email').value.trim();
-        const password = document.getElementById('l-password').value;
-
-        if (!email || !password) {
-            alert("Lütfen tüm alanları doldurun.");
-            return;
-        }
-
-        if (type === 'login') {
-            // Supabase Auth ile Giriş Yapma
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                alert("Giriş başarısız: " + error.message);
-            } else {
-                alert("Giriş başarılı! Hoş geldin.");
-                // Kullanıcıyı ana sayfaya ya da fikstür paneline yönlendir
-                window.location.href = "index.html"; 
-            }
-        }
-    }
-
-    // Eğer Kayıt Ol kısmını da aktif etmek istersen:
-    async function handleRegister() {
-        const email = document.getElementById('r-email').value.trim(); // Kayıt input id'lerine göre uyarla
-        const password = document.getElementById('r-password').value;
-
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-        });
-
-        if (error) {
-            alert("Kayıt hatası: " + error.message);
-        } else {
-            alert("Kayıt başarılı! E-posta adresinize gelen onay linkine tıklayın (Eğer Supabase ayarlarında e-posta onayı aktifse).");
-        }
-    }
-    let registeredEmail = ""; // Onaylama işlemi için e-postayı hafızada tutuyoruz
-
-    // Canlı veya yerel API URL ayarı
     let baseUrl = 'http://localhost:3000/api/'; 
     if (window.location.hostname !== 'localhost') {
-        baseUrl = 'https://backend-linkiniz.com/api/'; // <-- Kendi canlı API adresinizi buraya yazın
+        baseUrl = 'https://world-cup-projects.onrender.com/api/'; 
     }
 
     function switchTab(target) {
         document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(target + '-form').classList.add('active');
-        if(target !== 'forgot') {
-            const index = target === 'login' ? 0 : 1;
-            document.querySelectorAll('.tab')[index].classList.add('active');
-        }
+        const index = target === 'login' ? 0 : 1;
+        document.querySelectorAll('.tab')[index].classList.add('active');
     }
 
     async function handleAuth(type) {
-        const emailField = type === 'login' ? 'l-email' : 'r-email';
+        const usernameField = type === 'login' ? 'l-username' : 'r-username';
         const passwordField = type === 'login' ? 'l-password' : 'r-password';
         
-        const email = document.getElementById(emailField).value.trim();
+        const username = document.getElementById(usernameField).value.trim();
         const password = document.getElementById(passwordField).value;
 
-        if (!email || !password) {
+        if (!username || !password) {
             alert("Lütfen tüm alanları doldurun.");
             return;
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            alert("Lütfen geçerli bir e-posta adresi girin.");
-            return;
-        }
-
-        if (type === 'register') {
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-            if (!passwordRegex.test(password)) {
-                alert("Şifre en az 6 karakter uzunluğunda olmalı, en az bir harf ve bir rakam içermelidir.");
-                return;
-            }
-        }
-
-        let payload = { email, password };
-        if (type === 'register') {
-            payload.username = document.getElementById('r-username').value.trim();
-            if (!payload.username) {
-                alert("Lütfen bir kullanıcı adı belirleyin.");
-                return;
-            }
-            registeredEmail = email; // E-postayı doğrulama için kaydet
-        }
-
+        const payload = { username, password };
         let url = baseUrl + type;
 
         try {
@@ -176,14 +89,11 @@
             if (response.ok && data.success) {
                 if(type === 'login') {
                     localStorage.setItem('fifa_auth', 'basarili');
-                    localStorage.setItem('fifa_user_data', JSON.stringify(data.user));
+                    localStorage.setItem('fifa_user', data.yonetici);
                     window.location.replace('index.html');
                 } else {
-                    // Kayıt isteği başarılıysa kod giriş alanını göster, eski girdileri gizle
-                    document.getElementById('register-inputs').style.display = 'none';
-                    document.getElementById('auth-tabs').style.pointerEvents = 'none'; // Sekme geçişini kilitle
-                    document.getElementById('verification-section').style.display = 'block';
-                    alert('Doğrulama kodu e-postanıza gönderildi. Lütfen kontrol edin.');
+                    alert('Kayıt başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
+                    switchTab('login');
                 }
             } else {
                 alert(data.message || "Bir hata oluştu.");
@@ -191,38 +101,6 @@
         } catch (err) {
             console.error(err);
             alert('Sunucu bağlantı hatası!');
-        }
-    }
-
-    // Kod Doğrulama Fonksiyonu
-    async function verifyCode() {
-        const code = document.getElementById('v-code').value.trim();
-        if(code.length !== 6) {
-            alert("Lütfen 6 haneli kodu eksiksiz girin.");
-            return;
-        }
-
-        try {
-            const response = await fetch(baseUrl + 'verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: registeredEmail, otp: code })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                alert('Hesabınız başarıyla doğrulandı! Şimdi giriş yapabilirsiniz.');
-                // Formu sıfırla ve giriş sekmesine at
-                document.getElementById('register-inputs').style.display = 'block';
-                document.getElementById('verification-section').style.display = 'none';
-                document.getElementById('auth-tabs').style.pointerEvents = 'auto';
-                switchTab('login');
-            } else {
-                alert(data.message || "Hatalı veya süresi dolmuş kod.");
-            }
-        } catch (err) {
-            alert("Doğrulama sırasında sunucu hatası oluştu.");
         }
     }
 </script>
