@@ -82,6 +82,92 @@ body {
     }
 }
 
+/* --- MOBİL UYUMLULUK GÜNCELLEMELERİ (Mevcut stillerin altına ekle veya değiştir) --- */
+
+/* Navbar Mobil Tasarımı */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Logo üstte, menü altta */
+        gap: 12px;
+        padding: 10px 15px;
+    }
+
+    .nav-links {
+        display: flex;
+        overflow-x: auto; /* Alan yetmezse butonlar sağa kaysın */
+        white-space: nowrap;
+        width: 100%;
+        justify-content: flex-start;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+        gap: 15px;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none; /* Kaydırma çubuğunu gizle */
+    }
+
+    body {
+        padding-top: 100px; /* İki satırlı navbar için üst boşluğu artırdık */
+    }
+
+    /* İstatistik barını dikey veya sıkıştırılmış yapalım */
+    .stats-bar {
+        margin: -30px 15px 30px;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 15px 5px;
+        font-size: 0.85rem;
+    }
+    
+    .stat-item strong {
+        font-size: 1.5rem;
+    }
+}
+
+/* En Kritik Alan: Tabloların ve Kartların Mobilde Taşmasını Önleme */
+@media (max-width: 480px) {
+    .group-container {
+        grid-template-columns: 1fr; /* Mobilde kartlar tek sütun alt alta insin */
+        padding: 0 15px;
+        gap: 20px;
+    }
+
+    .group-card {
+        padding: 15px;
+        width: 100%;
+        overflow: hidden; /* Kartın kendisinin dışarı taşmasını engelle */
+    }
+
+    /* Tablonun sığmadığı durumda kartın içinde sağa doğru kaymasını sağlayan sihirli kural */
+    .mini-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap; /* Hücre içindeki yazıların kırılmasını önler */
+    }
+
+    .mini-table th, .mini-table td {
+        padding: 8px 6px; /* Hücre boşluklarını mobilde optimize et */
+    }
+
+    .team-name {
+        font-weight: 600; /* Takım isimleri kaydırılırken okunaklı kalsın */
+    }
+
+    /* En iyi üçüncüler tablosu sarmalayıcısı */
+    .best-thirds-wrapper {
+        padding: 15px;
+        margin: 20px 15px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .thirds-table {
+        width: 100%;
+        white-space: nowrap;
+    }
+}
 /* --- BRACKET ALANI (MOBİL UYUMLU GÜNCELLEME) --- */
 .main-content {
     margin-top: var(--nav-height);
