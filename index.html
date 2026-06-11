@@ -580,13 +580,10 @@ async function verileriYukle() {
         console.error("Veri yükleme hatası:", error); 
     }
 }
-
-// --- TEK VE MERKEZİ SAYFA YÜKLENME OLAYI ---
 window.onload = () => {
     if (checkAuth()) {
         verileriYukle(); // Grupları ve fikstür özetini çek
         
-        // Supabase asenkron yüklenebilsin diye hafif bir gecikmeyle duyuruları tetikliyoruz
         setTimeout(() => {
             duyurulariYukle(); 
         }, 300);
