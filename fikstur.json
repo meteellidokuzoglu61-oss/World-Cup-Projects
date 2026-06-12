@@ -1,6 +1,6 @@
 [
   { "id": 1, "ev": "Meksika", "dep": "Güney Afrika", "kodEv": "mx", "kodDep": "za", "tarih": "11 Haziran 2026", "tsi": "22:00", "yerel": "13:00 CST", "grup": "A Grubu", "stat": "Aztek Stadyumu, Meksiko", "skorEv": 2, "skorDep": 0 },
-  { "id": 2, "ev": "Güney Kore", "dep": "Çekya", "kodEv": "kr", "kodDep": "cz", "tarih": "12 Haziran 2026", "tsi": "05:00", "yerel": "20:00 CST", "grup": "A Grubu", "stat": "Chivas Stadyumu, Zapopan", "skorEv": null, "skorDep": null },
+  { "id": 2, "ev": "Güney Kore", "dep": "Çekya", "kodEv": "kr", "kodDep": "cz", "tarih": "12 Haziran 2026", "tsi": "05:00", "yerel": "20:00 CST", "grup": "A Grubu", "stat": "Chivas Stadyumu, Zapopan", "skorEv": 2, "skorDep": 1 },
   { "id": 3, "ev": "Kanada", "dep": "Bosna-Hersek", "kodEv": "ca", "kodDep": "ba", "tarih": "12 Haziran 2026", "tsi": "22:00", "yerel": "15:00 CST", "grup": "B Grubu", "stat": "BMO Field, Toronto", "skorEv": null, "skorDep": null },
   { "id": 4, "ev": "ABD", "dep": "Paraguay", "kodEv": "us", "kodDep": "py", "tarih": "13 Haziran 2026", "tsi": "04:00", "yerel": "18:00 PDT", "grup": "D Grubu", "stat": "SoFi Stadyumu, Inglewood", "skorEv": null, "skorDep": null },
   { "id": 5, "ev": "Katar", "dep": "İsviçre", "kodEv": "qa", "kodDep": "ch", "tarih": "13 Haziran 2026", "tsi": "22:00", "yerel": "12:00 PDT", "grup": "B Grubu", "stat": "Levi's Stadyumu, Santa Clara", "skorEv": null, "skorDep": null },
