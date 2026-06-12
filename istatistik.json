@@ -61,5 +61,31 @@
     "form": "G-B-G-M-G", 
     "yildiz": "Mohammed Kudus", 
     "analiz": "Hücumda çok patlayıcı ve yetenekli bir kadroya sahipler; ancak savunma geçişlerinde bazen konsantrasyon kaybı yaşıyorlar." 
+  },
+  "Meksika": { "sira": "15", "form": "G-G-B-M-G" },
+  "Güney Afrika": { "sira": "55", "form": "M-B-M-G-M" },
+
+  "Meksika-Güney-Afrika": {
+    "evSut": 16,
+    "depSut": 3,
+    "evIsabet": 5,
+    "depIsabet": 2,
+    "evTop": 61,
+    "depTop": 39,
+    "evPas": 538,
+    "depPas": 341,
+    "evPasIsabet": 91,
+    "depPasIsabet": 83,
+    "evFaul": 12,
+    "depFaul": 11,
+    "evSari": 1,
+    "depSari": 2,
+    "evKirmizi": 1,
+    "depKirmizi": 2,
+    "evOfsayt": 1,
+    "depOfsayt": 1,
+    "evKorner": 3,
+    "depKorner": 1
   }
+
 }
