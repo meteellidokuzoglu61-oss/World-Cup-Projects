@@ -68,7 +68,6 @@
             flex-wrap: wrap;
         }
 
-        /* 1. TABLO TAŞMASINI KÖKTEN ÇÖZEN AYAR */
         .container {
             width: 100% !important;
             max-width: 100% !important;
@@ -90,7 +89,6 @@
             min-width: 450px;
         }
 
-        /* 2. NAVBAR DARLIĞINI VE SIKIŞMASINI ÇÖZEN AYAR */
         #navbar-placeholder {
             width: 100% ;
             display: block;
@@ -112,10 +110,10 @@
 
         /* --- MODALIN İÇİNDEKİ BEYAZ KART --- */
         #macModal .modal-icerik { 
-            width: 92% !important;
-            max-width: 580px !important;
+            width: 95% !important;
+            max-width: 650px !important;
             box-sizing: border-box !important;
-            padding: 30px 20px !important;
+            padding: 25px !important;
             margin: 0 auto !important;
             border-radius: 20px !important;
             overflow-y: auto !important;
@@ -123,21 +121,6 @@
             background: white;
             position: relative;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        #macModal .row, 
-        #macModal .grid-container {
-            display: flex !important;
-            justify-content: space-between !important;
-            width: 100% !important;
-            gap: 5px !important;
-        }
-
-        #macModal .col, 
-        #macModal .team-block {
-            flex: 1 !important;
-            text-align: center !important;
-            font-size: 11px !important;
         }
 
         @media (max-width: 768px) {
@@ -479,14 +462,14 @@
         }
         .google-stat-bar-left {
             height: 100%;
-            background: #1cb05d; /* Maçkolik/Google Yeşili */
+            background: #1cb05d;
             border-top-left-radius: 6px;
             border-bottom-left-radius: 6px;
             transition: width 0.5s ease-in-out;
         }
         .google-stat-bar-right {
             height: 100%;
-            background: #9aa0a6; /* Gri Deplasman Rengi */
+            background: #9aa0a6;
             border-top-right-radius: 6px;
             border-bottom-right-radius: 6px;
             margin-left: auto;
@@ -506,6 +489,65 @@
         .google-badge.neutral {
             color: #202124;
         }
+
+        /* --- GOL VE KADRO TASARIMLARI --- */
+        .mac-olaylari {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        .olay-satir {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+            color: #3c4043;
+        }
+        .olay-sol { flex: 1; text-align: right; padding-right: 15px; }
+        .olay-orta { width: 40px; text-align: center; font-weight: bold; color: #5f6368; }
+        .olay-sag { flex: 1; text-align: left; padding-left: 15px; }
+        
+        .kadro-bolumu {
+            margin-top: 25px;
+            border-top: 1px solid #f1f3f4;
+            padding-top: 15px;
+        }
+        .kadro-baslik {
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: #202124;
+            margin-bottom: 15px;
+        }
+        .kadro-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .kadro-liste {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #f1f3f4;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .kadro-alt-baslik {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--primary-color);
+            border-bottom: 2px solid #f1f3f4;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
+        }
+        .oyuncu-satir {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #f1f3f4;
+        }
+        .oyuncu-no { color: #80868b; font-weight: bold; margin-right: 6px; }
     </style>
 </head>
 <body>
@@ -536,21 +578,6 @@
             </select>
         </div>
         <button class="btn-all" onclick="fiksturuYukle()">Tazele / Tüm Maçlar</button>
-    </div>
-
-    <div class="navigation-bar">
-        <div class="filter-group">
-         <label style="font-weight: 800;">Eleme Aşaması:</label>
-            <select id="elemeSecici" onchange="ekraniGuncelle()">
-                <option value="Son 32">Son 32</option>
-                <option value="Son 16">Son 16</option>
-                <option value="Çeyrek Final">Çeyrek Final</option>
-                <option value="Yarı Final">Yarı Final</option>
-                <option value="Üçüncülük Maçı">Üçüncülük Maçı</option>
-                <option value="Final">Final</option>
-            </select>
-        </div>
-        <button class="btn-all" onclick="fiksturuYukle()">Tüm Maçlar</button>
     </div>
 
     <div id="puan-durumu-bolumu">
@@ -622,15 +649,16 @@ function safeText(str) {
     return div.innerHTML;
 }
 
+function modalKapat() {
+    document.getElementById('macModal').style.display = "none";
+}
+
 async function fiksturuYukle() {
     initSupabase();
     const container = document.getElementById('fikstur-listesi');
     const grupSecici = document.getElementById('grupSecici');
-    const elemeSecici = document.getElementById('elemeSecici');
     
     grupSecici.value = "Tümü";
-    if(elemeSecici) elemeSecici.selectedIndex = -1;
-
     container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Veriler yükleniyor...</div>";
     
     try {
@@ -646,15 +674,8 @@ async function fiksturuYukle() {
 
 async function ekraniGuncelle() {
     const grupSecici = document.getElementById('grupSecici');
-    const elemeSecici = document.getElementById('elemeSecici');
     const puanPaneli = document.getElementById('puan-durumu-bolumu');
-    
     let secilenDeger = grupSecici.value;
-    if (elemeSecici && elemeSecici.value !== "") {
-        secilenDeger = elemeSecici.value;
-        grupSecici.value = "Tümü";
-    }
-
     const isGrupAsamasi = secilenDeger.includes("Grubu") && secilenDeger !== "Tümü";
 
     if (isGrupAsamasi) {
@@ -754,7 +775,7 @@ function puanDurumuHesapla(grup, tumMaclar) {
     tabloAlani.innerHTML = html + "</tbody></table>";
 }
 
-// --- MODAL VE YENİ GOOGLE MODELİ DETAY GÖSTERİMİ ---
+// --- MODAL DETAY GÖSTERİMİ ---
 async function detayGoster(ev, dep) {
     initSupabase();
     const modal = document.getElementById('macModal');
@@ -770,8 +791,6 @@ async function detayGoster(ev, dep) {
         
         const evD = istatistikler[ev] || { sira: "??", form: "N/A" };
         const depD = istatistikler[dep] || { sira: "??", form: "N/A" };
-        
-        // json dosyasında bu maça ait istatistik verisi girilmiş mi? (Örn: "Meksika-Güney-Afrika")
         const macMaciData = istatistikler[macId];
 
         let modalHtml = `
@@ -787,7 +806,43 @@ async function detayGoster(ev, dep) {
         `;
 
         if (macMaciData) {
-            // --- EĞER MAÇ OYNANDIYSA: GOOGLE FORMATINDA GERÇEK İSTATİSTİKLER ---
+            // --- GOL VE KART OLAYLARI (MAÇ ÖZETİ) ---
+            let olaylarHtml = `<div class="mac-olaylari">`;
+            
+            if (macMaciData.goller && macMaciData.goller.length > 0) {
+                macMaciData.goller.forEach(g => {
+                    olaylarHtml += `
+                        <div class="olay-satir">
+                            <div class="olay-sol">${g.takim === 'ev' ? g.oyuncu + ' ⚽' : ''}</div>
+                            <div class="olay-orta">${g.dakika}'</div>
+                            <div class="olay-sag">${g.takim === 'dep' ? '⚽ ' + g.oyuncu : ''}</div>
+                        </div>`;
+                });
+            }
+            if (macMaciData.sariKartlar && macMaciData.sariKartlar.length > 0) {
+                macMaciData.sariKartlar.forEach(k => {
+                    olaylarHtml += `
+                        <div class="olay-satir">
+                            <div class="olay-sol">${k.takim === 'ev' ? k.oyuncu + ' 🟨' : ''}</div>
+                            <div class="olay-orta">${k.dakika}'</div>
+                            <div class="olay-sag">${k.takim === 'dep' ? '🟨 ' + k.oyuncu : ''}</div>
+                        </div>`;
+                });
+            }
+            if (macMaciData.kirmiziKartlar && macMaciData.kirmiziKartlar.length > 0) {
+                macMaciData.kirmiziKartlar.forEach(k => {
+                    olaylarHtml += `
+                        <div class="olay-satir">
+                            <div class="olay-sol">${k.takim === 'ev' ? k.oyuncu + ' 🟥' : ''}</div>
+                            <div class="olay-orta">${k.dakika}'</div>
+                            <div class="olay-sag">${k.takim === 'dep' ? '🟥 ' + k.oyuncu : ''}</div>
+                        </div>`;
+                });
+            }
+            olaylarHtml += `</div>`;
+            modalHtml += olaylarHtml;
+
+            // --- GOOGLE FORMATINDA GERÇEK İSTATİSTİKLER ---
             const createStatRow = (title, evVal, depVal, isPercent = false) => {
                 const eNum = parseFloat(evVal);
                 const dNum = parseFloat(depVal);
@@ -831,8 +886,29 @@ async function detayGoster(ev, dep) {
                     ${createStatRow("Korner", macMaciData.evKorner || 0, macMaciData.depKorner || 0)}
                 </div>
             `;
+
+            // --- İLK 11 VE YEDEK KADROLARININ BASILMASI ---
+            modalHtml += `
+                <div class="kadro-bolumu">
+                    <div class="kadro-baslik">📋 KADROLAR</div>
+                    <div class="kadro-grid">
+                        <div class="kadro-liste">
+                            <div class="kadro-alt-baslik">${ev} İlk 11</div>
+                            <div id="evKadro11"></div>
+                            <div class="kadro-alt-baslik" style="margin-top:15px;">Yedekler</div>
+                            <div id="evYedekler"></div>
+                        </div>
+                        <div class="kadro-liste">
+                            <div class="kadro-alt-baslik">${dep} İlk 11</div>
+                            <div id="depKadro11"></div>
+                            <div class="kadro-alt-baslik" style="margin-top:15px;">Yedekler</div>
+                            <div id="depYedekler"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
         } else {
-            // --- MAÇ OYNANMDIYSA: YAPAY ZEKA TAHMİNLERİ (ESKİ SİSTEM) ---
+            // --- MAÇ OYNANMADIYSA: AI TAHMİNLERİ ---
             let teamA = teamData[ev] || { rank: 50, form: "B-B-B-B-B" };
             let teamB = teamData[dep] || { rank: 50, form: "B-B-B-B-B" };
             let scoreA = calculateScore(teamA.rank, teamA.form);
@@ -862,6 +938,27 @@ async function detayGoster(ev, dep) {
         `;
         
         govde.innerHTML = modalHtml;
+
+        // Kadro verilerini asenkron olarak yerleştirme mantığı
+        if (macMaciData) {
+            const basKadro = (elementId, liste) => {
+                const el = document.getElementById(elementId);
+                if (el && liste && liste.length > 0) {
+                    el.innerHTML = liste.map(p => `
+                        <div class="oyuncu-satir">
+                            <span><span class="oyuncu-no">${p.no}</span>${p.ad}</span>
+                            <span style="color:#70757a; font-size:11px;">${p.pos}</span>
+                        </div>`).join('');
+                } else if(el) {
+                    el.innerHTML = "<p style='color:#aaa; font-size:12px;'>Açıklanmadı</p>";
+                }
+            };
+            basKadro("evKadro11", macMaciData.ev11);
+            basKadro("evYedekler", macMaciData.evYedek);
+            basKadro("depKadro11", macMaciData.dep11);
+            basKadro("depYedekler", macMaciData.depYedek);
+        }
+
         yorumlarıCek(macId);
     } catch (err) { 
         console.error(err);
@@ -913,34 +1010,18 @@ async function yorumGonder(macId) {
                 { mac_id: macId, kullanici_adi: "Taraftar", yorum_metni: metin }
             ]);
 
-        if (error) throw error;
-
-        input.value = ""; 
-        yorumlarıCek(macId); 
+        if(error) throw error;
+        input.value = "";
+        yorumlarıCek(macId);
     } catch(e) {
-        alert("Yorum gönderilirken hata oluştu: " + e.message);
-    } finally { 
-        btn.disabled = false; 
+        alert("Yorum gönderilemedi.");
+    } finally {
+        btn.disabled = false;
     }
 }
 
-fetch('navbar.html')
-    .then(response => {
-        if(!response.ok) throw new Error("Navbar yüklenemedi");
-        return response.text();
-    })
-    .then(data => {
-        document.getElementById('navbar-placeholder').innerHTML = data;
-    })
-    .catch(err => console.warn(err.message));
-
-function modalKapat() { document.getElementById('macModal').style.display = "none"; }
-window.onclick = (e) => { if(e.target == document.getElementById('macModal')) modalKapat(); }
-
 window.onload = () => {
-    setTimeout(() => {
-        fiksturuYukle();
-    }, 300);
+    fiksturuYukle();
 };
 </script>
 </body>
