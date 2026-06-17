@@ -596,31 +596,16 @@
 </div>
 
 <script>
-if (typeof supabase === 'undefined') {
-    const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-    document.head.appendChild(script);
-}
-
-const SUPABASE_URL = "https://yvajaofucbgqxugfynx.supabase.co";
-const SUPABASE_ANON_KEY = "BURAYA_PANELDEN_ALDIĞIN_ANON_KEYI_YAPIŞTIR";
-
-let supabaseClient;
-function initSupabase() {
-    if (typeof supabase !== 'undefined' && !supabaseClient) {
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-}
-
+// --- GLOBAL DEĞİŞKENLER VE AYARLAR ---
+// Yedek tahmin motoru verileri
 const teamData = {
     "Kanada": { rank: 30, form: "G-B-M-G-B" },
-    "Bosna-Hersek": { rank: 65, form: "M-M-B-G-M" },
-    "Türkiye": { rank: 40, form: "G-B-G-M-G" },
-    "ABD": { rank: 20, form: "G-G-B-G-M" },
-    "Meksika": { rank: 15, form: "G-G-B-M-G" },
-    "Güney Afrika": { rank: 55, form: "M-B-M-G-M" }
+    "Bosna-Hersek": { rank: 65, form: "M-M-B-G-M" }
 };
 
+let tumMaclarVerisi = []; // Yerel fikstür verilerin
+
+// --- YARDIMCI FONKSİYONLAR ---
 function calculateScore(rank, form) {
     let formScore = 0;
     form.split("-").forEach(r => {
@@ -653,26 +638,107 @@ function modalKapat() {
     document.getElementById('macModal').style.display = "none";
 }
 
+// Dışarı tıklayınca modal kapatma koruması
+window.onclick = (e) => { 
+    if(e.target == document.getElementById('macModal')) modalKapat(); 
+}
+
+// --- FİKSTÜR YÜKLEME VE WIKIPEDIA SENKRONİZASYONU ---
 async function fiksturuYukle() {
-    initSupabase();
     const container = document.getElementById('fikstur-listesi');
     const grupSecici = document.getElementById('grupSecici');
     
     grupSecici.value = "Tümü";
-    container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Veriler yükleniyor...</div>";
+    container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Fikstür yükleniyor ve canlı skorlar Wikipedia'dan senkronize ediliyor...</div>";
     
     try {
-        const response = await fetch('fikstur.json');
-        if (!response.ok) throw new Error("Dosya bulunamadı");
-        const veriler = await response.json();
-        kartlariEkranaBas(veriler);
+        // 1. Yerel fikstür dosyanızı çekin (Yoksa test amaçlı boş array atar)
+        try {
+            const responseLocal = await fetch('fikstur.json');
+            tumMaclarVerisi = responseLocal.ok ? await responseLocal.json() : [];
+        } catch (e) {
+            console.log("Yerel fikstur.json henüz oluşturulmamış, Wikipedia verileri temel alınacak.");
+        }
+
+        // 2. Wikipedia'dan güncel skorları arka planda çekip lokal listeye işle
+        await canlıSkorlariVikipedidenCek();
+
+        // 3. Kartları ekrana bas ve ilk açılışta puan durumunu gizle
+        kartlariEkranaBas(tumMaclarVerisi);
         document.getElementById('puan-durumu-bolumu').style.display = "none";
+
     } catch (err) {
         container.innerHTML = `<div style='grid-column: 1/-1; color:red; text-align:center;'>Hata: ${err.message}</div>`;
     }
 }
 
-async function ekraniGuncelle() {
+// Wikipedia'dan sadece canlı skorları ayıklayan çekirdek motor
+async function canlıSkorlariVikipedidenCek() {
+    const gruplar = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+    
+    const promises = gruplar.map(async (grupHarfi) => {
+        const sayfaBasligi = `2026_FIFA_Dünya_Kupası_${grupHarfi}_Grubu`;
+        const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${sayfaBasligi}&format=json&origin=*&prop=text`;
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data.error || !data.parse) return;
+            
+            const htmlIcerik = data.parse.text["*"];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlIcerik, 'text/html');
+            const macKutilari = doc.querySelectorAll('.footballbox');
+            
+            macKutilari.forEach((macKutusu) => {
+                const evElement = macKutusu.querySelector('.fhome');
+                const depElement = macKutusu.querySelector('.faway');
+                const skorElement = macKutusu.querySelector('.fscore');
+                
+                if (evElement && depElement && skorElement) {
+                    const wikiEv = evElement.textContent.trim().replace(/\s*\(H\)/g, '');
+                    const wikiDep = depElement.textContent.trim();
+                    const skorRaw = skorElement.textContent.trim();
+                    
+                    if (skorRaw && skorRaw.toLowerCase() !== 'v' && skorRaw.includes('-')) {
+                        const parcalar = skorRaw.split('-');
+                        const sEv = parseInt(parcalar[0].trim());
+                        const sDep = parseInt(parcalar[1].trim());
+                        
+                        if (!isNaN(sEv) && !isNaN(sDep)) {
+                            // Mevcut fikstür listesinde bu maçı ara
+                            let hedefMac = tumMaclarVerisi.find(m => 
+                                (m.ev === wikiEv && m.dep === wikiDep) || (m.ev === wikiDep && m.dep === wikiEv)
+                            );
+                            
+                            // Eğer local fikstürde yoksa listeye dinamik olarak ekle
+                            if (!hedefMac) {
+                                hedefMac = {
+                                    ev: wikiEv, dep: wikiDep,
+                                    grup: `${grupHarfi} Grubu`,
+                                    kodEv: "un", kodDep: "un",
+                                    tarih: "Haziran 2026", tsi: "--:--", yerel: "--:--", stat: "Turnuva Stadyumu"
+                                };
+                                tumMaclarVerisi.push(hedefMac);
+                            }
+                            
+                            hedefMac.skorEv = sEv;
+                            hedefMac.skorDep = sDep;
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.log(`${grupHarfi} Grubu skor çekme hatası.`);
+        }
+    });
+    
+    await Promise.all(promises);
+}
+
+// --- EKRAN FİLTRELEME VE KART BASIMI ---
+function ekraniGuncelle() {
     const grupSecici = document.getElementById('grupSecici');
     const puanPaneli = document.getElementById('puan-durumu-bolumu');
     let secilenDeger = grupSecici.value;
@@ -680,26 +746,19 @@ async function ekraniGuncelle() {
 
     if (isGrupAsamasi) {
         puanPaneli.style.display = "block";
-        const baslik = document.getElementById('grupBaslik');
-        if(baslik) baslik.innerText = `${secilenDeger} Puan Durumu`;
+        document.getElementById('grupBaslik').innerText = `${secilenDeger} Puan Durumu`;
     } else {
         puanPaneli.style.display = "none";
     }
 
-    try {
-        const res = await fetch('fikstur.json');
-        const tumu = await res.json();
-        const filtreli = (secilenDeger === "Tümü" || secilenDeger === "") 
-            ? tumu 
-            : tumu.filter(m => m.grup === secilenDeger);
-        
-        kartlariEkranaBas(filtreli);
+    const filtreli = (secilenDeger === "Tümü" || secilenDeger === "") 
+        ? tumMaclarVerisi 
+        : tumMaclarVerisi.filter(m => m.grup === secilenDeger);
+    
+    kartlariEkranaBas(filtreli);
 
-        if (isGrupAsamasi) {
-            puanDurumuHesapla(secilenDeger, tumu);
-        }
-    } catch(e) {
-        console.error("Filtreleme hatası:", e);
+    if (isGrupAsamasi) {
+        puanDurumuHesapla(secilenDeger, tumMaclarVerisi);
     }
 }
 
@@ -708,13 +767,13 @@ function kartlariEkranaBas(maclar) {
     container.innerHTML = "";
     
     if (maclar.length === 0) {
-        container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Bu aşamada henüz maç bulunmuyor.</div>";
+        container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Bu filtreye uygun maç bulunamadı.</div>";
         return;
     }
 
     maclar.forEach(mac => {
         const isTurkiye = (mac.ev === "Türkiye" || mac.dep === "Türkiye");
-        const skorStr = (mac.skorEv !== undefined && mac.skorEv !== null) ? `${mac.skorEv} - ${mac.skorDep}` : "VS";
+        const skorStr = (mac.skorEv !== null && mac.skorEv !== undefined) ? `${mac.skorEv} - ${mac.skorDep}` : "VS";
         
         container.innerHTML += `
             <div class="mac-karti ${isTurkiye ? 'turkiye-vurgu' : ''}" onclick="detayGoster('${mac.ev}', '${mac.dep}')">
@@ -724,21 +783,21 @@ function kartlariEkranaBas(maclar) {
                 </div>
                 <div class="takimlar-konteynir">
                     <div class="takim-kutusu">
-                        <img src="https://flagcdn.com/w160/${mac.kodEv}.png" class="bayrak-ana" alt="${mac.ev}">
+                        <img src="https://flagcdn.com/w160/${mac.kodEv || 'un'}.png" class="bayrak-ana" onerror="this.src='https://flagcdn.com/w160/un.png'">
                         <span class="takim-adi">${mac.ev}</span>
                     </div>
                     <div class="skor-merkez">${skorStr}</div>
                     <div class="takim-kutusu">
-                        <img src="https://flagcdn.com/w160/${mac.kodDep}.png" class="bayrak-ana" alt="${mac.dep}">
+                        <img src="https://flagcdn.com/w160/${mac.kodDep || 'un'}.png" class="bayrak-ana" onerror="this.src='https://flagcdn.com/w160/un.png'">
                         <span class="takim-adi">${mac.dep}</span>
                     </div>
                 </div>
                 <div class="mac-detay-footer">
                     <div class="saat-row">
-                        <div class="saat-item"><span class="label-saat">TSİ</span><span class="val-saat">${mac.tsi}</span></div>
-                        <div class="saat-item"><span class="label-saat">YEREL</span><span class="val-saat" style="color:#0984e3">${mac.yerel}</span></div>
+                        <div class="saat-item"><span class="label-saat">TSİ</span><span class="val-saat">${mac.tsi || '--:--'}</span></div>
+                        <div class="saat-item"><span class="label-saat">YEREL</span><span class="val-saat" style="color:#0984e3">${mac.yerel || '--:--'}</span></div>
                     </div>
-                    <div class="stat-text">📍 ${mac.stat}</div>
+                    <div class="stat-text">📍 ${mac.stat || 'Bilinmeyen Stadyum'}</div>
                 </div>
             </div>`;
     });
@@ -754,7 +813,7 @@ function puanDurumuHesapla(grup, tumMaclar) {
             if (!tablo[t]) tablo[t] = { O:0, G:0, B:0, M:0, AG:0, YG:0, P:0, kod: (t === m.ev ? m.kodEv : m.kodDep) };
         });
 
-        if (m.skorEv !== undefined && m.skorEv !== null) {
+        if (m.skorEv !== null && m.skorEv !== undefined) {
             const sE = parseInt(m.skorEv); const sD = parseInt(m.skorDep);
             tablo[m.ev].O++; tablo[m.dep].O++;
             tablo[m.ev].AG += sE; tablo[m.ev].YG += sD;
@@ -770,24 +829,23 @@ function puanDurumuHesapla(grup, tumMaclar) {
     let html = `<table class="puan-tablosu"><thead><tr><th>Sıra</th><th style="text-align:left">Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AV</th><th>Puan</th></tr></thead><tbody>`;
     sirali.forEach((tAd, index) => {
         const v = tablo[tAd]; const av = v.AG - v.YG;
-        html += `<tr><td><span class="sira-no">${index+1}</span></td><td class="takim-hucre"><img src="https://flagcdn.com/w40/${v.kod}.png" class="puan-bayrak">${tAd}</td><td>${v.O}</td><td>${v.G}</td><td>${v.B}</td><td>${v.M}</td><td style="color:${av>=0?'green':'red'}">${av>0?'+'+av:av}</td><td style="font-weight:900; color:#800020">${v.P}</td></tr>`;
+        html += `<tr><td><span class="sira-no">${index+1}</span></td><td class="takim-hucre"><img src="https://flagcdn.com/w40/${v.kod || 'un'}.png" onerror="this.src='https://flagcdn.com/w40/un.png'" class="puan-bayrak">${tAd}</td><td>${v.O}</td><td>${v.G}</td><td>${v.B}</td><td>${v.M}</td><td style="color:${av>=0?'green':'red'}">${av>0?'+'+av:av}</td><td style="font-weight:900; color:#800020">${v.P}</td></tr>`;
     });
     tabloAlani.innerHTML = html + "</tbody></table>";
 }
 
-// --- MODAL DETAY GÖSTERİMİ ---
+// --- DETAY MODALI VE YEREL JSON ENTEGRASYONU ---
 async function detayGoster(ev, dep) {
-    initSupabase();
     const modal = document.getElementById('macModal');
     const govde = document.getElementById('modal-govde');
     const macId = `${ev}-${dep}`.replace(/\s+/g, '-');
     
     modal.style.display = "flex";
-    govde.innerHTML = "<div style='text-align:center; padding: 20px;'>Veriler yükleniyor...</div>";
+    govde.innerHTML = "<div style='text-align:center; padding: 20px;'>İstatistikler yükleniyor...</div>";
 
     try {
-        const response = await fetch('istatistik.json');
-        const istatistikler = await response.json();
+        const responseJson = await fetch('istatistik.json');
+        const istatistikler = await responseJson.json();
         
         const evD = istatistikler[ev] || { sira: "??", form: "N/A" };
         const depD = istatistikler[dep] || { sira: "??", form: "N/A" };
@@ -797,7 +855,6 @@ async function detayGoster(ev, dep) {
             <div style="text-align:center; border-bottom: 2px solid #f1f2f6; padding-bottom: 20px; margin-bottom: 20px;">
                 <h2 style="color:var(--primary-color); font-size: 1.8em; margin:0;">${ev} <span style="color:#ccc; font-weight:300;">v</span> ${dep}</h2>
             </div>
-            
             <table class="istatistik-tablo" style="width:100%; margin-bottom:20px; font-size:13px; color:#5f6368;">
                 <tr style="font-weight:800; color:var(--primary-color); font-size:14px;"><td>${ev}</td><td style="color:#b2bec3">KATEGORİ</td><td>${dep}</td></tr>
                 <tr><td>#${evD.sira}</td><td>FIFA SIRALAMASI</td><td>#${depD.sira}</td></tr>
@@ -805,8 +862,9 @@ async function detayGoster(ev, dep) {
             </table>
         `;
 
+        // Yeni Git Diff mimarisine uygun olay ve kadro basımı
         if (macMaciData) {
-            // --- GOL VE KART OLAYLARI (MAÇ ÖZETİ) ---
+            // 1. Olaylar (Goller, Kartlar)
             let olaylarHtml = `<div class="mac-olaylari">`;
             
             if (macMaciData.goller && macMaciData.goller.length > 0) {
@@ -842,52 +900,42 @@ async function detayGoster(ev, dep) {
             olaylarHtml += `</div>`;
             modalHtml += olaylarHtml;
 
-            // --- GOOGLE FORMATINDA GERÇEK İSTATİSTİKLER ---
+            // 2. Google Formatlı Bar İstatistikleri
             const createStatRow = (title, evVal, depVal, isPercent = false) => {
-                const eNum = parseFloat(evVal);
-                const dNum = parseFloat(depVal);
+                const eNum = parseFloat(evVal); const dNum = parseFloat(depVal);
                 const total = eNum + dNum;
                 const ePct = total > 0 ? (eNum / total) * 100 : 50;
                 const dPct = total > 0 ? (dNum / total) * 100 : 50;
-
                 const evBadgeClass = eNum > dNum ? 'google-badge win' : 'google-badge neutral';
                 const depBadgeClass = dNum > eNum ? 'google-badge win' : 'google-badge neutral';
                 
-                const evDisplay = isPercent ? `%${evVal}` : evVal;
-                const depDisplay = isPercent ? `%${depVal}` : depVal;
-
                 return `
                     <div class="google-stat-row">
                         <div class="google-stat-labels">
-                            <span class="${evBadgeClass}">${evDisplay}</span>
+                            <span class="${evBadgeClass}">${isPercent ? '%'+evVal : evVal}</span>
                             <span class="google-stat-title">${title}</span>
-                            <span class="${depBadgeClass}">${depDisplay}</span>
+                            <span class="${depBadgeClass}">${isPercent ? '%'+depVal : depVal}</span>
                         </div>
                         <div class="google-stat-bar-bg">
                             <div class="google-stat-bar-left" style="width: ${isPercent ? evVal : ePct}%;"></div>
                             <div class="google-stat-bar-right" style="width: ${isPercent ? depVal : dPct}%;"></div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             };
 
             modalHtml += `
                 <div class="google-stat-container">
-                    <h3 style="text-align:center; font-size:15px; color:#202124; margin-bottom:20px; border-bottom:1px solid #f1f3f4; padding-bottom:10px;">TAKIM İSTATİSTİKLERİ</h3>
-                    ${createStatRow("Toplam şut", macMaciData.evSut || 0, macMaciData.depSut || 0)}
-                    ${createStatRow("İsabetli şut sayısı", macMaciData.evIsabet || 0, macMaciData.depIsabet || 0)}
+                    <h3 style="text-align:center; font-size:15px; color:#202124; margin-bottom:20px; border-bottom:1px solid #f1f3f4; padding-bottom:10px;">MAÇ İSTATİSTİKLERİ</h3>
+                    ${createStatRow("Toplam Şut", macMaciData.evSut || 0, macMaciData.depSut || 0)}
+                    ${createStatRow("İsabetli Şut", macMaciData.evIsabet || 0, macMaciData.depIsabet || 0)}
                     ${createStatRow("Topla Oynama", macMaciData.evTop || 50, macMaciData.depTop || 50, true)}
-                    ${createStatRow("Pas", macMaciData.evPas || 0, macMaciData.depPas || 0)}
-                    ${createStatRow("Pas isabeti", macMaciData.evPasIsabet || 0, macMaciData.depPasIsabet || 0, true)}
-                    ${createStatRow("Faul", macMaciData.evFaul || 0, macMaciData.depFaul || 0)}
-                    ${createStatRow("Sarı kart", macMaciData.evSari || 0, macMaciData.depSari || 0)}
-                    ${createStatRow("Kırmızı kart", macMaciData.evKirmizi || 0, macMaciData.depKirmizi || 0)}
-                    ${createStatRow("Ofsayt", macMaciData.evOfsayt || 0, macMaciData.depOfsayt || 0)}
-                    ${createStatRow("Korner", macMaciData.evKorner || 0, macMaciData.depKorner || 0)}
+                    ${createStatRow("Pas Dağılımı", macMaciData.evPas || 0, macMaciData.depPas || 0)}
+                    ${createStatRow("Pas İsabeti", macMaciData.evPasIsabet || 0, macMaciData.depPasIsabet || 0, true)}
+                    ${createStatRow("Fauller", macMaciData.evFaul || 0, macMaciData.depFaul || 0)}
                 </div>
             `;
 
-            // --- İLK 11 VE YEDEK KADROLARININ BASILMASI ---
+            // 3. İlk 11 Kadro Düzenleri
             modalHtml += `
                 <div class="kadro-bolumu">
                     <div class="kadro-baslik">📋 KADROLAR</div>
@@ -895,20 +943,16 @@ async function detayGoster(ev, dep) {
                         <div class="kadro-liste">
                             <div class="kadro-alt-baslik">${ev} İlk 11</div>
                             <div id="evKadro11"></div>
-                            <div class="kadro-alt-baslik" style="margin-top:15px;">Yedekler</div>
-                            <div id="evYedekler"></div>
                         </div>
                         <div class="kadro-liste">
                             <div class="kadro-alt-baslik">${dep} İlk 11</div>
                             <div id="depKadro11"></div>
-                            <div class="kadro-alt-baslik" style="margin-top:15px;">Yedekler</div>
-                            <div id="depYedekler"></div>
                         </div>
                     </div>
                 </div>
             `;
         } else {
-            // --- MAÇ OYNANMADIYSA: AI TAHMİNLERİ ---
+            // Maç oynanmadıysa Yapay Zeka Tahmini Devreye Girer
             let teamA = teamData[ev] || { rank: 50, form: "B-B-B-B-B" };
             let teamB = teamData[dep] || { rank: 50, form: "B-B-B-B-B" };
             let scoreA = calculateScore(teamA.rank, teamA.form);
@@ -921,25 +965,12 @@ async function detayGoster(ev, dep) {
                     <p>${ev}: %${probs.A}</p><div style="background:#eee; height:8px; border-radius:5px;"><div style="width:${probs.A}%; background:green; height:100%; border-radius:5px;"></div></div>
                     <p>Beraberlik: %${probs.draw}</p><div style="background:#eee; height:8px; border-radius:5px;"><div style="width:${probs.draw}%; background:orange; height:100%; border-radius:5px;"></div></div>
                     <p>${dep}: %${probs.B}</p><div style="background:#eee; height:8px; border-radius:5px;"><div style="width:${probs.B}%; background:red; height:100%; border-radius:5px;"></div></div>
-                </div>
-            `;
+                </div>`;
         }
 
-        // Yorum Kısmı Entegrasyonu
-        modalHtml += `
-            <div class="yorum-section">
-                <h3>💬 Taraftar Yorumları</h3>
-                <div id="yorumlar-listesi">Yükleniyor...</div>
-                <div class="yorum-input-box">
-                    <input type="text" id="yorumInput" maxlength="200" placeholder="Yorumun...">
-                    <button id="submitBtn" class="btn-gonder" onclick="yorumGonder('${macId}')">GÖNDER</button>
-                </div>
-            </div>
-        `;
-        
         govde.innerHTML = modalHtml;
 
-        // Kadro verilerini asenkron olarak yerleştirme mantığı
+        // Kadro DOM basım motoru (Alt Eleman Kontrolüyle)
         if (macMaciData) {
             const basKadro = (elementId, liste) => {
                 const el = document.getElementById(elementId);
@@ -954,72 +985,15 @@ async function detayGoster(ev, dep) {
                 }
             };
             basKadro("evKadro11", macMaciData.ev11);
-            basKadro("evYedekler", macMaciData.evYedek);
             basKadro("depKadro11", macMaciData.dep11);
-            basKadro("depYedekler", macMaciData.depYedek);
         }
 
-        yorumlarıCek(macId);
-    } catch (err) { 
-        console.error(err);
-        govde.innerHTML = "<div style='text-align:center; padding:20px; color:red;'>İstatistik verileri yüklenemedi.</div>"; 
+    } catch (err) {
+        govde.innerHTML = `<div style='color:red; padding:20px;'>Veri çekme hatası: ${err.message}</div>`;
     }
 }
 
-async function yorumlarıCek(macId) {
-    const liste = document.getElementById('yorumlar-listesi');
-    if (!supabaseClient) return;
-
-    try {
-        const { data: yorumlar, error } = await supabaseClient
-            .from('yorumlar')
-            .select('*')
-            .eq('mac_id', macId)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        if(!yorumlar || yorumlar.length === 0) { 
-            liste.innerHTML = "<p style='color:#aaa; font-size:13px;'>İlk yorumu sen yap!</p>"; 
-            return; 
-        }
-        
-        liste.innerHTML = yorumlar.map(y => {
-            const kAdi = y.kullanici_adi ? y.kullanici_adi : "Anonim";
-            return `<div class="yorum-kart"><strong>@${safeText(kAdi)}</strong>: ${safeText(y.yorum_metni)}</div>`;
-        }).join('');
-
-    } catch (e) { 
-        console.error("Yorum çekme hatası:", e);
-        liste.innerHTML = "<p>Yorumlar şu an yüklenemiyor.</p>"; 
-    }
-}
-
-async function yorumGonder(macId) {
-    const input = document.getElementById('yorumInput');
-    const btn = document.getElementById('submitBtn');
-    const metin = input.value.trim();
-    
-    if(!metin || !supabaseClient) return;
-    btn.disabled = true;
-
-    try {
-        const { error } = await supabaseClient
-            .from('yorumlar')
-            .insert([
-                { mac_id: macId, kullanici_adi: "Taraftar", yorum_metni: metin }
-            ]);
-
-        if(error) throw error;
-        input.value = "";
-        yorumlarıCek(macId);
-    } catch(e) {
-        alert("Yorum gönderilemedi.");
-    } finally {
-        btn.disabled = false;
-    }
-}
-
+// Uygulamayı tetikle
 window.onload = () => {
     fiksturuYukle();
 };

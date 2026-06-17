@@ -410,6 +410,92 @@
       { "no": 15, "ad": "P. Sulc", "pos": "OS" },
       { "no": 17, "ad": "L. Provod", "pos": "OS" },
       { "no": 10, "ad": "P. Schick", "pos": "FOR" }
+    ],
+    "Kanada-Bosna Hersek":
+    {
+    "dizilis": "3-4-2-1",
+     "evSut": 13,
+    "depSut": 8,
+    "evIsabet": 3,
+    "depIsabet": 4,
+    "evTop": 60,
+    "depTop": 40,
+    "evPas": 390,
+    "depPas": 230,
+    "evPasIsabet": 78,
+    "depPasIsabet": 67,
+    "evFaul": 2,
+    "depFaul": 20,
+    "evSari": 2,
+    "depSari": 3,
+    "evKirmizi": 0,
+    "depKirmizi": 0,
+    "goller": [
+      { "dakika":79, "takim": "ev", "oyuncu": "Cyle Larin" },
+      {"dakika":21, "takim": "dep", "oyuncu": "Jovo Lukić" }
+    ],
+    "sariKartlar": [
+      {"dakika":11, "takim": "ev", "oyuncu": "Alistair Johnson" },
+      {"dakika":45, "takim": "dep", "oyuncu": "Ermedin Demirovic" },
+      {"dakika":"45+1", "takim": "ev", "oyuncu": "Jovo Lukić" },
+      {"dakika":53, "takim": "ev", "oyuncu": "Luc De Fougerolles" },
+      {"dakika":"90+3", "takim": "ev", "oyuncu": "Nikola Katic" }
+    ],
+    "ev11": [
+      { "no": 1, "ad": "Maxime Crepeau", "pos": "KL" },
+      { "no": 2, "ad": "Alistair Johnson", "pos": "DEF" },
+      { "no": 4, "ad": "Luc De Fougerolles", "pos": "DEF" },
+      { "no": 3, "ad": "Derek Cornelius", "pos": "DEF" },
+      { "no": 5, "ad": "Richie Laryea", "pos": "DEF" },
+      { "no": 22, "ad": "Stephen Estaquio", "pos": "ORT" },
+      { "no": 6, "ad": "Ismael Kone", "pos": "ORT" },
+      { "no": 8, "ad": "Liam Millar", "pos": "ORT" },
+      { "no": 13, "ad": "Tajon Buchanan", "pos": "ORT" },
+      { "no": 10, "ad": "Jonathan David", "pos": "FOR" },
+      { "no": 7, "ad": "Tanitoluwa Oluwatimikhin Oluwaseyi", "pos": "FOR" }
+    ],
+    "dep11": [
+      { "no": 1, "ad": "Nikola Vasilj", "pos": "KL" },
+      { "no": 7, "ad": "Tarık Muharemovic", "pos": "DEF" },
+      { "no": 4, "ad": "Sead Kolasinac", "pos": "DEF" },
+      { "no": 6, "ad": "Amar Dedic", "pos": "DEF" },
+      { "no": 20, "ad": "Nikola Katic", "pos": "DEF" },
+      { "no": 24, "ad": "Benjamin Tahirovic", "pos": "ORT" },
+      { "no": 22, "ad": "Ivan Basic", "pos": "ORT" },
+      { "no": 5, "ad": "Amar Memic", "pos": "ORT" },
+      { "no": 15, "ad": "Esmir Bajrakterevic", "pos": "OS" },
+      { "no": 17, "ad": "Ermedin Demirovic", "pos": "FOR" },
+      { "no": 10, "ad": "Jovo Lukic", "pos": "FOR" }
+    ],
+    "Katar-İsviçre":
+    {
+    "dizilis": "3-4-2-1",
+     "evSut": 5,
+    "depSut": 3,
+    "evIsabet": 27,
+    "depIsabet": 10,
+    "evTop": 30,
+    "depTop": 70,
+    "evPas": 261,
+    "depPas": 551,
+    "evPasIsabet": 73,
+    "depPasIsabet": 93,
+    "evFaul": 11,
+    "depFaul": 11,
+    "evSari": 2,
+    "depSari": 1,
+    "evKirmizi": 0,
+    "depKirmizi": 0,
+    "goller": [
+      { "dakika":"90+4", "takim": "ev", "oyuncu": "Miro Murheim(KK)" },
+      {"dakika":17, "takim": "dep", "oyuncu": "Breel Embolo(P)" }
+    ],
+    "sariKartlar": [
+      {"dakika":19, "takim": "ev", "oyuncu": "Mahmud Abunda" },
+      {"dakika":23, "takim": "ev", "oyuncu": "Jasem Gaber" },
+      {"dakika":42, "takim": "dep", "oyuncu": "Denis Zakaria" }
     ]
+  }
+}
   }
 }
