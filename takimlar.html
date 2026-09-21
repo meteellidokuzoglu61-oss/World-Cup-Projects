@@ -26,7 +26,7 @@
                 radial-gradient(at 100% 100%, rgba(0, 77, 152, 0.2) 0px, transparent 50%);
             background-attachment: fixed;
             margin: 0; 
-            padding: 20px; 
+            padding: 95px 20px 60px; 
             color: var(--text-color); 
         }
         
@@ -328,14 +328,41 @@
         }
     }
 
-    async function vikipedidenKadroCek(takimAdi) {
+    async function vikipedidenKadroCek(takimAdi, takimObj) {
         const sayfaAdi = "2026_FIFA_Dünya_Kupası_kadroları";
         const url = `https://tr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sayfaAdi)}&prop=text&format=json&origin=*`;
 
+        // Yerel kadro yedeğini hazırla
+        const yerelKadroHtml = () => {
+            if (takimObj && takimObj.kadro && takimObj.kadro.length > 0) {
+                return `
+                <div style="padding:15px; background:rgba(255,255,255,0.05); border-radius:12px; margin-top:10px;">
+                    <h4 style="color:var(--secondary); margin-bottom:10px;">🌟 Öne Çıkan Oyuncular</h4>
+                    <ul style="list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px;">
+                        ${takimObj.kadro.map(p => `<li style="padding:8px 12px; background:#1e293b; border-radius:8px; border-left:3px solid var(--primary);">👤 ${p}</li>`).join('')}
+                    </ul>
+                </div>`;
+            }
+            if (takimObj && takimObj.star) {
+                return `
+                <div style="padding:20px; text-align:center; background:rgba(255,255,255,0.05); border-radius:12px; margin-top:10px;">
+                    <h4 style="color:var(--secondary); margin-bottom:6px;">⭐ Takım Yıldızı</h4>
+                    <p style="font-size:1.1rem; font-weight:bold;">${takimObj.star}</p>
+                    <small style="color:#94a3b8;">Geniş kadro turnuva öncesi resmi olarak açıklanacaktır.</small>
+                </div>`;
+            }
+            return `<div style='padding:20px; text-align:center; color:#94a3b8;'>Bu takım için resmi kadro turnuva öncesinde ilan edilecektir.</div>`;
+        };
+
         try {
-            const response = await fetch(url);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5 saniye timeout
+
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
             const data = await response.json();
-            if (data.error) return "<div style='padding:20px; text-align:center;'>Kadro sayfası Vikipedi'de bulunamadı.</div>";
+            if (data.error) return yerelKadroHtml();
 
             const htmlIcerik = data.parse.text["*"];
             const parser = new DOMParser();
@@ -358,7 +385,7 @@
                 }
             }
 
-            if (!hedefBaslik) return `<div style='padding:20px; text-align:center;'>${takimAdi} takımı için bu sayfada henüz bir kadro başlığı açılmamış veya isim eşleşmedi.</div>`;
+            if (!hedefBaslik) return yerelKadroHtml();
 
             let sonrakiEleman = hedefBaslik.nextElementSibling;
             let kadroTablosu = null;
@@ -377,7 +404,7 @@
                 sonrakiEleman = sonrakiEleman.nextElementSibling;
             }
 
-            if (!kadroTablosu) return `<div style='padding:20px; text-align:center;'>${takimAdi} başlığı bulundu fakat altındaki kadro tablosu okunamadı.</div>`;
+            if (!kadroTablosu) return yerelKadroHtml();
 
             const temizTablo = kadroTablosu.cloneNode(true);
             temizTablo.querySelectorAll('.mw-editsection').forEach(el => el.remove());
@@ -395,7 +422,7 @@
                 ${temizTablo.outerHTML}
             </div>`;
         } catch (error) {
-            return "<div style='padding:20px; text-align:center; color:red;'>Kadro yüklenirken bir hata oluştu.</div>";
+            return yerelKadroHtml();
         }
     }
 
@@ -454,7 +481,7 @@
         document.getElementById('takimModal').style.display = "block";
         document.body.classList.add('modal-open');
 
-        const kadroHtml = await vikipedidenKadroCek(t.ad);
+        const kadroHtml = await vikipedidenKadroCek(t.ad, t);
         const kadroKonteynir = document.getElementById('kadro');
         if(kadroKonteynir) {
             kadroKonteynir.innerHTML = kadroHtml;
@@ -477,18 +504,48 @@
         document.body.classList.remove('modal-open');
     }
 
-    window.onclick = (e) => { if(e.target.className == 'modal') modalKapat(); }
-    window.onload = veriyiGetir;
+    function navbarYukle() {
+        fetch('navbar.html')
+            .then(response => {
+                if(!response.ok) throw new Error("Navbar yüklenemedi");
+                return response.text();
+            })
+            .then(data => {
+                const ph = document.getElementById('navbar-placeholder');
+                if (ph) {
+                    ph.innerHTML = data;
+                    const scripts = ph.querySelectorAll('script');
+                    scripts.forEach(s => {
+                        const newScript = document.createElement('script');
+                        newScript.text = s.text;
+                        document.body.appendChild(newScript);
+                    });
+                }
+            })
+            .catch(() => {
+                const ph = document.getElementById('navbar-placeholder');
+                if (ph) ph.innerHTML = `
+                    <header id="fifa-main-header">
+                        <nav class="fifa-navbar">
+                            <div class="fifa-logo"><a href="index.html">🏆 FIFA <span>2026</span></a></div>
+                            <ul class="fifa-nav-links">
+                                <li><a href="index.html">Ana Sayfa</a></li>
+                                <li><a href="fikstur.html">Fikstür</a></li>
+                                <li><a href="takimlar.html" class="active">Takımlar</a></li>
+                                <li><a href="eleme.html">Eleme Ağacı</a></li>
+                                <li><a href="takvim.html">Turnuva Takvimi</a></li>
+                                <li><a href="profil.html">Profilim</a></li>
+                            </ul>
+                        </nav>
+                    </header>`;
+            });
+    }
 
-    fetch('navbar.html')
-        .then(response => {
-            if(!response.ok) throw new Error("Navbar yüklenemedi");
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
-        })
-        .catch(err => console.warn(err.message));
+    window.onclick = (e) => { if(e.target.className == 'modal') modalKapat(); }
+    window.onload = () => {
+        navbarYukle();
+        veriyiGetir();
+    };
 </script>
 </body>
 </html>

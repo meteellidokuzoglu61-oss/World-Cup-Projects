@@ -5,56 +5,337 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIFA 2026 | Giriş Paneli</title>
     <style>
-        :root { --primary: #8A1538; --dark: #1a1a1a; --white: #ffffff; }
-        body { 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2000') center/cover no-repeat fixed;
-            font-family: 'Segoe UI', sans-serif; height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center;
+        :root { 
+            --primary: #8A1538; 
+            --primary-light: #ab1a45;
+            --gold: #bd9b60;
+            --dark: #0f141e; 
+            --white: #ffffff; 
+            --text-gray: #64748b;
         }
-        .container { background: var(--white); width: 100%; max-width: 400px; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        .tabs { display: flex; justify-content: space-around; margin-bottom: 30px; border-bottom: 2px solid #eee; }
-        .tab { padding: 10px; cursor: pointer; font-weight: bold; color: #777; transition: 0.3s; }
-        .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            background: linear-gradient(135deg, rgba(15, 20, 30, 0.85), rgba(138, 21, 56, 0.75)), 
+                        url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2000') center/cover no-repeat fixed;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container { 
+            background: rgba(255, 255, 255, 0.96); 
+            width: 100%; 
+            max-width: 440px; 
+            padding: 35px 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .brand-header h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .brand-header p {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .tabs { 
+            display: flex; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #e2e8f0; 
+        }
+
+        .tab { 
+            flex: 1;
+            text-align: center;
+            padding: 12px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            color: var(--text-gray); 
+            transition: all 0.3s; 
+            position: relative;
+        }
+
+        .tab.active { 
+            color: var(--primary); 
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
         .form-section { display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        h2 { color: var(--primary); margin-top: 0; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { background: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; transition: 0.3s; }
-        .verification-box { display: none; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed var(--primary); }
+        .form-section.active { display: block; }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 13px 16px; 
+            border: 1.5px solid #cbd5e1; 
+            border-radius: 12px; 
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(138, 21, 56, 0.15);
+        }
+
+        .btn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            width: 100%; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 1rem; 
+            letter-spacing: 0.5px;
+            margin-top: 8px; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 15px rgba(138, 21, 56, 0.3);
+        }
+
+        .btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 21, 56, 0.4);
+        }
+
+        .btn-guest {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: none;
+            margin-top: 14px;
+        }
+
+        .btn-guest:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0 10px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider:not(:empty)::before { margin-right: .8em; }
+        .divider:not(:empty)::after { margin-left: .8em; }
+
+        /* Bildirim Kutuları */
+        #alert-box {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .demo-box {
+            display: none;
+            background: #eff6ff;
+            border: 1px dashed #3b82f6;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .demo-box p {
+            font-size: 0.85rem;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .demo-btn {
+            background: #2563eb;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .demo-btn:hover {
+            background: #1d4ed8;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="brand-header">
+        <h1>🏆 FIFA 2026</h1>
+        <p>Dünya Kupası Yönetim ve Takip Portalı</p>
+    </div>
+
+    <div id="alert-box"></div>
+
     <div class="tabs" id="auth-tabs">
         <div class="tab active" onclick="switchTab('login')">Giriş Yap</div>
         <div class="tab" onclick="switchTab('register')">Kayıt Ol</div>
     </div>
 
+    <!-- Giriş Formu -->
     <div id="login-form" class="form-section active">
-        <h2>Hoş Geldiniz</h2>
-        <input type="text" id="l-username" placeholder="Kullanıcı Adı">
-        <input type="password" id="l-password" placeholder="Şifre">
-        <button class="btn" onclick="handleAuth('login')">GİRİŞ YAP</button>
+        <form onsubmit="event.preventDefault(); handleAuth('login');">
+            <div class="input-group">
+                <label for="l-username">Kullanıcı Adı</label>
+                <input type="text" id="l-username" placeholder="Örn: Mete" required autocomplete="username">
+            </div>
+            <div class="input-group">
+                <label for="l-password">Şifre</label>
+                <input type="password" id="l-password" placeholder="Şifrenizi girin" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn" id="login-btn">GİRİŞ YAP</button>
+        </form>
+
+        <div class="divider">VEYA</div>
+
+        <button type="button" class="btn btn-guest" onclick="enterAsGuest()">
+            👤 Misafir Olarak Devam Et
+        </button>
     </div>
 
+    <!-- Kayıt Formu -->
     <div id="register-form" class="form-section">
-        <h2>Hesap Oluştur</h2>
-        <div id="register-inputs">
-            <input type="text" id="r-username" placeholder="Kullanıcı Adı">
-            <input type="password" id="r-password" placeholder="Şifre (En az 6 karakter, harf ve rakam)">
-            <button class="btn" onclick="handleAuth('register')">KAYIT OL</button>
-        </div>
+        <form onsubmit="event.preventDefault(); handleAuth('register');">
+            <div class="input-group">
+                <label for="r-username">Kullanıcı Adı Belirleyin</label>
+                <input type="text" id="r-username" placeholder="Örn: Ahmet" required autocomplete="username">
+            </div>
+            <div class="input-group">
+                <label for="r-password">Şifre</label>
+                <input type="password" id="r-password" placeholder="En az 6 karakter" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn" id="register-btn">HESAP OLUŞTUR</button>
+        </form>
+    </div>
+
+    <!-- Çevrimdışı / API Çökmesi Halinde Otomatik Çıkan Kurtarma Kutusu -->
+    <div id="fallback-box" class="demo-box">
+        <p>ℹ️ API Sunucusuna ulaşılamadı. Turnuva merkezine kesintisiz erişmek için Demo Yönetici modunda devam edebilirsiniz.</p>
+        <button class="demo-btn" onclick="enterAsDemoAdmin()">⚡ Demo Yönetici (Mete) Olarak Gir</button>
     </div>
 </div>
 
 <script>
-    let baseUrl = 'http://localhost:3000/api/'; 
-    if (window.location.hostname !== 'localhost') {
-        baseUrl = 'https://world-cup-projects.onrender.com/api/'; 
+    // --- AKILLI API URL BELİRLEME ---
+    function getApiBaseUrl() {
+        // Eğer 3000 portunda çalışıyorsa direkt /api/
+        if (window.location.port === '3000') {
+            return '/api/';
+        }
+        // Eğer yerel makinede (localhost veya 127.0.0.1) Live Server veya başka bir porttaysa
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:3000/api/';
+        }
+        // Canlıda ise relative path
+        if (window.location.protocol.startsWith('http')) {
+            return '/api/';
+        }
+        // file:/// üzerinden açıldıysa
+        return 'http://localhost:3000/api/';
+    }
+
+    const baseUrl = getApiBaseUrl();
+
+    function showAlert(message, type = 'error') {
+        const box = document.getElementById('alert-box');
+        box.className = 'alert-' + type;
+        box.innerHTML = message;
+        box.style.display = 'block';
+    }
+
+    function hideAlert() {
+        document.getElementById('alert-box').style.display = 'none';
     }
 
     function switchTab(target) {
+        hideAlert();
         document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(target + '-form').classList.add('active');
@@ -62,45 +343,109 @@
         document.querySelectorAll('.tab')[index].classList.add('active');
     }
 
+    // --- MİSAFİR GİRİŞİ ---
+    function enterAsGuest() {
+        localStorage.setItem('fifa_auth', 'misafir');
+        localStorage.setItem('fifa_user', 'Misafir');
+        localStorage.setItem('fifa_user_data', JSON.stringify({
+            name: 'Misafir Kullanıcı',
+            username: 'misafir',
+            email: 'misafir@fifa2026.org',
+            id: '2026',
+            role: 'Misafir İzleyici'
+        }));
+        window.location.replace('index.html');
+    }
+
+    // --- DEMO YÖNETİCİ GİRİŞİ (API KAPALIYKEN) ---
+    function enterAsDemoAdmin() {
+        localStorage.setItem('fifa_auth', 'basarili');
+        localStorage.setItem('fifa_user', 'Mete');
+        localStorage.setItem('fifa_user_data', JSON.stringify({
+            name: 'Mete',
+            username: 'Mete',
+            email: 'mete@fifa2026.org',
+            id: '1001',
+            role: 'Baş Yönetici'
+        }));
+        window.location.replace('index.html');
+    }
+
+    // --- GİRİŞ & KAYIT İŞLEMİ ---
     async function handleAuth(type) {
+        hideAlert();
         const usernameField = type === 'login' ? 'l-username' : 'r-username';
         const passwordField = type === 'login' ? 'l-password' : 'r-password';
+        const btnId = type === 'login' ? 'login-btn' : 'register-btn';
         
         const username = document.getElementById(usernameField).value.trim();
         const password = document.getElementById(passwordField).value;
+        const btn = document.getElementById(btnId);
 
         if (!username || !password) {
-            alert("Lütfen tüm alanları doldurun.");
+            showAlert("Lütfen tüm alanları doldurun.", "error");
             return;
         }
 
+        btn.disabled = true;
+        btn.innerText = "İşleniyor...";
+
         const payload = { username, password };
-        let url = baseUrl + type;
+        const url = baseUrl + type;
 
         try {
+            // 4 saniye timeout ile istek
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                signal: controller.signal
             });
-            
+            clearTimeout(timeoutId);
+
             const data = await response.json();
 
             if (response.ok && data.success) {
-                if(type === 'login') {
+                if (type === 'login') {
+                    const adminName = data.yonetici || username;
                     localStorage.setItem('fifa_auth', 'basarili');
-                    localStorage.setItem('fifa_user', data.yonetici);
-                    window.location.replace('index.html');
+                    localStorage.setItem('fifa_user', adminName);
+                    localStorage.setItem('fifa_user_data', JSON.stringify({
+                        name: adminName,
+                        username: username,
+                        email: (username.toLowerCase() === 'mete' ? 'mete@fifa2026.org' : username.toLowerCase() + '@fifa2026.org'),
+                        id: '1001',
+                        role: 'Turnuva Yöneticisi'
+                    }));
+                    showAlert("Giriş başarılı, yönlendiriliyorsunuz...", "success");
+                    setTimeout(() => window.location.replace('index.html'), 500);
                 } else {
-                    alert('Kayıt başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
+                    showAlert("Kayıt başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.", "success");
                     switchTab('login');
+                    document.getElementById('l-username').value = username;
+                    document.getElementById('l-password').focus();
                 }
             } else {
-                alert(data.message || "Bir hata oluştu.");
+                showAlert(data.message || "İşlem gerçekleştirilemedi.", "error");
             }
         } catch (err) {
-            console.error(err);
-            alert('Sunucu bağlantı hatası!');
+            console.warn("API Bağlantı hatası:", err);
+            
+            // Eğer varsayılan yönetici bilgileri girilmişse offline kurtarma sağla
+            if (type === 'login' && username.toLowerCase() === 'mete' && password === '123456') {
+                showAlert("Sunucu kapalı ancak varsayılan kimlik doğrulandı. Giriş yapılıyor...", "warning");
+                setTimeout(enterAsDemoAdmin, 1000);
+                return;
+            }
+
+            showAlert("⚠️ Sunucuya bağlanılamadı. Lütfen 'server.js' sunucusunun çalıştığından emin olun veya aşağıdaki butondan çevrimdışı devam edin.", "warning");
+            document.getElementById('fallback-box').style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.innerText = type === 'login' ? 'GİRİŞ YAP' : 'HESAP OLUŞTUR';
         }
     }
 </script>

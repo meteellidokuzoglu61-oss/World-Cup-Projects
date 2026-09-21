@@ -3,592 +3,545 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="Copyright" content="FIFA World Cup 2026 Project">
+    <meta name="description" content="FIFA Dünya Kupası 2026 Turnuva Portalı. Puan durumu, fikstür, canlı duyurular ve eleme aşaması.">
+    <title>FIFA World Cup 2026 | Futbolun Zirvesi</title>
+
     <script>
         (function() {
             const authStatus = localStorage.getItem('fifa_auth');
-            // Eğer giriş yapılmamışsa, sayfanın geri kalanını yüklemeden hemen yönlendir
             if (!authStatus) {
                 window.location.replace('login.html');
             }
         })();
     </script>
-    <title>FIFA World Cup 2026 | Futbolun Kalbi</title>
 
-    
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons/css/flag-icons.min.css">
-    
+    <link rel="stylesheet" href="css/style.css">
+
     <style>
         :root {
             --primary: #8A1538;
+            --primary-dark: #5c0e25;
             --secondary: #bd9b60;
-            --dark: #1a1a1a;
-            --light: #f4f7f6;
+            --dark: #0f141e;
+            --light: #f8f9fa;
             --white: #ffffff;
             --success: #2ecc71;
+            --nav-height: 72px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); color: var(--dark); line-height: 1.6; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: var(--light); 
+            color: var(--dark); 
+            line-height: 1.6;
+            padding-top: var(--nav-height);
+        }
 
-        /* Navigation */
-       /* Navbar Sabitleme ve Tasarım */
-.navbar {
-    background: var(--primary);
-    color: white;
-    padding: 1rem 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: fixed; /* 'sticky' yerine 'fixed' daha garantidir */
-    top: 0;
-    left: 0;
-    width: 100%; /* Genişliği sabitle */
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-
-/* Navbar fixed olduğu için içeriğin üstte kalmaması için body'e boşluk ver */
-body {
-    padding-top: 70px; /* Navbar yüksekliği kadar */
-}
-
-/* Sığma sorunu için: Ekran daraldığında font ve boşlukları küçült */
-@media (max-width: 1100px) {
-    .nav-links {
-        gap: 10px; /* Boşlukları daralt */
-    }
-    .nav-links a {
-        font-size: 0.85rem; /* Yazıları küçült */
-    }
-    .logo {
-        font-size: 1.2rem;
-    }
-}
-
-/* Çok küçük ekranlarda (Mobil) menünün kaydırılabilir olması */
-@media (max-width: 768px) {
-    .nav-links {
-        overflow-x: auto;
-        white-space: nowrap;
-        padding-bottom: 5px;
-        width: 100%;
-        justify-content: flex-start;
-    }
-    .navbar {
-        flex-direction: column; /* Logo üstte, menü altta */
-        gap: 10px;
-    }
-}
-
-/* --- MOBİL UYUMLULUK GÜNCELLEMELERİ (Mevcut stillerin altına ekle veya değiştir) --- */
-
-/* Navbar Mobil Tasarımı */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column; /* Logo üstte, menü altta */
-        gap: 12px;
-        padding: 10px 15px;
-    }
-
-    .nav-links {
-        display: flex;
-        overflow-x: auto; /* Alan yetmezse butonlar sağa kaysın */
-        white-space: nowrap;
-        width: 100%;
-        justify-content: flex-start;
-        padding-bottom: 5px;
-        -webkit-overflow-scrolling: touch;
-        gap: 15px;
-    }
-
-    .nav-links::-webkit-scrollbar {
-        display: none; /* Kaydırma çubuğunu gizle */
-    }
-
-    body {
-        padding-top: 100px; /* İki satırlı navbar için üst boşluğu artırdık */
-    }
-
-    /* İstatistik barını dikey veya sıkıştırılmış yapalım */
-    .stats-bar {
-        margin: -30px 15px 30px;
-        grid-template-columns: repeat(3, 1fr);
-        padding: 15px 5px;
-        font-size: 0.85rem;
-    }
-    
-    .stat-item strong {
-        font-size: 1.5rem;
-    }
-}
-
-/* En Kritik Alan: Tabloların ve Kartların Mobilde Taşmasını Önleme */
-@media (max-width: 480px) {
-    .group-container {
-        grid-template-columns: 1fr; /* Mobilde kartlar tek sütun alt alta insin */
-        padding: 0 15px;
-        gap: 20px;
-    }
-
-    .group-card {
-        padding: 15px;
-        width: 100%;
-        overflow: hidden; /* Kartın kendisinin dışarı taşmasını engelle */
-    }
-
-    /* Tablonun sığmadığı durumda kartın içinde sağa doğru kaymasını sağlayan sihirli kural */
-    .mini-table {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        white-space: nowrap; /* Hücre içindeki yazıların kırılmasını önler */
-    }
-
-    .mini-table th, .mini-table td {
-        padding: 8px 6px; /* Hücre boşluklarını mobilde optimize et */
-    }
-
-    .team-name {
-        font-weight: 600; /* Takım isimleri kaydırılırken okunaklı kalsın */
-    }
-
-    /* En iyi üçüncüler tablosu sarmalayıcısı */
-    .best-thirds-wrapper {
-        padding: 15px;
-        margin: 20px 15px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .thirds-table {
-        width: 100%;
-        white-space: nowrap;
-    }
-}
-/* --- BRACKET ALANI (MOBİL UYUMLU GÜNCELLEME) --- */
-.main-content {
-    margin-top: var(--nav-height);
-    padding: 20px; /* Mobilde taşma yapmaması için padding biraz daraltıldı */
-    overflow-x: auto; /* Yatayda taşan ağacın kaydırılabilmesini sağlar */
-    -webkit-overflow-scrolling: touch; /* Mobilde akıcı kaydırma (smooth scroll) hissi verir */
-}
-
-.bracket-wrapper {
-    display: flex;
-    align-items: flex-start;
-    padding-bottom: 50px;
-    
-    /* ÇOK KRİTİK: Ağacın mobilde büzüşmesini engeller, 
-       1600px genişliğini koruyarak kullanıcının yana doğru kaydırmasını sağlar */
-    width: max-content; 
-    min-width: 1600px; 
-}
-        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;color:#e8f5e9 }
-        .nav-links { display: flex; list-style: none; gap: 20px; }
-        .nav-links a { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; }
-        .nav-links a:hover { color: var(--secondary); }
-
-        /* Admin Panel (Giriş Yapınca Görünür) */
+        /* Admin Hoşgeldin Barı */
         #admin-panel {
-            display: none; background: white; border-bottom: 3px solid var(--primary);
-            padding: 10px 5%; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 60px; z-index: 999;
+            display: none; 
+            background: #ffffff; 
+            border-bottom: 2px solid var(--secondary);
+            padding: 8px 5%; 
+            align-items: center; 
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            font-size: 0.9rem;
         }
 
-        /* Hero & Stats */
+        /* Hero */
         .hero {
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.5)), 
+            background: linear-gradient(rgba(15,20,30,0.7), rgba(138,21,56,0.5)), 
                         url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2000') no-repeat center center/cover;
-            height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white;
+            height: 52vh; 
+            min-height: 360px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            color: white;
+            border-radius: 20px;
+            margin: 15px 0 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
-        .hero-content h1 { font-size: 3.5rem; margin-bottom: 1rem; }
-        .btn { padding: 12px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; transition: 0.3s; display: inline-block; margin: 10px; cursor: pointer; border: none; }
-        .btn.primary { background: var(--primary); color: white; }
+        .hero-content h1 { 
+            font-size: 2.8rem; 
+            margin-bottom: 0.8rem; 
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .hero-content p {
+            font-size: 1.15rem;
+            color: #e2e8f0;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        .btn { 
+            padding: 12px 28px; 
+            border-radius: 30px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            transition: 0.3s; 
+            display: inline-block; 
+            margin: 6px; 
+            cursor: pointer; 
+            border: none; 
+            font-size: 0.95rem;
+        }
+        .btn.primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(138,21,56,0.4); }
+        .btn.primary:hover { background: #ab1a45; transform: translateY(-2px); }
         .btn.secondary { border: 2px solid white; color: white; background: transparent; }
-        .btn.admin-btn { padding: 5px 15px; font-size: 0.8rem; background: var(--primary); color: white; }
+        .btn.secondary:hover { background: white; color: var(--dark); transform: translateY(-2px); }
 
+        /* Stats Bar */
         .stats-bar {
-            max-width: 1000px; margin: -50px auto 50px; background: white;
-            display: grid; grid-template-columns: repeat(3, 1fr); padding: 30px;
-            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
+            max-width: 1000px; 
+            margin: -40px auto 40px; 
+            background: white;
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            padding: 24px;
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            text-align: center;
+            border-top: 4px solid var(--primary);
         }
-        .stat-item strong { display: block; font-size: 2rem; color: var(--primary); }
+        .stat-item strong { display: block; font-size: 2.2rem; color: var(--primary); font-weight: 800; }
+        .stat-item span { color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+
+        /* Duyuru Bölümü */
+        #duyuru-konteynir {
+            max-width: 1000px; 
+            margin: 20px auto; 
+            display: none;
+        }
+        .duyuru-box {
+            background: white; 
+            border-radius: 14px; 
+            padding: 18px 24px; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05); 
+            border-left: 6px solid var(--primary);
+        }
+        .duyuru-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.92rem;
+            border-left: 4px solid #ccc;
+            background: #f8fafc;
+        }
+        .duyuru-item.success { background: #f0fdf4; border-left-color: #22c55e; color: #15803d; }
+        .duyuru-item.warning { background: #fffbeb; border-left-color: #f59e0b; color: #b45309; }
+        .duyuru-item.danger  { background: #fef2f2; border-left-color: #ef4444; color: #b91c1c; }
+        .duyuru-item.info    { background: #eff6ff; border-left-color: #3b82f6; color: #1d4ed8; }
+        .duyuru-baslik { font-weight: 700; margin-right: 6px; }
 
         /* Sections */
-        .section-header { text-align: center; margin: 60px 0 40px; }
-        .section-header h2 { font-size: 2.5rem; color: var(--primary); }
+        .section-header { text-align: center; margin: 40px 0 25px; }
+        .section-header h2 { font-size: 2.2rem; color: var(--primary); font-weight: 800; }
+        .section-header p { color: #64748b; font-size: 0.95rem; }
 
         /* Groups Grid */
         .group-container {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px; padding: 0 5%;
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px; 
+            padding: 0 10px;
         }
         .group-card {
-            background: white; border-radius: 15px; padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--primary);
+            background: white; 
+            border-radius: 16px; 
+            padding: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); 
+            border-top: 4px solid var(--primary);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .mini-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .mini-table td, .mini-table th { padding: 8px 4px; border-bottom: 1px solid #f9f9f9; text-align: center; }
-        .team-name { display: flex; align-items: center; gap: 8px; text-align: left; }
+        .group-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+        .group-card h3 {
+            color: var(--primary);
+            font-weight: 800;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid #f1f5f9;
+        }
+        .mini-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .mini-table td, .mini-table th { padding: 7px 4px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+        .mini-table th { color: #64748b; font-weight: 700; }
+        .team-name { display: flex; align-items: center; gap: 6px; text-align: left; font-weight: 600; }
 
         /* Best 3rds Table */
         .best-thirds-wrapper {
-            max-width: 900px; margin: 40px auto; background: white;
-            padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 900px; 
+            margin: 20px auto 40px; 
+            background: white;
+            padding: 24px; 
+            border-radius: 16px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            overflow-x: auto;
         }
-        .thirds-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .thirds-table th { padding: 15px; border-bottom: 2px solid #eee; color: #666; }
-        .thirds-table td { padding: 15px; border-bottom: 1px solid #eee; }
-        .qualified { background-color: #e8f5e9; }
-        .qual-badge { background: var(--success); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
+        .thirds-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 500px; }
+        .thirds-table th { padding: 12px; border-bottom: 2px solid #e2e8f0; color: #475569; font-weight: 700; font-size: 0.85rem; }
+        .thirds-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .qualified { background-color: #f0fdf4; font-weight: 600; }
+        .qual-badge { background: #22c55e; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
 
-        footer { background: var(--dark); color: white; text-align: center; padding: 40px 0; margin-top: 50px; }
+        footer { background: var(--dark); color: #94a3b8; text-align: center; padding: 35px 20px; margin-top: 60px; font-size: 0.9rem; }
+        footer strong { color: white; }
 
-
-        .duyuru-item {
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 0.95em;
-    border-left: 4px solid #ccc;
-    background: #f8f9fa;
-}
-.duyuru-item.success { background: #e8f5e9; border-left-color: #2e7d32; color: #1b5e20; }
-.duyuru-item.warning { background: #fff8e1; border-left-color: #f57f17; color: #e65100; }
-.duyuru-item.danger  { background: #ffebee; border-left-color: #c62828; color: #b71c1c; }
-.duyuru-item.info    { background: #e3f2fd; border-left-color: #1565c0; color: #0d47a1; }
-
-.duyuru-baslik {
-    font-weight: 700;
-    margin-right: 8px;
-}
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 2rem; }
+            .stats-bar { grid-template-columns: repeat(3, 1fr); padding: 15px; margin-top: -20px; }
+            .stat-item strong { font-size: 1.6rem; }
+        }
     </style>
 </head>
 <body>
 
-   <header>
-    <nav class="navbar">
-        <div class="logo">
-            <a href="index.html" style="text-decoration: none; color: inherit;">FIFA 2026</a>
+    <div id="navbar-placeholder"></div>
+
+    <!-- Giriş Yapmış Kullanıcı / Admin Bilgi Şeridi -->
+    <div id="admin-panel">
+        <div>
+            <span>👋 Hoş geldin, <strong id="admin-name">Kullanıcı</strong></span>
+            <span id="role-badge" style="background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:0.75rem; margin-left:6px;"></span>
         </div>
-        <ul class="nav-links">
-            <li><a href="index.html">Ana Sayfa</a></li>
-            <li><a href="fikstur.html">Fikstür</a></li>
-            <li><a href="takimlar.html">Takımlar</a></li>
-            <li><a href="eleme.html" style="font-weight:bold;">Eleme Aşaması</a></li>
-            <li><a href="takvim.html">Turnuva Takvimi</a></li>
-            <li><a href="profil.html">Profilim</a></li>
-        </ul>
-    </nav>
-</header>
-    
+        <button onclick="cikisYap()" style="background:none; border:none; color:var(--primary); font-weight:bold; cursor:pointer;">Çıkış Yap ➔</button>
+    </div>
 
+    <!-- Düzen Taşıyıcısı (Layout Wrapper) -->
     <main class="layout-wrapper">
-    <aside class="side-column">
-        <div class="ad-placeholder"></div>
-    </aside>
+        <aside class="side-column">
+            <div class="ad-placeholder">SPONSOR / REKLAM</div>
+        </aside>
 
-    <div class="main-content">
-        <section class="hero">
-            <div class="hero-content">
-                <h1>FUTBOLUN ZİRVESİ 2026</h1>
-                <p>Kuzey Amerika'nın ev sahipliğinde tarihin en büyük Dünya Kupası.</p>
-                <div class="hero-btns">
-                    <a href="fikstur.html" class="btn primary">MAÇLARI GÖR</a>
-                    <a href="#best-thirds-section" class="btn secondary">EN İYİ 3.LER</a>
+        <div class="main-content">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>FUTBOLUN ZİRVESİ 2026</h1>
+                    <p>Kuzey Amerika'nın ev sahipliğinde tarihin en büyük 48 takımlı Dünya Kupası.</p>
+                    <div class="hero-btns">
+                        <a href="fikstur.html" class="btn primary">MAÇLARI GÖR</a>
+                        <a href="eleme.html" class="btn secondary">ELEME AĞACI</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dinamik Duyurular -->
+            <div id="duyuru-konteynir">
+                <div class="duyuru-box">
+                    <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:8px; font-size:1.05rem; text-transform:uppercase; letter-spacing:1px;">
+                        📢 Turnuva Duyuruları
+                    </h3>
+                    <div id="duyuru-listesi"></div>
                 </div>
             </div>
-        </section>
-        
+
+            <!-- İstatistik Özeti -->
+            <section class="stats-bar">
+                <div class="stat-item"><strong>48</strong><span>Takım</span></div>
+                <div class="stat-item"><strong>12</strong><span>Grup</span></div>
+                <div class="stat-item"><strong>104</strong><span>Toplam Maç</span></div>
+            </section>
+
+            <!-- Gruplar -->
+            <section id="groups">
+                <div class="section-header">
+                    <h2>Turnuva Grupları ve Puan Durumu</h2>
+                    <p>Her gruptan ilk 2 takım ve en iyi 8 üçüncü takım Son 32 turuna yükselir.</p>
+                </div>
+                <div id="dynamic-groups-container" class="group-container">
+                    <div style="grid-column:1/-1; text-align:center; padding:30px; color:#64748b;">Gruplar yükleniyor...</div>
+                </div>
+            </section>
+
+            <!-- En İyi 3.ler -->
+            <section id="best-thirds-section">
+                <div class="section-header">
+                    <h2>En İyi Üçüncüler Sıralaması</h2>
+                    <p>12 gruptaki 3. sıralar arasında en yüksek puan ve averaja sahip 8 takım.</p>
+                </div>
+                <div class="best-thirds-wrapper">
+                    <table class="thirds-table">
+                        <thead>
+                            <tr>
+                                <th>Sıra</th>
+                                <th>Grup</th>
+                                <th>Takım</th>
+                                <th>Puan</th>
+                                <th>Averaj</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody id="best-thirds-body"></tbody>
+                    </table>
+                </div>
+            </section>
         </div>
 
-    <aside class="side-column">
-        <div class="ad-placeholder">REKLAM</div>
-    </aside>
-</main>
-
-<div id="duyuru-konteynir" style="max-width: 1300px; margin: 20px auto; padding: 0 15px; display: none;">
-    <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-left: 6px solid #8A1538;">
-        <h3 style="margin-top: 0; color: #8A1538; display: flex; align-items: center; gap: 10px; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px;">
-            📢 Son Duyurular
-        </h3>
-        <div id="duyuru-listesi">
-            <!-- Dinamik duyurular buraya akacak -->
-        </div>
-    </div>
-</div>
-
-        <section class="stats-bar">
-            <div class="stat-item"><strong>48</strong><span>Takım</span></div>
-            <div class="stat-item"><strong>12</strong><span>Grup</span></div>
-            <div class="stat-item"><strong>104</strong><span>Toplam Maç</span></div>
-        </section>
-
-        <section id="groups">
-            <div class="section-header">
-                <h2>Turnuva Grupları</h2>
-            </div>
-            <div id="dynamic-groups-container" class="group-container"></div>
-        </section>
-
-        <section id="best-thirds-section">
-            <div class="section-header">
-                <h2>En İyi Üçüncüler Sıralaması</h2>
-                <p>12 gruptan en iyi 8 üçüncü takım bir üst tura yükselecektir.</p>
-            </div>
-            <div class="best-thirds-wrapper">
-                <table class="thirds-table">
-                    <thead>
-                        <tr>
-                            <th>Sıra</th>
-                            <th>Grup</th>
-                            <th>Takım</th>
-                            <th>Puan</th>
-                            <th>Averaj</th>
-                            <th>Durum</th>
-                        </tr>
-                    </thead>
-                    <tbody id="best-thirds-body"></tbody>
-                </table>
-            </div>
-        </section>
+        <aside class="side-column">
+            <div class="ad-placeholder">SPONSOR / REKLAM</div>
+        </aside>
     </main>
 
     <footer>
-        <p>&copy; 2026 Dünya Kupası Projesi | Tüm hakları saklıdır.</p>
+        <p>&copy; 2026 Dünya Kupası Projesi | <strong>Tüm hakları saklıdır.</strong></p>
     </footer>
 
-   <script>
-    // --- KÜRESEL DEĞİŞKENLER ---
-    // --- KÜRESEL DEĞİŞKENLER ---
-let aktifKullaniciAdi = "Misafir";
+    <script>
+    let aktifKullaniciAdi = "Misafir";
 
-// --- GÜVENLİ GİRİŞ KONTROLÜ ---
-function checkAuth() {
-    const authStatus = localStorage.getItem('fifa_auth');
-    const userData = localStorage.getItem('fifa_user_data');
-    const adminPanel = document.getElementById('admin-panel');
+    // --- GÜVENLİ GİRİŞ KONTROLÜ ---
+    function checkAuth() {
+        const authStatus = localStorage.getItem('fifa_auth');
+        const userData = localStorage.getItem('fifa_user_data');
+        const adminPanel = document.getElementById('admin-panel');
+        const adminNameEl = document.getElementById('admin-name');
+        const roleBadge = document.getElementById('role-badge');
 
-    if (!authStatus) {
+        if (!authStatus) {
+            window.location.replace('login.html');
+            return false;
+        }
+
+        if (authStatus === 'misafir') {
+            aktifKullaniciAdi = "Misafir";
+            if (adminPanel) adminPanel.style.display = 'flex';
+            if (adminNameEl) adminNameEl.innerText = "Misafir Kullanıcı";
+            if (roleBadge) roleBadge.innerText = "İzleyici";
+            return true;
+        }
+
+        if (authStatus === 'basarili') {
+            let role = "Yönetici";
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    aktifKullaniciAdi = user.name || user.username || localStorage.getItem('fifa_user') || "Yönetici";
+                    role = user.role || "Yönetici";
+                } catch(e) {
+                    aktifKullaniciAdi = localStorage.getItem('fifa_user') || "Yönetici";
+                }
+            } else {
+                aktifKullaniciAdi = localStorage.getItem('fifa_user') || "Yönetici";
+            }
+
+            if (adminPanel) {
+                adminPanel.style.display = 'flex';
+                if (adminNameEl) adminNameEl.innerText = aktifKullaniciAdi;
+                if (roleBadge) roleBadge.innerText = role;
+            }
+            return true;
+        }
+
         window.location.replace('login.html');
         return false;
     }
 
-    if (authStatus === 'misafir') {
-        aktifKullaniciAdi = "Misafir";
-        if (adminPanel) adminPanel.style.display = 'none';
-        console.log("Mod: Misafir");
-        return true;
+    // --- ÇIKIŞ YAPMA ---
+    function cikisYap() {
+        localStorage.clear();
+        window.location.replace('login.html');
     }
 
-    if (authStatus === 'basarili') {
-        if (userData) {
-            const user = JSON.parse(userData);
-            aktifKullaniciAdi = user.name || user.username || "Kullanıcı";
-            
-            if (adminPanel) {
-                adminPanel.style.display = 'flex';
-                document.getElementById('admin-name').innerText = aktifKullaniciAdi;
+    // --- DUYURULARI ÇEKME (API + FAIL-SAFE LOCAL FALLBACK) ---
+    async function duyurulariYukle() {
+        const konteynir = document.getElementById('duyuru-konteynir');
+        const liste = document.getElementById('duyuru-listesi');
+        if (!liste) return;
+
+        let duyurular = [];
+
+        try {
+            const apiEndpoint = (window.location.port === '3000' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://localhost:3000/api/duyurular'
+                : '/api/duyurular';
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const response = await fetch(apiEndpoint, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                duyurular = await response.json();
             }
+        } catch (err) {
+            console.log("API duyuruları çekilemedi, yerel yedek duyurular yükleniyor.");
         }
-        console.log("Mod: Kayıtlı Kullanıcı - " + aktifKullaniciAdi);
-        return true;
-    }
 
-    window.location.replace('login.html');
-    return false;
-}
-
-// --- ÇIKIŞ YAPMA FONKSİYONU ---
-function cikisYap() {
-    localStorage.clear();
-    window.location.replace('login.html');
-}
-
-// --- YORUM GÖNDERME (DİNAMİK) ---
-async function yorumGonder(macId) {
-    const input = document.getElementById('yorumInput');
-    if (!input) return;
-    
-    const yorumMetni = input.value.trim();
-    if (!yorumMetni) return;
-
-    try {
-        const response = await fetch('http://localhost:3000/api/yorumlar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                mac_id: macId,
-                kullanici_adi: aktifKullaniciAdi,
-                yorum_metni: yorumMetni
-            })
-        });
-
-        if (response.ok) {
-            input.value = "";
-            if (typeof yorumlariYukle === 'function') yorumlariYukle(macId);
+        // Eğer API boş veya ulaşılamazsa yedek duyurular
+        if (!duyurular || duyurular.length === 0) {
+            duyurular = [
+                { baslik: 'Turnuva Başlıyor', icerik: '2026 FIFA Dünya Kupası maç takvimi ve stadyum bilgileri tamamlandı.', tip: 'success' },
+                { baslik: 'Canlı Skor Takibi', icerik: 'Fikstür sayfasından tüm maçları ve AI olasılık tahminlerini inceleyebilirsiniz.', tip: 'info' }
+            ];
         }
-    } catch (err) {
-        console.error("Yorum hatası:", err);
-        alert("Sunucuya ulaşılamadı, yorum kaydedilemedi.");
-    }
-}
 
-// --- DUYURULARI SÜREKLİ VE BAĞIMSIZ YÜKLEME FONKSİYONU ---
-async function duyurulariYukle() {
-    // Eğer Supabase client henüz başlamadıysa init et
-    if (typeof initSupabase === "function") initSupabase(); 
-    
-    const konteynir = document.getElementById('duyuru-konteynir');
-    const liste = document.getElementById('duyuru-listesi');
-    
-    // safeText fonksiyonun yoksa hata vermemesi için basit bir kontrol/fallback
-    const safe = typeof safeText === 'function' ? safeText : (text) => text || '';
-
-    // supabaseClient objesinin varlığından emin olalım
-    if (typeof supabaseClient === 'undefined' || !supabaseClient || !liste) {
-        console.warn("Supabase bağlantısı veya duyuru listesi elementi bulunamadı.");
-        return;
-    }
-
-    try {
-        const { data: duyurular, error } = await supabaseClient
-            .from('duyurular')
-            .select('*')
-            .eq('aktif', true)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        if (duyurular && duyurular.length > 0) {
-            if (konteynir) konteynir.style.display = "block"; 
-            
+        if (konteynir && duyurular.length > 0) {
+            konteynir.style.display = "block";
             liste.innerHTML = duyurular.map(d => `
-                <div class="duyuru-item ${safe(d.tip)}">
-                    <span class="duyuru-baslik">📌 ${safe(d.baslik)}:</span>
-                    <span class="duyuru-icerik">${safe(d.icerik)}</span>
+                <div class="duyuru-item ${d.tip || 'info'}">
+                    <span class="duyuru-baslik">📌 ${d.baslik}:</span>
+                    <span class="duyuru-icerik">${d.icerik}</span>
                 </div>
             `).join('');
-        } else {
-            if (konteynir) konteynir.style.display = "none"; 
         }
-    } catch (err) {
-        console.error("Duyurular yüklenirken hata oluştu:", err.message);
     }
-}
 
-// --- VERİLERİ ÇEKME VE GRUPLARI OLUŞTURMA ---
-async function verileriYukle() {
-    const groupContainer = document.getElementById('dynamic-groups-container');
-    const thirdsBody = document.getElementById('best-thirds-body');
-    
-    try {
-        const response = await fetch('fikstur.json');
-        if (!response.ok) throw new Error("fikstur.json bulunamadı!");
-        const maclar = await response.json();
+    // --- GRUPLARI VE PUAN DURUMUNU OLUŞTURMA ---
+    async function verileriYukle() {
+        const groupContainer = document.getElementById('dynamic-groups-container');
+        const thirdsBody = document.getElementById('best-thirds-body');
         
-        const elemeAsamalari = ["Son 32", "Son 16", "Çeyrek Final", "Yarı Final", "Üçüncülük Maçı", "Final"];
-        let grupVerileri = {};
-
-        maclar.forEach(mac => {
-            if (!elemeAsamalari.includes(mac.grup) && mac.grup !== "Eleme") {
-                if (!grupVerileri[mac.grup]) grupVerileri[mac.grup] = {};
-                
-                [ {ad: mac.ev, kod: mac.kodEv}, {ad: mac.dep, kod: mac.kodDep} ].forEach(t => {
-                    if (!grupVerileri[mac.grup][t.ad]) {
-                        grupVerileri[mac.grup][t.ad] = {
-                            ad: t.ad, kod: t.kod, puan: 0, averaj: 0,
-                            golAtti: 0, golYedi: 0, galibiyet: 0,
-                            beraberlik: 0, maglubiyet: 0, oynanan: 0
-                        };
-                    }
-                });
-
-                if (mac.skorEv != null && mac.skorDep != null) {
-                    let ev = grupVerileri[mac.grup][mac.ev];
-                    let dep = grupVerileri[mac.grup][mac.dep];
-                    ev.oynanan++; dep.oynanan++;
-                    ev.golAtti += mac.skorEv; ev.golYedi += mac.skorDep;
-                    dep.golAtti += mac.skorDep; dep.golYedi += mac.skorEv;
-                    ev.averaj = ev.golAtti - ev.golYedi;
-                    dep.averaj = dep.golAtti - dep.golYedi;
-
-                    if (mac.skorEv > mac.skorDep) { ev.puan += 3; ev.galibiyet++; dep.maglubiyet++; }
-                    else if (mac.skorEv < mac.skorDep) { dep.puan += 3; dep.galibiyet++; ev.maglubiyet++; }
-                    else { ev.puan += 1; dep.puan += 1; ev.beraberlik++; dep.beraberlik++; }
-                }
-            }
-        });
-
-        if (groupContainer) groupContainer.innerHTML = "";
-        let tumUcunculer = [];
-
-        Object.keys(grupVerileri).sort().forEach(grupAd => {
-            let takimlar = Object.values(grupVerileri[grupAd]).sort((a,b) => 
-                b.puan - a.puan || b.averaj - a.averaj || b.golAtti - a.golAtti
-            );
+        try {
+            const response = await fetch('fikstur.json');
+            if (!response.ok) throw new Error("fikstur.json okunamadı!");
+            const maclar = await response.json();
             
-            if(takimlar.length >= 3) tumUcunculer.push({ ...takimlar[2], grup: grupAd });
+            const elemeAsamalari = ["Son 32", "Son 16", "Çeyrek Final", "Yarı Final", "Üçüncülük Maçı", "Final"];
+            let grupVerileri = {};
 
-            let takimlarHtml = takimlar.map((t, index) => `
-                <tr style="${index < 2 ? 'background:#e8f5e9;' : ''}">
-                    <td>${index + 1}</td>
-                    <td><div class="team-name"><span class="fi fi-${t.kod}"></span> ${t.ad}</div></td>
-                    <td>${t.oynanan}</td>
-                    <td>${t.galibiyet}</td>
-                    <td>${t.beraberlik}</td>
-                    <td>${t.maglubiyet}</td>
-                    <td>${t.golAtti}</td>
-                    <td>${t.golYedi}</td>
-                    <td>${t.averaj}</td>
-                    <td><strong>${t.puan}</strong></td>
-                </tr>
-            `).join('');
+            maclar.forEach(mac => {
+                if (!elemeAsamalari.includes(mac.grup) && mac.grup !== "Eleme") {
+                    if (!grupVerileri[mac.grup]) grupVerileri[mac.grup] = {};
+                    
+                    [ {ad: mac.ev, kod: mac.kodEv}, {ad: mac.dep, kod: mac.kodDep} ].forEach(t => {
+                        if (!grupVerileri[mac.grup][t.ad]) {
+                            grupVerileri[mac.grup][t.ad] = {
+                                ad: t.ad, kod: t.kod, puan: 0, averaj: 0,
+                                golAtti: 0, golYedi: 0, galibiyet: 0,
+                                beraberlik: 0, maglubiyet: 0, oynanan: 0
+                            };
+                        }
+                    });
 
-            if (groupContainer) {
-                groupContainer.innerHTML += `
-                    <div class="group-card">
-                        <h3>${grupAd}</h3>
-                        <table class="mini-table">
-                            <thead><tr><th>#</th><th>Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AG</th><th>YG</th><th>AV</th><th>P</th></tr></thead>
-                            <tbody>${takimlarHtml}</tbody>
-                        </table>
-                    </div>
-                `;
+                    if (mac.skorEv != null && mac.skorDep != null) {
+                        let ev = grupVerileri[mac.grup][mac.ev];
+                        let dep = grupVerileri[mac.grup][mac.dep];
+                        ev.oynanan++; dep.oynanan++;
+                        ev.golAtti += mac.skorEv; ev.golYedi += mac.skorDep;
+                        dep.golAtti += mac.skorDep; dep.golYedi += mac.skorEv;
+                        ev.averaj = ev.golAtti - ev.golYedi;
+                        dep.averaj = dep.golAtti - dep.golYedi;
+
+                        if (mac.skorEv > mac.skorDep) { ev.puan += 3; ev.galibiyet++; dep.maglubiyet++; }
+                        else if (mac.skorEv < mac.skorDep) { dep.puan += 3; dep.galibiyet++; ev.maglubiyet++; }
+                        else { ev.puan += 1; dep.puan += 1; ev.beraberlik++; dep.beraberlik++; }
+                    }
+                }
+            });
+
+            if (groupContainer) groupContainer.innerHTML = "";
+            let tumUcunculer = [];
+
+            Object.keys(grupVerileri).sort().forEach(grupAd => {
+                let takimlar = Object.values(grupVerileri[grupAd]).sort((a,b) => 
+                    b.puan - a.puan || b.averaj - a.averaj || b.golAtti - a.golAtti
+                );
+                
+                if(takimlar.length >= 3) tumUcunculer.push({ ...takimlar[2], grup: grupAd });
+
+                let takimlarHtml = takimlar.map((t, index) => `
+                    <tr style="${index < 2 ? 'background:#f0fdf4;' : ''}">
+                        <td>${index + 1}</td>
+                        <td><div class="team-name"><span class="fi fi-${t.kod}"></span> ${t.ad}</div></td>
+                        <td>${t.oynanan}</td>
+                        <td>${t.galibiyet}</td>
+                        <td>${t.beraberlik}</td>
+                        <td>${t.maglubiyet}</td>
+                        <td>${t.golAtti}</td>
+                        <td>${t.golYedi}</td>
+                        <td>${t.averaj >= 0 ? '+'+t.averaj : t.averaj}</td>
+                        <td><strong>${t.puan}</strong></td>
+                    </tr>
+                `).join('');
+
+                if (groupContainer) {
+                    groupContainer.innerHTML += `
+                        <div class="group-card">
+                            <h3>${grupAd}</h3>
+                            <table class="mini-table">
+                                <thead><tr><th>#</th><th>Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AG</th><th>YG</th><th>AV</th><th>P</th></tr></thead>
+                                <tbody>${takimlarHtml}</tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+            });
+
+            // En İyi 3.ler Tablosu
+            if (thirdsBody) {
+                tumUcunculer.sort((a,b) => b.puan - a.puan || b.averaj - a.averaj || b.golAtti - a.golAtti);
+                thirdsBody.innerHTML = tumUcunculer.map((t, i) => `
+                    <tr class="${i < 8 ? 'qualified' : ''}">
+                        <td>${i + 1}</td>
+                        <td><strong>${t.grup}</strong></td>
+                        <td><span class="fi fi-${t.kod}"></span> ${t.ad}</td>
+                        <td><strong>${t.puan}</strong></td>
+                        <td>${t.averaj >= 0 ? '+'+t.averaj : t.averaj}</td>
+                        <td>${i < 8 ? '<span class="qual-badge">Son 32 Turuna</span>' : '<small style="color:#94a3b8;">Elendi</small>'}</td>
+                    </tr>
+                `).join('');
             }
-        });
 
-        // En İyi 3.ler Tablosunu Güncelle
-        if (thirdsBody) {
-            tumUcunculer.sort((a,b) => b.puan - a.puan || b.averaj - a.averaj || b.golAtti - a.golAtti);
-            thirdsBody.innerHTML = tumUcunculer.map((t, i) => `
-                <tr class="${i < 8 ? 'qualified' : ''}">
-                    <td>${i + 1}</td>
-                    <td><strong>${t.grup}</strong></td>
-                    <td><span class="fi fi-${t.kod}"></span> ${t.ad}</td>
-                    <td><strong>${t.puan}</strong></td>
-                    <td>${t.averaj}</td>
-                    <td>${i < 8 ? '<span class="qual-badge">Son 32 Turuna</span>' : '<small>Elendi</small>'}</td>
-                </tr>
-            `).join('');
+        } catch (error) { 
+            console.error("Veri yükleme hatası:", error);
+            if (groupContainer) groupContainer.innerHTML = `<div style="grid-column:1/-1; color:red; text-align:center;">Veriler yüklenirken hata oluştu: ${error.message}</div>`;
         }
+    }
 
-    } catch (error) { 
-        console.error("Veri yükleme hatası:", error); 
+    // --- NAVBAR YÜKLEME ---
+    function navbarYukle() {
+        fetch('navbar.html')
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.text();
+            })
+            .then(html => {
+                const ph = document.getElementById('navbar-placeholder');
+                if (ph) {
+                    ph.innerHTML = html;
+                    const scripts = ph.querySelectorAll('script');
+                    scripts.forEach(s => {
+                        const newScript = document.createElement('script');
+                        newScript.text = s.text;
+                        document.body.appendChild(newScript);
+                    });
+                }
+            })
+            .catch(() => {
+                const ph = document.getElementById('navbar-placeholder');
+                if (ph) ph.innerHTML = `
+                    <header id="fifa-main-header">
+                        <nav class="fifa-navbar">
+                            <div class="fifa-logo"><a href="index.html">🏆 FIFA <span>2026</span></a></div>
+                            <ul class="fifa-nav-links">
+                                <li><a href="index.html" class="active">Ana Sayfa</a></li>
+                                <li><a href="fikstur.html">Fikstür</a></li>
+                                <li><a href="takimlar.html">Takımlar</a></li>
+                                <li><a href="eleme.html">Eleme Ağacı</a></li>
+                                <li><a href="takvim.html">Turnuva Takvimi</a></li>
+                                <li><a href="profil.html">Profilim</a></li>
+                            </ul>
+                        </nav>
+                    </header>`;
+            });
     }
-}
-window.onload = () => {
-    if (checkAuth()) {
-        verileriYukle(); // Grupları ve fikstür özetini çek
-        
-        setTimeout(() => {
-            duyurulariYukle(); 
-        }, 300);
-    }
-};
-</script>
+
+    window.onload = () => {
+        if (checkAuth()) {
+            navbarYukle();
+            verileriYukle();
+            duyurulariYukle();
+        }
+    };
+    </script>
 </body>
 </html>

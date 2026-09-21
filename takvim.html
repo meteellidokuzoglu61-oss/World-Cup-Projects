@@ -3,47 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIFA 2026 | Turnuva Takvimi</title>
-    <div id="navbar-placeholder"></div>
+    <title>FIFA 2026 | Resmi Turnuva Takvimi</title>
     <style>
         :root {
             --fifa-red: #8A1538;
             --fifa-gold: #bd9b60;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
+            --dark-bg: #0f141e;
+            --card-bg: #1e2638;
             --text-main: #ffffff;
-            --text-dim: #a0a0a0;
+            --text-dim: #94a3b8;
+            --nav-height: 72px;
         }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at 10% 20%, rgba(138, 21, 56, 0.25) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(189, 155, 96, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
             color: var(--text-main);
-            margin: 0;
-            padding: 20px;
+            padding: calc(var(--nav-height) + 25px) 20px 60px;
         }
 
         .header {
             text-align: center;
-            padding: 40px 0;
+            padding: 20px 0 40px;
         }
 
         .header h1 {
-            color: var(--fifa-red);
-            font-size: 2.5rem;
+            color: var(--fifa-gold);
+            font-size: 2.6rem;
             margin: 0;
             letter-spacing: 2px;
+            font-weight: 900;
         }
 
         .header p {
-            color: var(--fifa-gold);
-            font-weight: bold;
-            margin-top: 5px;
+            color: #cbd5e1;
+            font-weight: 600;
+            margin-top: 8px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
         }
 
         /* --- TAKVİM KONTEYNER --- */
         .timeline-container {
-            max-width: 700px;
+            max-width: 760px;
             margin: 0 auto;
             position: relative;
         }
@@ -51,90 +58,98 @@
         .timeline-container::before {
             content: '';
             position: absolute;
-            left: 20px;
+            left: 24px;
             top: 0;
             bottom: 0;
-            width: 2px;
+            width: 3px;
             background: linear-gradient(to bottom, var(--fifa-red), var(--fifa-gold));
+            border-radius: 2px;
         }
 
         /* --- TARİH BLOĞU --- */
         .date-entry {
             position: relative;
-            padding-left: 60px;
-            margin-bottom: 30px;
+            padding-left: 65px;
+            margin-bottom: 24px;
         }
 
         .date-entry::before {
             content: '';
             position: absolute;
-            left: 11px;
-            top: 5px;
-            width: 16px;
-            height: 16px;
+            left: 17px;
+            top: 24px;
+            width: 17px;
+            height: 17px;
             background: var(--dark-bg);
-            border: 3px solid var(--fifa-red);
+            border: 3.5px solid var(--fifa-gold);
             border-radius: 50%;
             z-index: 2;
         }
 
         .date-card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s;
+            padding: 22px 26px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
         }
 
         .date-card:hover {
             border-color: var(--fifa-gold);
-            transform: translateX(10px);
-            background: rgba(138, 21, 56, 0.1);
+            transform: translateX(8px);
+            background: rgba(138, 21, 56, 0.25);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
         .date-info h3 {
             margin: 0;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: var(--text-main);
+            font-weight: 800;
         }
 
         .date-info p {
-            margin: 5px 0 0;
-            font-size: 0.9rem;
+            margin: 6px 0 0;
+            font-size: 0.95rem;
             color: var(--fifa-gold);
             font-weight: 600;
         }
 
         .phase-badge {
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             background: var(--fifa-red);
             color: white;
-            padding: 4px 12px;
+            padding: 5px 14px;
             border-radius: 20px;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 800;
+            box-shadow: 0 2px 10px rgba(138, 21, 56, 0.4);
         }
 
         /* Bölüm Başlıkları (Haziran / Temmuz) */
         .month-divider {
-            margin: 40px 0 20px 20px;
-            font-size: 1.5rem;
+            margin: 40px 0 20px 24px;
+            font-size: 1.6rem;
             font-weight: 900;
             color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 3px;
         }
 
-        @media (max-width: 480px) {
-            .date-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+        @media (max-width: 580px) {
+            .date-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .header h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
+
+<div id="navbar-placeholder"></div>
 
 <div class="header">
     <h1>FIFA 2026</h1>
@@ -221,17 +236,17 @@
         <div class="date-card">
             <div class="date-info" style="color: var(--fifa-gold);">
                 <h3>18 Temmuz Cumartesi</h3>
-                <p>Üçüncülük Maçı</p>
+                <p>Üçüncülük Maçı (Bronz Madalya)</p>
             </div>
             <div class="phase-badge" style="background: #cd7f32;">Bronz</div>
         </div>
     </div>
 
     <div class="date-entry">
-        <div class="date-card" style="border: 2px solid var(--fifa-gold); background: linear-gradient(45deg, #1e1e1e, #2a2a2a);">
+        <div class="date-card" style="border: 2px solid var(--fifa-gold); background: linear-gradient(45deg, #1e2638, #2a1525);">
             <div class="date-info">
                 <h3 style="color: var(--fifa-gold); font-size: 1.5rem;">19 Temmuz Pazar</h3>
-                <p style="color: white; text-transform: uppercase;">DÜNYA KUPASI FİNALİ</p>
+                <p style="color: white; text-transform: uppercase;">DÜNYA KUPASI BÜYÜK FİNALİ (NEW YORK)</p>
             </div>
             <div class="phase-badge" style="background: var(--fifa-gold); color: black;">ŞAMPİYON</div>
         </div>
@@ -239,5 +254,45 @@
 
 </div>
 
+<script>
+function navbarYukle() {
+    fetch('navbar.html')
+        .then(res => {
+            if (!res.ok) throw new Error();
+            return res.text();
+        })
+        .then(html => {
+            const ph = document.getElementById('navbar-placeholder');
+            if (ph) {
+                ph.innerHTML = html;
+                const scripts = ph.querySelectorAll('script');
+                scripts.forEach(s => {
+                    const newScript = document.createElement('script');
+                    newScript.text = s.text;
+                    document.body.appendChild(newScript);
+                });
+            }
+        })
+        .catch(() => {
+            const ph = document.getElementById('navbar-placeholder');
+            if (ph) ph.innerHTML = `
+                <header id="fifa-main-header">
+                    <nav class="fifa-navbar">
+                        <div class="fifa-logo"><a href="index.html">🏆 FIFA <span>2026</span></a></div>
+                        <ul class="fifa-nav-links">
+                            <li><a href="index.html">Ana Sayfa</a></li>
+                            <li><a href="fikstur.html">Fikstür</a></li>
+                            <li><a href="takimlar.html">Takımlar</a></li>
+                            <li><a href="eleme.html">Eleme Ağacı</a></li>
+                            <li><a href="takvim.html" class="active">Turnuva Takvimi</a></li>
+                            <li><a href="profil.html">Profilim</a></li>
+                        </ul>
+                    </nav>
+                </header>`;
+        });
+}
+
+window.onload = navbarYukle;
+</script>
 </body>
 </html>

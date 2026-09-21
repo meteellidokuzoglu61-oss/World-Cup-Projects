@@ -79,7 +79,7 @@ body {
     height: 500px;
     background:
         linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-        url('../assets/images/stadium.jpg') center/cover no-repeat;
+        url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2000') center/cover no-repeat;
 
     display: flex;
     flex-direction: column;

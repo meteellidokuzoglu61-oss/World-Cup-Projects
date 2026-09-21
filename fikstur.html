@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIFA Dünya Kupası 2026 | Profesyonel Fikstür & Analiz</title>
-    <div id="navbar-placeholder"></div>
     <style>
         :root {
             --primary-color: #8A1538;
@@ -21,7 +20,7 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 95px 20px 20px;
             color: var(--text-dark);
             line-height: 1.6;
         }
@@ -552,6 +551,8 @@
 </head>
 <body>
 
+<div id="navbar-placeholder"></div>
+
 <div class="container">
     <header>
         <h1>FIFA World Cup 2026</h1>
@@ -649,23 +650,29 @@ async function fiksturuYukle() {
     const grupSecici = document.getElementById('grupSecici');
     
     grupSecici.value = "Tümü";
-    container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Fikstür yükleniyor ve canlı skorlar Wikipedia'dan senkronize ediliyor...</div>";
+    container.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Fikstür yükleniyor...</div>";
     
     try {
-        // 1. Yerel fikstür dosyanızı çekin (Yoksa test amaçlı boş array atar)
+        // 1. Yerel fikstür dosyasını hemen çek ve ekrana bas (Sıfır gecikme)
         try {
             const responseLocal = await fetch('fikstur.json');
-            tumMaclarVerisi = responseLocal.ok ? await responseLocal.json() : [];
+            if (responseLocal.ok) {
+                tumMaclarVerisi = await responseLocal.json();
+            }
         } catch (e) {
-            console.log("Yerel fikstur.json henüz oluşturulmamış, Wikipedia verileri temel alınacak.");
+            console.log("Yerel fikstur.json okunamadı, boş başlatılıyor.");
         }
 
-        // 2. Wikipedia'dan güncel skorları arka planda çekip lokal listeye işle
-        await canlıSkorlariVikipedidenCek();
+        if (tumMaclarVerisi && tumMaclarVerisi.length > 0) {
+            kartlariEkranaBas(tumMaclarVerisi);
+            const puanBolumu = document.getElementById('puan-durumu-bolumu');
+            if (puanBolumu) puanBolumu.style.display = "none";
+        }
 
-        // 3. Kartları ekrana bas ve ilk açılışta puan durumunu gizle
-        kartlariEkranaBas(tumMaclarVerisi);
-        document.getElementById('puan-durumu-bolumu').style.display = "none";
+        // 2. Wikipedia'dan güncel skorları arka planda çek (Kullanıcıyı bekletmeden)
+        canlıSkorlariVikipedidenCek().then(() => {
+            kartlariEkranaBas(tumMaclarVerisi);
+        }).catch(err => console.log("Wikipedia skor güncelleme atlandı."));
 
     } catch (err) {
         container.innerHTML = `<div style='grid-column: 1/-1; color:red; text-align:center;'>Hata: ${err.message}</div>`;
@@ -993,8 +1000,49 @@ async function detayGoster(ev, dep) {
     }
 }
 
+// Navbar yükleyici fonksiyon
+function navbarYukle() {
+    fetch('navbar.html')
+        .then(response => {
+            if (!response.ok) throw new Error("Navbar yüklenemedi");
+            return response.text();
+        })
+        .then(html => {
+            const ph = document.getElementById('navbar-placeholder');
+            if (ph) {
+                ph.innerHTML = html;
+                // Scriptleri çalıştır
+                const scripts = ph.querySelectorAll('script');
+                scripts.forEach(s => {
+                    const newScript = document.createElement('script');
+                    newScript.text = s.text;
+                    document.body.appendChild(newScript);
+                });
+            }
+        })
+        .catch(() => {
+            // Fallback inline navbar (file:/// veya fetch hatası durumunda)
+            const ph = document.getElementById('navbar-placeholder');
+            if (ph) ph.innerHTML = `
+                <header id="fifa-main-header">
+                    <nav class="fifa-navbar">
+                        <div class="fifa-logo"><a href="index.html">🏆 FIFA <span>2026</span></a></div>
+                        <ul class="fifa-nav-links">
+                            <li><a href="index.html">Ana Sayfa</a></li>
+                            <li><a href="fikstur.html" class="active">Fikstür</a></li>
+                            <li><a href="takimlar.html">Takımlar</a></li>
+                            <li><a href="eleme.html">Eleme Ağacı</a></li>
+                            <li><a href="takvim.html">Turnuva Takvimi</a></li>
+                            <li><a href="profil.html">Profilim</a></li>
+                        </ul>
+                    </nav>
+                </header>`;
+        });
+}
+
 // Uygulamayı tetikle
 window.onload = () => {
+    navbarYukle();
     fiksturuYukle();
 };
 </script>

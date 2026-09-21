@@ -2,91 +2,81 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>FIFA 2026 Eleme Ağacı | Final Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA 2026 Eleme Ağacı | Dinamik Skorlar & Final Yolu</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons/css/flag-icons.min.css">
     <style>
         :root {
             --fifa-red: #8A1538;
             --fifa-gold: #bd9b60;
-            --line-color: #bd9b60; /* Çizgiler daha şık görünsün diye gold yapıldı */
+            --line-color: #bd9b60;
             --bg: #f0f2f5;
             --card-bg: #ffffff;
-            --nav-height: 70px;
+            --nav-height: 72px;
             
-            /* GEOMETRİK ÖLÇÜLER - Çizgilerin kırılmadan birleşmesini sağlar */
-            --card-w: 220px;
-            --card-h: 95px; 
-            --gap-x: 60px; 
-            --gap-y: 30px; 
+            /* Geometrik Ölçüler */
+            --card-w: 245px;
+            --card-h: 102px; 
+            --gap-x: 65px; 
+            --gap-y: 32px; 
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--bg);
-            margin: 0;
-            padding: 0;
+            padding-top: var(--nav-height);
+            color: #1e293b;
         }
-
-        /* --- NAVBAR TASARIMI (SABİT) --- */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--nav-height);
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 50px;
-            height: 100%;
-        }
-
-        .logo a {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--fifa-red);
-            text-decoration: none;
-            letter-spacing: 1px;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 25px;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-size: 14px;
-            font-weight: 600;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover { color: var(--fifa-red); }
 
         /* --- BRACKET ALANI --- */
         .main-content {
-            margin-top: var(--nav-height);
-            padding: 50px;
+            padding: 25px 20px 80px;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .header-main { text-align: center; margin-bottom: 40px; }
-        .header-main h1 { color: var(--fifa-red); text-transform: uppercase; letter-spacing: 2px; }
+        .header-main { 
+            text-align: center; 
+            margin-bottom: 25px; 
+        }
+        .header-main h1 { 
+            color: var(--fifa-red); 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            font-size: 2.3rem;
+            font-weight: 900;
+        }
+        .header-main p {
+            color: #64748b;
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e2e8f0;
+            color: #334155;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        .status-badge.live {
+            background: #dcfce7;
+            color: #15803d;
+        }
 
         .bracket-wrapper {
             display: flex;
             align-items: flex-start;
-            min-width: 1600px;
-            padding-bottom: 100px;
+            min-width: 1650px;
+            padding: 20px 40px 100px;
+            margin: 0 auto;
         }
 
         .round {
@@ -103,46 +93,143 @@
             font-weight: 900;
             font-size: 14px;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             border-bottom: 3px solid var(--fifa-gold);
-            height: 35px;
-            background: rgba(255,255,255,0.5);
+            padding-bottom: 8px;
+            background: rgba(255,255,255,0.85);
+            border-radius: 8px 8px 0 0;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
 
         /* --- MAÇ KARTI VE ÇİZGİLER --- */
         .match-card {
             background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
             position: relative;
-            border: 1px solid #ddd;
+            border: 1px solid #e2e8f0;
             height: var(--card-h);
             display: flex;
             flex-direction: column;
             justify-content: center;
             z-index: 5;
-            box-sizing: border-box;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .match-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(138, 21, 56, 0.15);
+            border-color: var(--fifa-gold);
         }
 
         .match-id {
-            font-size: 9px; background: #f8f9fa; color: #888;
-            padding: 2px 8px; border-bottom: 1px solid #eee;
-            position: absolute; top: 0; width: 100%; border-radius: 8px 8px 0 0;
-            box-sizing: border-box;
+            font-size: 10px; 
+            background: #f8fafc; 
+            color: #64748b;
+            padding: 3px 12px; 
+            border-bottom: 1px solid #e2e8f0;
+            position: absolute; 
+            top: 0; 
+            width: 100%; 
+            border-radius: 12px 12px 0 0;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
         }
 
         .team-row {
-            display: flex; align-items: center; padding: 4px 12px;
-            font-size: 12px; font-weight: bold; height: 30px;
-            box-sizing: border-box;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 3px 12px;
+            font-size: 12.5px; 
+            font-weight: 600; 
+            height: 28px;
+            color: #334155;
+            transition: background 0.2s;
         }
-        .team-row:nth-of-type(1) { margin-top: 12px; border-bottom: 1px solid #f5f5f5; }
-        .score-slot { margin-left: auto; background: #eee; width: 22px; text-align: center; border-radius: 3px; }
-        .location-tag { font-size: 10px; color: var(--fifa-gold); text-align: center; margin-top: 2px; font-weight: 600;}
+        .team-row:nth-of-type(1) { 
+            margin-top: 14px; 
+            border-bottom: 1px solid #f1f5f9; 
+        }
 
-        /* --- EL YAZMADAN OTOMATİK ÇİZGİ SİSTEMİ --- */
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 170px;
+        }
 
-        /* Kartların sağından çıkan ilk yatay ortak çizgi */
+        .team-info .fi {
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .score-slot { 
+            background: #f1f5f9; 
+            min-width: 30px; 
+            height: 22px;
+            padding: 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px; 
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #475569;
+            flex-shrink: 0;
+        }
+
+        /* Kazanan Vurgusu */
+        .team-row.winner {
+            color: #0f172a;
+            font-weight: 800;
+        }
+        .team-row.winner .score-slot {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .location-tag { 
+            font-size: 9.5px; 
+            color: var(--fifa-gold); 
+            text-align: center; 
+            margin-top: 2px; 
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 0 8px;
+        }
+
+        /* Şampiyonluk Rozeti (Final Kartının Üstü) */
+        .champion-badge {
+            background: linear-gradient(135deg, #bd9b60, #ffd700);
+            color: #000;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 13px;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 20px rgba(189, 155, 96, 0.4);
+            letter-spacing: 1px;
+            animation: pulseGold 2s infinite;
+        }
+
+        @keyframes pulseGold {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* --- ÇİZGİ SİSTEMİ --- */
         .round:not(:last-child) .match-card::after {
             content: "";
             position: absolute;
@@ -153,7 +240,6 @@
             border-top: 2px solid var(--line-color);
         }
 
-        /* Sonraki turların solundan içeri giren yatay çizgi */
         .round:not(.round-0) .match-card::before {
             content: "";
             position: absolute;
@@ -164,14 +250,12 @@
             border-top: 2px solid var(--line-color);
         }
 
-        /* Üstteki maçtan (Tek numaralı) çıkan dikey çizgiyi aşağı büker */
         .round:not(:last-child) .match-card:nth-child(odd)::after {
             border-right: 2px solid var(--line-color);
             border-bottom: none;
             border-top-right-radius: 6px;
         }
 
-        /* Alttaki maçtan (Çift numaralı) çıkan dikey çizgiyi yukarı büker */
         .round:not(:last-child) .match-card:nth-child(even)::after {
             border-right: 2px solid var(--line-color);
             border-top: none;
@@ -180,122 +264,185 @@
             bottom: 50%;
         }
 
-        /* --- MATEMATİKSEL DİNAMİK HİZALAMA (SABİT ŞABLON) --- */
-
-        /* Son 32 */
+        /* --- DİNAMİK HİZALAMALAR --- */
         .round-0 .match-card { margin-bottom: var(--gap-y); }
         .round-0 .match-card:nth-child(odd)::after { height: calc((var(--card-h) + var(--gap-y)) / 2); }
         .round-0 .match-card:nth-child(even)::after { height: calc((var(--card-h) + var(--gap-y)) / 2); }
 
-        /* Son 16 */
         .round-1 { padding-top: calc((var(--card-h) + var(--gap-y)) / 2); }
         .round-1 .match-card { margin-bottom: calc(var(--card-h) + (var(--gap-y) * 2)); }
         .round-1 .match-card:nth-child(odd)::after { height: calc((var(--card-h) * 2 + var(--gap-y) * 2) / 2); }
         .round-1 .match-card:nth-child(even)::after { height: calc((var(--card-h) * 2 + var(--gap-y) * 2) / 2); }
 
-        /* Çeyrek Final */
         .round-2 { padding-top: calc(var(--card-h) * 1.5 + var(--gap-y) * 1.5); }
         .round-2 .match-card { margin-bottom: calc(var(--card-h) * 3 + var(--gap-y) * 4); }
         .round-2 .match-card:nth-child(odd)::after { height: calc((var(--card-h) * 4 + var(--gap-y) * 4) / 2); }
         .round-2 .match-card:nth-child(even)::after { height: calc((var(--card-h) * 4 + var(--gap-y) * 4) / 2); }
 
-        /* Yarı Final */
         .round-3 { padding-top: calc(var(--card-h) * 3.5 + var(--gap-y) * 3.5); }
-        .round-3 .match-box { margin-bottom: 0; }
+        .round-3 .match-card { margin-bottom: calc(var(--card-h) * 7 + var(--gap-y) * 8); }
         .round-3 .match-card:nth-child(odd)::after { height: calc((var(--card-h) * 8 + var(--gap-y) * 8) / 2); }
         .round-3 .match-card:nth-child(even)::after { height: calc((var(--card-h) * 8 + var(--gap-y) * 8) / 2); }
 
-        /* Final */
         .round-4 { padding-top: calc(var(--card-h) * 7.5 + var(--gap-y) * 7.5); }
         .round-4 .match-card::after, .round-4 .match-card::before { display: none; }
-
     </style>
 </head>
 <body>
 
-<header>
-    <nav class="navbar">
-        <div class="logo">
-            <a href="index.html">FIFA 2026</a>
-        </div>
-        <ul class="nav-links">
-            <li><a href="index.html">Ana Sayfa</a></li>
-            <li><a href="fikstur.html">Fikstür</a></li>
-            <li><a href="takimlar.html">Takımlar</a></li>
-            <li><a href="eleme.html" style="color: var(--fifa-red); font-weight:bold;">Eleme Aşaması</a></li>
-            <li><a href="takvim.html">Turnuva Takvimi</a></li>
-            <li><a href="profil.html">Profilim</a></li>
-        </ul>
-    </nav>
-</header>
+<div id="navbar-placeholder"></div>
 
 <div class="main-content">
     <div class="header-main">
         <h1>FIFA WORLD CUP 2026 ELEME AĞACI</h1>
+        <p>Son 32 turundan New York finaline uzanan 104 maçlık şampiyonluk yolu.</p>
+        <div id="data-status" class="status-badge">
+            <span>⏳ API ve Skorlar Yükleniyor...</span>
+        </div>
     </div>
 
     <div class="bracket-wrapper" id="bracketContainer"></div>
 </div>
 
 <script>
-    // Yazdığın JavaScript veri modeli ve döngü yapısı tamamen korundu
-    const knockoutData = [
+    // 2026 Dünya Kupası Resmi Eşleşme İskeleti
+    const knockoutStructure = [
         { title: "Son 32", matches: [
-            {id: 74, t1: "E Grubu 1.si", t2: "A/B/C/D/F 3.sü", loc: "Foxborough"},
-            {id: 77, t1: "I Grubu 1.si", t2: "C/D/F/G/H 3.sü", loc: "E. Rutherford"},
-            {id: 73, t1: "A Grubu 2.si", t2: "B Grubu 2.si", loc: "Inglewood"},
-            {id: 75, t1: "F Grubu 1.si", t2: "C Grubu 2.si", loc: "Guadalupe"},
-            {id: 83, t1: "K Grubu 2.si", t2: "L Grubu 2.si", loc: "Toronto"},
-            {id: 84, t1: "H Grubu 1.si", t2: "J Grubu 2.si", loc: "Inglewood"},
-            {id: 81, t1: "D Grubu 1.si", t2: "B/E/F/I/J 3.sü", loc: "San Francisco"},
-            {id: 82, t1: "G Grubu 1.si", t2: "A/E/H/I/J 3.sü", loc: "Seattle"},
-            {id: 76, t1: "C Grubu 1.si", t2: "F Grubu 2.si", loc: "Houston"},
-            {id: 78, t1: "E Grubu 2.si", t2: "I Grubu 2.si", loc: "Arlington"},
-            {id: 79, t1: "A Grubu 1.si", t2: "C/E/F/H/I 3.sü", loc: "Meksiko"},
-            {id: 80, t1: "L Grubu 1.si", t2: "E/H/I/J/K 3.sü", loc: "Atlanta"},
-            {id: 86, t1: "J Grubu 1.si", t2: "H Grubu 2.si", loc: "Miami Gardens"},
-            {id: 88, t1: "D Grubu 2.si", t2: "G Grubu 2.si", loc: "Arlington"},
-            {id: 85, t1: "B Grubu 1.si", t2: "E/F/G/I/L 3.sü", loc: "Vancouver"},
-            {id: 87, t1: "K Grubu 1.si", t2: "D/E/G/I/J 3.sü", loc: "Kansas City"}
+            {id: 74, t1: "Almanya", t2: "Paraguay", loc: "Foxborough"},
+            {id: 77, t1: "Fransa", t2: "İsveç", loc: "E. Rutherford"},
+            {id: 73, t1: "Güney Afrika", t2: "Kanada", loc: "Inglewood"},
+            {id: 75, t1: "Hollanda", t2: "Fas", loc: "Guadalupe"},
+            {id: 83, t1: "Portekiz", t2: "Hırvatistan", loc: "Toronto"},
+            {id: 84, t1: "İspanya", t2: "Avusturya", loc: "Inglewood"},
+            {id: 81, t1: "ABD", t2: "Bosna-Hersek", loc: "San Francisco"},
+            {id: 82, t1: "Belçika", t2: "Senegal", loc: "Seattle"},
+            {id: 76, t1: "Brezilya", t2: "Japonya", loc: "Houston"},
+            {id: 78, t1: "Fildişi Sahili", t2: "Norveç", loc: "Arlington"},
+            {id: 79, t1: "Meksika", t2: "Ekvador", loc: "Meksiko"},
+            {id: 80, t1: "İngiltere", t2: "Kongo DC", loc: "Atlanta"},
+            {id: 86, t1: "Arjantin", t2: "Yeşil Burun Adaları", loc: "Miami Gardens"},
+            {id: 88, t1: "Avustralya", t2: "Mısır", loc: "Arlington"},
+            {id: 85, t1: "İsviçre", t2: "Cezayir", loc: "Vancouver"},
+            {id: 87, t1: "Kolombiya", t2: "Gana", loc: "Kansas City"}
         ]},
         { title: "Son 16", matches: [
-            {id: 89, t1: "W74", t2: "W77", loc: "Philadelphia"},
-            {id: 90, t1: "W73", t2: "W75", loc: "Houston"},
-            {id: 93, t1: "W83", t2: "W84", loc: "E. Rutherford"},
-            {id: 94, t1: "W81", t2: "W82", loc: "Meksiko"},
-            {id: 91, t1: "W76", t2: "W78", loc: "Arlington"},
-            {id: 92, t1: "W79", t2: "W80", loc: "Seattle"},
-            {id: 95, t1: "W86", t2: "W88", loc: "Atlanta"},
-            {id: 96, t1: "W85", t2: "W87", loc: "Vancouver"}
+            {id: 89, t1: "Paraguay", t2: "Fransa", loc: "Philadelphia"},
+            {id: 90, t1: "Kanada", t2: "Fas", loc: "Houston"},
+            {id: 93, t1: "Portekiz", t2: "İspanya", loc: "E. Rutherford"},
+            {id: 94, t1: "ABD", t2: "Belçika", loc: "Meksiko"},
+            {id: 91, t1: "Brezilya", t2: "Norveç", loc: "Arlington"},
+            {id: 92, t1: "Meksika", t2: "İngiltere", loc: "Seattle"},
+            {id: 95, t1: "Arjantin", t2: "Mısır", loc: "Atlanta"},
+            {id: 96, t1: "İsviçre", t2: "Kolombiya", loc: "Vancouver"}
         ]},
         { title: "Çeyrek Final", matches: [
-            {id: 97, t1: "W89", t2: "W77", loc: "Foxborough"}, // Algoritmanın beslemesi için eşleşme yolları düzeltildi
-            {id: 98, t1: "W93", t2: "W94", loc: "Inglewood"},
-            {id: 99, t1: "W91", t2: "W92", loc: "Arlington"},
-            {id: 100, t1: "W95", t2: "W96", loc: "Miami Gardens"}
+            {id: 97, t1: "Fransa", t2: "Fas", loc: "Foxborough"},
+            {id: 98, t1: "İspanya", t2: "Belçika", loc: "Inglewood"},
+            {id: 99, t1: "Norveç", t2: "İngiltere", loc: "Miami Gardens"},
+            {id: 100, t1: "Arjantin", t2: "İsviçre", loc: "Kansas City"}
         ]},
         { title: "Yarı Final", matches: [
-            {id: 101, t1: "W97", t2: "W98", loc: "Arlington"},
-            {id: 102, t1: "W99", t2: "W100", loc: "Atlanta"}
+            {id: 101, t1: "Fransa", t2: "İspanya", loc: "Arlington"},
+            {id: 102, t1: "İngiltere", t2: "Arjantin", loc: "Atlanta"}
         ]},
         { title: "Final", matches: [
-            {id: 104, t1: "W101", t2: "W102", loc: "New York"}
+            {id: 104, t1: "İspanya", t2: "Arjantin", loc: "New York/New Jersey"}
         ]}
     ];
 
-    function build() {
+    // Ülke bayrak kodu eşleme tablosu
+    let bayraklar = {
+        "Almanya": "de", "Paraguay": "py", "Fransa": "fr", "İsveç": "se",
+        "Güney Afrika": "za", "Kanada": "ca", "Hollanda": "nl", "Fas": "ma",
+        "Portekiz": "pt", "Hırvatistan": "hr", "İspanya": "es", "Avusturya": "at",
+        "ABD": "us", "Bosna-Hersek": "ba", "Belçika": "be", "Senegal": "sn",
+        "Brezilya": "br", "Japonya": "jp", "Fildişi Sahili": "ci", "Norveç": "no",
+        "Meksika": "mx", "Ekvador": "ec", "İngiltere": "gb-eng", "Kongo DC": "cd",
+        "Arjantin": "ar", "Yeşil Burun Adaları": "cv", "Avustralya": "au", "Mısır": "eg",
+        "İsviçre": "ch", "Cezayir": "dz", "Kolombiya": "co", "Gana": "gh", "Türkiye": "tr"
+    };
+
+    function bayrakKoduGetir(takimAdi) {
+        if (!takimAdi) return "un";
+        return bayraklar[takimAdi.trim()] || "un";
+    }
+
+    // Skor ayrıştırma ve kazanan belirleme (penaltı ve uzatma destekli)
+    function kazananKim(s1, s2) {
+        if (s1 === '-' || s2 === '-' || s1 === null || s2 === null || s1 === undefined || s2 === undefined) return 0;
+        
+        const parse = (s) => {
+            if (typeof s === 'number') return { norm: s, pen: null };
+            const str = String(s).trim();
+            const penMatch = str.match(/\((\d+)\)/);
+            const numMatch = str.match(/^(\d+)/);
+            return {
+                norm: numMatch ? parseInt(numMatch[1]) : 0,
+                pen: penMatch ? parseInt(penMatch[1]) : null
+            };
+        };
+
+        const p1 = parse(s1);
+        const p2 = parse(s2);
+
+        if (p1.pen !== null && p2.pen !== null) {
+            return p1.pen > p2.pen ? 1 : 2;
+        }
+        if (p1.norm !== p2.norm) {
+            return p1.norm > p2.norm ? 1 : 2;
+        }
+        return 0;
+    }
+
+    // Ağacı DOM'a dinamik çizme motoru
+    function renderBracket(roundsData, championName = null) {
         const container = document.getElementById('bracketContainer');
-        knockoutData.forEach((round, rIndex) => {
+        container.innerHTML = "";
+
+        roundsData.forEach((round, rIndex) => {
             const roundDiv = document.createElement('div');
             roundDiv.className = `round round-${rIndex}`;
             roundDiv.innerHTML = `<div class="round-title">${round.title}</div>`;
+
+            // Eğer final turuysa ve şampiyon belliyse şampiyon rozetini ekle
+            if (rIndex === 4 && championName) {
+                const champDiv = document.createElement('div');
+                champDiv.className = 'champion-badge';
+                champDiv.innerHTML = `🏆 DÜNYA ŞAMPİYONU<br><span style="font-size:16px;">${championName.toUpperCase()}</span>`;
+                roundDiv.appendChild(champDiv);
+            }
+
             round.matches.forEach(m => {
+                const winner = kazananKim(m.skor1, m.skor2);
+                const kod1 = m.kod1 || bayrakKoduGetir(m.t1);
+                const kod2 = m.kod2 || bayrakKoduGetir(m.t2);
+
                 const card = document.createElement('div');
                 card.className = 'match-card';
+                card.title = `${m.t1} vs ${m.t2} - ${m.loc}`;
+                card.onclick = () => {
+                    window.location.href = `fikstur.html`;
+                };
+
                 card.innerHTML = `
-                    <div class="match-id">MATCH ${m.id}</div>
-                    <div class="team-row"><span>${m.t1}</span><div class="score-slot">-</div></div>
-                    <div class="team-row"><span>${m.t2}</span><div class="score-slot">-</div></div>
+                    <div class="match-id">
+                        <span>MAÇ #${m.id}</span>
+                        <span>${m.tarih || '2026'}</span>
+                    </div>
+                    <div class="team-row ${winner === 1 ? 'winner' : ''}">
+                        <div class="team-info">
+                            <span class="fi fi-${kod1}"></span>
+                            <span>${m.t1}</span>
+                        </div>
+                        <div class="score-slot">${m.skor1 !== undefined && m.skor1 !== null ? m.skor1 : '-'}</div>
+                    </div>
+                    <div class="team-row ${winner === 2 ? 'winner' : ''}">
+                        <div class="team-info">
+                            <span class="fi fi-${kod2}"></span>
+                            <span>${m.t2}</span>
+                        </div>
+                        <div class="score-slot">${m.skor2 !== undefined && m.skor2 !== null ? m.skor2 : '-'}</div>
+                    </div>
                     <div class="location-tag">📍 ${m.loc}</div>
                 `;
                 roundDiv.appendChild(card);
@@ -303,7 +450,139 @@
             container.appendChild(roundDiv);
         });
     }
-    build();
+
+    // --- APİ / DİNAMİK VERİ ÇEKME MOTORU ---
+    async function dinamikVerileriCek() {
+        const statusEl = document.getElementById('data-status');
+        let tumMaclar = [];
+
+        // 1. Önce takımlar JSON'unu çekip bayrak tablosunu zenginleştir
+        try {
+            const takimRes = await fetch('takimlar.json');
+            if (takimRes.ok) {
+                const takimListesi = await takimRes.json();
+                takimListesi.forEach(t => {
+                    if (t.ad && t.id) bayraklar[t.ad] = t.id;
+                });
+            }
+        } catch(e) {
+            console.log("Takimlar.json yerel bayrak tablosu kullanıldı.");
+        }
+
+        // 2. API veya fikstur.json'dan maçları çek
+        const apiEndpoint = (window.location.port === '3000' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:3000/api/fikstur'
+            : '/api/fikstur';
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            
+            let response = await fetch(apiEndpoint, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                tumMaclar = await response.json();
+                if (statusEl) {
+                    statusEl.className = "status-badge live";
+                    statusEl.innerHTML = "● Canlı API Bağlantısı Aktif (Skorlar Senkronize)";
+                }
+            } else {
+                throw new Error("API yanıt vermedi");
+            }
+        } catch (err) {
+            console.log("API rotasından veri çekilemedi, yerel fikstur.json dosyasına geçiliyor.");
+            try {
+                const localRes = await fetch('fikstur.json');
+                if (localRes.ok) {
+                    tumMaclar = await localRes.json();
+                    if (statusEl) {
+                        statusEl.className = "status-badge live";
+                        statusEl.innerHTML = "● Yerel Fikstür Verisi Aktif (Skorlar Yüklendi)";
+                    }
+                }
+            } catch(e2) {
+                console.error("Fikstür dosyası okunamadı:", e2);
+                if (statusEl) {
+                    statusEl.innerHTML = "⚠️ Veri yüklenemedi, varsayılan şablon devrede.";
+                }
+            }
+        }
+
+        // 3. Çekilen dinamik verileri eleme şablonuna işle
+        let champion = null;
+
+        knockoutStructure.forEach(round => {
+            round.matches.forEach(m => {
+                const realMatch = tumMaclar.find(x => x.id === m.id);
+                if (realMatch) {
+                    m.t1 = realMatch.ev || m.t1;
+                    m.t2 = realMatch.dep || m.t2;
+                    m.skor1 = realMatch.skorEv !== undefined && realMatch.skorEv !== null ? realMatch.skorEv : "-";
+                    m.skor2 = realMatch.skorDep !== undefined && realMatch.skorDep !== null ? realMatch.skorDep : "-";
+                    m.loc = realMatch.stat || m.loc;
+                    m.tarih = realMatch.tarih ? realMatch.tarih.split(' ')[0] + ' ' + realMatch.tarih.split(' ')[1] : '';
+                    m.kod1 = realMatch.kodEv && realMatch.kodEv !== 'un' ? realMatch.kodEv : bayrakKoduGetir(m.t1);
+                    m.kod2 = realMatch.kodDep && realMatch.kodDep !== 'un' ? realMatch.kodDep : bayrakKoduGetir(m.t2);
+
+                    // Final Maçı (104) için şampiyonu bul
+                    if (m.id === 104) {
+                        const win = kazananKim(m.skor1, m.skor2);
+                        if (win === 1) champion = m.t1;
+                        else if (win === 2) champion = m.t2;
+                    }
+                }
+            });
+        });
+
+        // 4. Güncel verilerle ekrana bas
+        renderBracket(knockoutStructure, champion);
+    }
+
+    // --- NAVBAR YÜKLEYİCİ ---
+    function navbarYukle() {
+        fetch('navbar.html')
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.text();
+            })
+            .then(html => {
+                const ph = document.getElementById('navbar-placeholder');
+                if (ph) {
+                    ph.innerHTML = html;
+                    const scripts = ph.querySelectorAll('script');
+                    scripts.forEach(s => {
+                        const newScript = document.createElement('script');
+                        newScript.text = s.text;
+                        document.body.appendChild(newScript);
+                    });
+                }
+            })
+            .catch(() => {
+                const ph = document.getElementById('navbar-placeholder');
+                if (ph) ph.innerHTML = `
+                    <header id="fifa-main-header">
+                        <nav class="fifa-navbar">
+                            <div class="fifa-logo"><a href="index.html">🏆 FIFA <span>2026</span></a></div>
+                            <ul class="fifa-nav-links">
+                                <li><a href="index.html">Ana Sayfa</a></li>
+                                <li><a href="fikstur.html">Fikstür</a></li>
+                                <li><a href="takimlar.html">Takımlar</a></li>
+                                <li><a href="eleme.html" class="active">Eleme Ağacı</a></li>
+                                <li><a href="takvim.html">Turnuva Takvimi</a></li>
+                                <li><a href="profil.html">Profilim</a></li>
+                            </ul>
+                        </nav>
+                    </header>`;
+            });
+    }
+
+    window.onload = () => {
+        navbarYukle();
+        // İlk şablonu çiz, hemen ardından dinamik skorları API'den besle
+        renderBracket(knockoutStructure);
+        dinamikVerileriCek();
+    };
 </script>
 </body>
 </html>

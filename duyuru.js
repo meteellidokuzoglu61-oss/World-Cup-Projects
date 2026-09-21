@@ -1,8 +1,14 @@
 const { Pool } = require('pg');
+require('dotenv').config();
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+    console.error('❌ DATABASE_URL .env dosyasında tanımlı değil! Lütfen .env dosyasını kontrol edin.');
+    process.exit(1);
+}
 
 const pool = new Pool({
-    // Kopyaladığın postgresql:// ile başlayan linki buraya yapıştır
-    connectionString: "postgresql://neondb_owner:npg_ev2h8nfCiQPx@ep-morning-voice-a2xh2zf5.eu-central-1.aws.neon.tech/neondb?sslmode=require",
+    connectionString: connectionString,
     ssl: {
         rejectUnauthorized: false
     }
