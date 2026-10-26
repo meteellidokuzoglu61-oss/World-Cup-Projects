@@ -256,7 +256,6 @@
 
     <div class="tabs" id="auth-tabs">
         <div class="tab active" onclick="switchTab('login')">Giriş Yap</div>
-        <div class="tab" onclick="switchTab('register')">Kayıt Ol</div>
     </div>
 
     <!-- Giriş Formu -->
@@ -280,26 +279,6 @@
         </button>
     </div>
 
-    <!-- Kayıt Formu -->
-    <div id="register-form" class="form-section">
-        <form onsubmit="event.preventDefault(); handleAuth('register');">
-            <div class="input-group">
-                <label for="r-username">Kullanıcı Adı Belirleyin</label>
-                <input type="text" id="r-username" placeholder="Örn: Ahmet" required autocomplete="username">
-            </div>
-            <div class="input-group">
-                <label for="r-password">Şifre</label>
-                <input type="password" id="r-password" placeholder="En az 6 karakter" required autocomplete="new-password">
-            </div>
-            <button type="submit" class="btn" id="register-btn">HESAP OLUŞTUR</button>
-        </form>
-    </div>
-
-    <!-- Çevrimdışı / API Çökmesi Halinde Otomatik Çıkan Kurtarma Kutusu -->
-    <div id="fallback-box" class="demo-box">
-        <p>ℹ️ API Sunucusuna ulaşılamadı. Turnuva merkezine kesintisiz erişmek için Demo Yönetici modunda devam edebilirsiniz.</p>
-        <button class="demo-btn" onclick="enterAsDemoAdmin()">⚡ Demo Yönetici (Mete) Olarak Gir</button>
-    </div>
 </div>
 
 <script>
@@ -326,7 +305,7 @@
     function showAlert(message, type = 'error') {
         const box = document.getElementById('alert-box');
         box.className = 'alert-' + type;
-        box.innerHTML = message;
+        box.textContent = message;
         box.style.display = 'block';
     }
 
@@ -357,26 +336,12 @@
         window.location.replace('index.html');
     }
 
-    // --- DEMO YÖNETİCİ GİRİŞİ (API KAPALIYKEN) ---
-    function enterAsDemoAdmin() {
-        localStorage.setItem('fifa_auth', 'basarili');
-        localStorage.setItem('fifa_user', 'Mete');
-        localStorage.setItem('fifa_user_data', JSON.stringify({
-            name: 'Mete',
-            username: 'Mete',
-            email: 'mete@fifa2026.org',
-            id: '1001',
-            role: 'Baş Yönetici'
-        }));
-        window.location.replace('index.html');
-    }
-
-    // --- GİRİŞ & KAYIT İŞLEMİ ---
+    // --- GİRİŞ İŞLEMİ ---
     async function handleAuth(type) {
         hideAlert();
-        const usernameField = type === 'login' ? 'l-username' : 'r-username';
-        const passwordField = type === 'login' ? 'l-password' : 'r-password';
-        const btnId = type === 'login' ? 'login-btn' : 'register-btn';
+        const usernameField = 'l-username';
+        const passwordField = 'l-password';
+        const btnId = 'login-btn';
         
         const username = document.getElementById(usernameField).value.trim();
         const password = document.getElementById(passwordField).value;
@@ -391,7 +356,7 @@
         btn.innerText = "İşleniyor...";
 
         const payload = { username, password };
-        const url = baseUrl + type;
+        const url = baseUrl + 'login';
 
         try {
             // 4 saniye timeout ile istek
@@ -409,43 +374,23 @@
             const data = await response.json();
 
             if (response.ok && data.success) {
-                if (type === 'login') {
-                    const adminName = data.yonetici || username;
-                    localStorage.setItem('fifa_auth', 'basarili');
-                    localStorage.setItem('fifa_user', adminName);
-                    localStorage.setItem('fifa_user_data', JSON.stringify({
-                        name: adminName,
-                        username: username,
-                        email: (username.toLowerCase() === 'mete' ? 'mete@fifa2026.org' : username.toLowerCase() + '@fifa2026.org'),
-                        id: '1001',
-                        role: 'Turnuva Yöneticisi'
-                    }));
-                    showAlert("Giriş başarılı, yönlendiriliyorsunuz...", "success");
-                    setTimeout(() => window.location.replace('index.html'), 500);
-                } else {
-                    showAlert("Kayıt başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.", "success");
-                    switchTab('login');
-                    document.getElementById('l-username').value = username;
-                    document.getElementById('l-password').focus();
-                }
-            } else {
-                showAlert(data.message || "İşlem gerçekleştirilemedi.", "error");
+                const adminName = data.yonetici || username;
+                localStorage.setItem('fifa_auth', 'basarili');
+                localStorage.setItem('fifa_user', adminName);
+                localStorage.setItem('fifa_user_data', JSON.stringify({
+                    name: adminName,
+                    username: username,
+                    role: 'Turnuva Yöneticisi'
+                }));
+                showAlert("Giriş başarılı, yönlendiriliyorsunuz...", "success");
+                setTimeout(() => window.location.replace('index.html'), 500);
             }
         } catch (err) {
-            console.warn("API Bağlantı hatası:", err);
-            
-            // Eğer varsayılan yönetici bilgileri girilmişse offline kurtarma sağla
-            if (type === 'login' && username.toLowerCase() === 'mete' && password === '123456') {
-                showAlert("Sunucu kapalı ancak varsayılan kimlik doğrulandı. Giriş yapılıyor...", "warning");
-                setTimeout(enterAsDemoAdmin, 1000);
-                return;
-            }
-
-            showAlert("⚠️ Sunucuya bağlanılamadı. Lütfen 'server.js' sunucusunun çalıştığından emin olun veya aşağıdaki butondan çevrimdışı devam edin.", "warning");
-            document.getElementById('fallback-box').style.display = 'block';
+            console.warn("API bağlantı hatası:", err);
+            showAlert("Sunucuya bağlanılamadı. Lütfen API sunucusunun çalıştığını kontrol edin.", "error");
         } finally {
             btn.disabled = false;
-            btn.innerText = type === 'login' ? 'GİRİŞ YAP' : 'HESAP OLUŞTUR';
+            btn.innerText = 'GİRİŞ YAP';
         }
     }
 </script>
