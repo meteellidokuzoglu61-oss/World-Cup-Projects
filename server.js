@@ -1,6 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -20,10 +21,12 @@ app.use(cors({
             'http://127.0.0.1:5501'
         ];
         // origin undefined = aynı origin (file:// veya doğrudan sunucu) → izin ver
+        // Origin başlığı olmayan istekler (ör. bazı sunucu-istemci çağrıları) CORS
+        // kontrolüne tabi değildir. Tarayıcı kaynaklı çapraz-origin istekleri sınırla.
         if (!origin || allowed.includes(origin)) {
             callback(null, true);
         } else {
-            callback(null, true); // Geçici olarak tüm origenlere izin (production'da kısıtlanmalı)
+            callback(new Error('CORS kaynağına izin verilmiyor.'));
         }
     }
 }));
@@ -52,10 +55,9 @@ try {
 
 // --- IN-MEMORY YEDEK VERİ DEPOSU (VERİTABANI KESİLSE BİLE SİTE ÇÖKMEZ) ---
 const mockDb = {
-    yoneticiler: [
-        { id: 1, kullanici_adi: 'Mete', sifre: '123456' },
-        { id: 2, kullanici_adi: 'Admin', sifre: 'admin123' }
-    ],
+    // Veritabanı erişilemiyorsa yönetici girişi kapalı kalır.
+    // Kaynak kodda varsayılan yönetici hesabı/parolası tutulmaz.
+    yoneticiler: [],
     yorumlar: [
         { id: 1, mac_id: 'Meksika-Güney-Afrika', kullanici_adi: 'Mete', yorum_metni: 'Turnuvanın açılış maçı nefes kesecek!', tarih: new Date().toISOString() },
         { id: 2, mac_id: 'Avustralya-Türkiye', kullanici_adi: 'Mete', yorum_metni: 'Bizim Çocuklar bu maçı alır!', tarih: new Date().toISOString() }
@@ -141,13 +143,6 @@ async function veritabaniniHazirla() {
             );
         `);
 
-        // Varsayılan yöneticiyi ekleme
-        const adminKontrol = await client.query('SELECT * FROM public.yoneticiler WHERE kullanici_adi = $1', ['Mete']);
-        if (adminKontrol.rows.length === 0) {
-            await client.query(`INSERT INTO public.yoneticiler (kullanici_adi, sifre) VALUES ('Mete', '123456');`);
-            console.log('ℹ️ Varsayılan yönetici hesabı (Mete) hazırlandı.');
-        }
-
         // Varsayılan duyuru ekleme
         const duyuruKontrol = await client.query('SELECT * FROM public.duyurular LIMIT 1');
         if (duyuruKontrol.rows.length === 0) {
@@ -191,7 +186,10 @@ app.post('/api/login', async (req, res) => {
             const result = await pool.query('SELECT * FROM public.yoneticiler WHERE LOWER(kullanici_adi) = LOWER($1)', [username]);
             if (result.rows.length > 0) {
                 const admin = result.rows[0];
-                if (admin.sifre === password) {
+                // Parolalar bcrypt özeti olarak saklanmalıdır. Eski düz metin
+                // kayıtlar bilerek kabul edilmez; kontrollü parola sıfırlaması gerekir.
+                const passwordMatches = await bcrypt.compare(password, admin.sifre || '');
+                if (passwordMatches) {
                     return res.json({ success: true, message: 'Giriş başarılı!', yonetici: admin.kullanici_adi });
                 }
             }
@@ -210,32 +208,13 @@ app.post('/api/login', async (req, res) => {
 });
 
 // 2. Kayıt
-app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Kullanıcı adı ve şifre zorunludur.' });
-    }
-
-    try {
-        if (isDbConnected && pool) {
-            const check = await pool.query('SELECT * FROM public.yoneticiler WHERE LOWER(kullanici_adi) = LOWER($1)', [username]);
-            if (check.rows.length > 0) {
-                return res.status(400).json({ success: false, message: 'Bu kullanıcı adı zaten alınmış.' });
-            }
-            await pool.query('INSERT INTO public.yoneticiler (kullanici_adi, sifre) VALUES ($1, $2)', [username, password]);
-            return res.json({ success: true, message: 'Kayıt başarıyla oluşturuldu.' });
-        }
-    } catch (err) {
-        console.warn('DB register hatası, in-memory yedeğe yazılıyor:', err.message);
-    }
-
-    // In-memory fallback
-    const exists = mockDb.yoneticiler.some(u => u.kullanici_adi.toLowerCase() === username.toLowerCase());
-    if (exists) {
-        return res.status(400).json({ success: false, message: 'Bu kullanıcı adı zaten alınmış.' });
-    }
-    mockDb.yoneticiler.push({ id: Date.now(), kullanici_adi: username, sifre: password });
-    return res.json({ success: true, message: 'Kayıt başarıyla oluşturuldu.' });
+// Bu tablo yönetici hesapları içindir. Herkese açık kayıt burada kapalı tutulur;
+// normal kullanıcı kaydı ayrı bir kullanıcı modeli ve rol sistemi gerektirir.
+app.post('/api/register', (_req, res) => {
+    return res.status(403).json({
+        success: false,
+        message: 'Herkese açık kayıt şu anda kapalıdır.'
+    });
 });
 
 // 3. Duyurular
