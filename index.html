@@ -386,12 +386,24 @@
 
         if (konteynir && duyurular.length > 0) {
             konteynir.style.display = "block";
-            liste.innerHTML = duyurular.map(d => `
-                <div class="duyuru-item ${d.tip || 'info'}">
-                    <span class="duyuru-baslik">📌 ${d.baslik}:</span>
-                    <span class="duyuru-icerik">${d.icerik}</span>
-                </div>
-            `).join('');
+            liste.replaceChildren();
+            const allowedTypes = new Set(['success', 'warning', 'danger', 'info']);
+            duyurular.forEach(d => {
+                const item = document.createElement('div');
+                const type = allowedTypes.has(d.tip) ? d.tip : 'info';
+                item.className = 'duyuru-item ' + type;
+
+                const title = document.createElement('span');
+                title.className = 'duyuru-baslik';
+                title.textContent = '📌 ' + String(d.baslik ?? 'Duyuru') + ':';
+
+                const content = document.createElement('span');
+                content.className = 'duyuru-icerik';
+                content.textContent = String(d.icerik ?? '');
+
+                item.append(title, content);
+                liste.appendChild(item);
+            });
         }
     }
 
